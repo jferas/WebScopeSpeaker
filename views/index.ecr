@@ -5,15 +5,16 @@
     <script src="https://code.jquery.com/jquery-1.11.3.js"></script>
     <script>
       $(document).ready(function() {
-        // TODO: code here to define the JS functionality we'll need to talk to the Periscope web and chat servers
+          $("#start_chat").click(function() {
+              var username = $('#user').val();
+              alert("User name is:" + username);
+          });
       });
     </script>
   </head>
   <body>
-    <form>
-      <input type="submit" value="Say the chat messages of">
+      <input id="start_chat" type="button" value="Say the chat messages of">
       <input id='user' placeholder='Periscope user name...' />
-    </form>
     <pre id='message'></pre>
   </body>
 </html>
