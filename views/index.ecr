@@ -4,13 +4,47 @@
     <title>ScopeSpeaker (web)</title>
     <script src="https://code.jquery.com/jquery-1.11.3.js"></script>
     <script>
-      $(document).ready(function() {
-          $("#start_chat").click(function() {
-              var username = $('#user').val();
-              alert("User name is:" + username);
-          });
-      });
-    </script>
+$(document).ready(function() {
+
+var username = "";
+
+alert("document is ready");
+
+$("#start_chat").click(function() {
+    username = $('#user').val();
+    //getPeriscopeUserData(username);
+    alert("User name is: " + username);
+});
+
+// method to request data about a video from Twitter
+//
+/*
+var getPeriscopeUserData = function(user)
+{
+    $.ajax({url: the_url, type: 'GET',
+            contentType: 'application/x-www-form-urlencoded', dataType: 'text',
+            success: onSuccessGetData, error: onAjaxError});
+};
+
+// AJAX error handler
+//
+var onAjaxError = function(err)
+{
+    $("#video_description").html("An error occured: " + err);
+};
+
+function encode_utf8( s ){
+        return unescape( encodeURIComponent( s ) );
+}
+// AJAX success handler - extract text description and image links from received HTML response
+//
+var onSuccessGetData = function(response, status_info)
+{
+}
+*/
+
+});
+</script>
   </head>
   <body>
       <input id="start_chat" type="button" value="Say the chat messages of">
