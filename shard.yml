@@ -5,6 +5,9 @@ dependencies:
   kemal:
     github: sdogruyol/kemal
     branch: master
+  crustache:
+    github: MakeNowJust/crustache
+    branch: master
 
 authors:
   - John Feras <jferas@ferasinfotech.com>
