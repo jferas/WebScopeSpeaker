@@ -10,7 +10,7 @@ get "/" do
 end
 
 # Serve the response to get live chat room info about a user
-get "/:user" do |env|
+get "/chatinfo/:user" do |env|
   user = env.params.url["user"]
   puts "we have a user of #{user}"
   response = HTTP::Client.get("https://www.periscope.tv/" + user)
