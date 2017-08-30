@@ -1,22 +1,27 @@
+
+// ScopeSpeaker web client
+
 $(document).ready(function() {
 
 var username = "";
 
+// button function to get user name from text field and query server for Periscope chat token
+
 $("#start_chat").click(function() {
     username = $('#user').val();
-    getPeriscopeUserData(username);
+    getPeriscopeChatData(username);
     //alert("User name is: " + username);
 });
 
 // method to request data about a Periscope user
 //
-var getPeriscopeUserData = function(user)
+var getPeriscopeChatData = function(user)
 {
     console.log("host url is:" + window.location.href);
 
     $.ajax({url: window.location.href + "chatinfo/" + user, type: 'GET',
             contentType: 'application/x-www-form-urlencoded', dataType: 'text',
-            success: onSuccessGetUserData, error: onAjaxError});
+            success: onSuccessGetChatData, error: onAjaxError});
 };
 
 // AJAX error handler
@@ -29,9 +34,9 @@ var onAjaxError = function(err)
 function encode_utf8( s ){
         return unescape( encodeURIComponent( s ) );
 }
-// AJAX success handler - extract Periscope user info from received HTML response
+// AJAX success handler - received Periscope chat token from server
 //
-var onSuccessGetUserData = function(response, status_info)
+var onSuccessGetChatData = function(response, status_info)
 {
     alert("Server response:" + response);
 }
