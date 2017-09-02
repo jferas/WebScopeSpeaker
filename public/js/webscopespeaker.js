@@ -9,6 +9,7 @@ var username = "";
 
 $("#start_chat").click(function() {
     username = $('#user').val();
+    responsiveVoice.speak("gonna try for " + username);
     getPeriscopeChatData(username);
     //alert("User name is: " + username);
 });
