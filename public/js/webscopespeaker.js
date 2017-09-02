@@ -38,7 +38,9 @@ function encode_utf8( s ){
 //
 var onSuccessGetChatData = function(response, status_info)
 {
-    alert("Server response:" + response);
+    //alert("Server response:" + response);
+    $("#message").html(response);
+    responsiveVoice.speak("Got a response from the periscope server");
 }
 
 
