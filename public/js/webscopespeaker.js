@@ -5,12 +5,28 @@ $(document).ready(function() {
 
 var username = "";
 
+log_msg = function(msg) {
+    var s = $("#message").html();
+    s = s + "<br>" + msg;
+    $("#message").html(s);
+}
+
+start_callback = function() {
+    log_msg("Started talking");
+}
+
+stop_callback = function() {
+    log_msg("Stopped talking");
+}
+
 // button function to get user name from text field and query server for Periscope chat token
 
 $("#start_chat").click(function() {
     username = $('#user').val();
-    responsiveVoice.speak("gonna try for " + username);
-    getPeriscopeChatData(username);
+    for (var i = 0; i < 100; i++) {
+    responsiveVoice.speak("trying " + username, "UK English Male");// , {onstart: start_callback, onend: stop_callback});
+    }
+    //getPeriscopeChatData(username);
     //alert("User name is: " + username);
 });
 
@@ -29,7 +45,7 @@ var getPeriscopeChatData = function(user)
 //
 var onAjaxError = function(err)
 {
-    $("#message").html("An error occured: " + err);
+    log_msg("An error occured: " + err);
 };
 
 function encode_utf8( s ){
@@ -40,8 +56,8 @@ function encode_utf8( s ){
 var onSuccessGetChatData = function(response, status_info)
 {
     //alert("Server response:" + response);
-    $("#message").html(response);
-    responsiveVoice.speak("Got a response from the periscope server");
+    log_msg(response);
+    responsiveVoice.speak("Got a response from the periscope server", "UK English Male", {onstart: start_callback, onend: stop_callback});
 }
 
 
