@@ -22,6 +22,7 @@ start_callback = function() {
 // callback method when speech ends - say next message if present
 //
 stop_callback = function() {
+    log_msg("speech ended");
     if (queue.length > 0) {
         schedule_say_next();
     }
@@ -67,21 +68,12 @@ var onSuccessGetChatData = function(response, status_info) {
     var response_array = JSON.parse(response);
     if (response_array[0] == "error") {
         queue_message_to_say("An error occurred, the problem is: " + response_array[1]);
+        queue_message_to_say("Chat messages will not begin");
     }
     else {
         log_msg("URL is: " + response_array[0]);
         log_msg("Chat Access Token is: " + response_array[1]);
         queue_message_to_say("Got a good response from the periscope server about " + username);
-        queue_message_to_say("Chat messages will now begin");
-        queue_message_to_say("Chat messages will now begin");
-        queue_message_to_say("Chat messages will now begin");
-        queue_message_to_say("Chat messages will now begin");
-        queue_message_to_say("Chat messages will now begin");
-        queue_message_to_say("Chat messages will now begin");
-        queue_message_to_say("Chat messages will now begin");
-        queue_message_to_say("Chat messages will now begin");
-        queue_message_to_say("Chat messages will now begin");
-        queue_message_to_say("Chat messages will now begin");
         queue_message_to_say("Chat messages will now begin");
     }
 }
