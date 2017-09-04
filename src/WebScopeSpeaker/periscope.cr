@@ -90,8 +90,6 @@ end
 
 # method to perform all the necessary periscope queries to get the live chat info of user's broadcast
 #
-# TODO: chat_end_point_info should be an object containing endpoint url and access token
-#
 def get_chat_endpoint_info(user)
     s = get_periscope_data("http://www.google.com")
     user_data_response = get_periscope_data(PERISCOPE_URL + user)
