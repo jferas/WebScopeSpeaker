@@ -23,9 +23,15 @@ start_callback = function() {
 //
 stop_callback = function() {
     if (queue.length > 0) {
-        say_next();
+        schedule_say_next();
     }
-}
+};
+
+// method to set up a scheduled call to say_next
+//
+schedule_say_next = function() {
+    setTimeout(say_next, 1000);
+};
 
 // button function to get user name from text field and query server for Periscope chat token
 
