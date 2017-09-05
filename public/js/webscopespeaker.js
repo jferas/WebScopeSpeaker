@@ -24,14 +24,14 @@ start_callback = function() {
 stop_callback = function() {
     log_msg("speech ended");
     if (queue.length > 0) {
-        schedule_say_next();
+        schedule_say_next(1000);
     }
 };
 
-// method to set up a scheduled call to say_next
+// method to set up a scheduled call to say_next within a given number of milliseconds
 //
-schedule_say_next = function() {
-    setTimeout(say_next, 1000);
+schedule_say_next = function(t) {
+    setTimeout(say_next, t);
 };
 
 // button function to get user name from text field and query server for Periscope chat token
@@ -90,7 +90,12 @@ var queue_message_to_say = function(m) {
 // method to de-queue and say the next message in the queue
 //
 var say_next = function() {
-    if ( (queue.length > 0) && (!responsiveVoice.isPlaying() ) ) {
+    if (responsiveVoice.isPlaying()) {
+        log_msg("Delaying next while speech in progress...");
+        schedule_say_next(500);
+    }
+
+    if (queue.length > 0) {
         var m = queue.shift();
         log_msg(m);
         responsiveVoice.speak(m, "UK English Male", {onstart: start_callback, onend: stop_callback});
