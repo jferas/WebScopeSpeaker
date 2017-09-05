@@ -22,9 +22,10 @@ start_callback = function() {
 // callback method when speech ends - say next message if present
 //
 stop_callback = function() {
-    log_msg("speech ended");
+    log_msg("speech ended, queue length: " + queue.length);
     if (queue.length > 0) {
-        schedule_say_next(1000);
+        log_msg("starting next queued message");
+        schedule_say_next(10000);
     }
 };
 
@@ -82,7 +83,9 @@ var onSuccessGetChatData = function(response, status_info) {
 //
 var queue_message_to_say = function(m) {
     queue.push(m);
+    log_msg("message queued, length: " + queue.length);
     if (!responsiveVoice.isPlaying()) {
+        log_msg("Voice is not active, saying next queued message");
         say_next();
     }
 };
