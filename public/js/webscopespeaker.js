@@ -5,6 +5,7 @@ $(document).ready(function() {
 
 var username = "";
 var queue = [];
+var speech_in_progress = false;
 
 // method to log message to message display object on screen
 //
@@ -23,9 +24,10 @@ start_callback = function() {
 //
 stop_callback = function() {
     log_msg("speech ended, queue length: " + queue.length);
+    speech_in_progress = false;
     if (queue.length > 0) {
         log_msg("starting next queued message");
-        schedule_say_next(10000);
+        schedule_say_next(50);
     }
 };
 
@@ -84,7 +86,7 @@ var onSuccessGetChatData = function(response, status_info) {
 var queue_message_to_say = function(m) {
     queue.push(m);
     log_msg("message queued, length: " + queue.length);
-    if (!responsiveVoice.isPlaying()) {
+    if (!speech_in_progress) {
         log_msg("Voice is not active, saying next queued message");
         say_next();
     }
@@ -93,12 +95,13 @@ var queue_message_to_say = function(m) {
 // method to de-queue and say the next message in the queue
 //
 var say_next = function() {
-    if (responsiveVoice.isPlaying()) {
+    if (speech_in_progress) {
         log_msg("Delaying next while speech in progress...");
         schedule_say_next(500);
     }
 
     if (queue.length > 0) {
+        speech_in_progress = true;
         var m = queue.shift();
         log_msg(m);
         responsiveVoice.speak(m, "UK English Male", {onstart: start_callback, onend: stop_callback});
