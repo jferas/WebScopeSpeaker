@@ -6,6 +6,7 @@ $(document).ready(function() {
 var username = "";
 var queue = [];
 var speech_in_progress = false;
+var websocket;
 
 // method to log message to message display object on screen
 //
@@ -74,12 +75,27 @@ var onSuccessGetChatData = function(response, status_info) {
         queue_message_to_say("Chat messages will not begin");
     }
     else {
-        log_msg("URL is: " + response_array[0]);
-        log_msg("Chat Access Token is: " + response_array[1]);
+        var chat_endpoint_url = response_array[0];
+        var chat_access_token = response_array[1];
+        log_msg("URL is: " + chat_endpoint_url);
+        log_msg("Chat Access Token is: " + chat_access_token);
         queue_message_to_say("Got a good response from the periscope server about " + username);
         queue_message_to_say("Chat messages will now begin");
+        //open_chat_websocket(chat_endpoint_url, chat_access_token);
     }
 }
+
+/*
+// method to open a chat websocket with the periscope chat server, given URL and access token
+//
+var open_chat_websocket = function(url, token) {
+    websocket = new WebSocket(url);
+    websocket.onopen = function(evt) { onOpen(evt) };
+    websocket.onclose = function(evt) { onClose(evt) };
+    websocket.onmessage = function(evt) { onMessage(evt) };
+    websocket.onerror = function(evt) { onError(evt) };
+}
+*/
 
 // method to queue a message to be said
 //
@@ -103,11 +119,13 @@ var say_next = function() {
     if (queue.length > 0) {
         speech_in_progress = true;
         var m = queue.shift();
+        $("#chat").html(m);
         log_msg(m);
         responsiveVoice.speak(m, "UK English Male", {onstart: start_callback, onend: stop_callback});
     }
 };
 
+log_msg("<u>Scopespeaker run log:</u><br>");
 });
 
 

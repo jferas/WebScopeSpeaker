@@ -85,7 +85,13 @@ end
 
 def extract_chat_endpoint_info(response_data)
     e = ChatAccessResponse.from_json(response_data)
-    return {e.endpoint + CHAT_SUFFIX, e.access_token}
+    https_location = e.endpoint.index("https")
+    if https_location
+        the_endpoint = e.endpoint.gsub("https", "wss")
+    else
+        the_endpoint = e.endpoint.gsub("https", "ws")
+    end
+    return {the_endpoint + CHAT_SUFFIX, e.access_token}
 end
 
 # method to perform all the necessary periscope queries to get the live chat info of user's broadcast
