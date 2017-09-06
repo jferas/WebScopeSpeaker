@@ -7,6 +7,8 @@ var username = "";
 var queue = [];
 var speech_in_progress = false;
 var websocket;
+var chat_endpoint_url;
+var chat_access_token;
 
 // method to log message to message display object on screen
 //
@@ -75,17 +77,16 @@ var onSuccessGetChatData = function(response, status_info) {
         queue_message_to_say("Chat messages will not begin");
     }
     else {
-        var chat_endpoint_url = response_array[0];
-        var chat_access_token = response_array[1];
+        chat_endpoint_url = response_array[0];
+        chat_access_token = response_array[1];
         log_msg("URL is: " + chat_endpoint_url);
         log_msg("Chat Access Token is: " + chat_access_token);
         queue_message_to_say("Got a good response from the periscope server about " + username);
         queue_message_to_say("Chat messages will now begin");
-        //open_chat_websocket(chat_endpoint_url, chat_access_token);
+        open_chat_websocket(chat_endpoint_url);
     }
 }
 
-/*
 // method to open a chat websocket with the periscope chat server, given URL and access token
 //
 var open_chat_websocket = function(url, token) {
@@ -95,7 +96,44 @@ var open_chat_websocket = function(url, token) {
     websocket.onmessage = function(evt) { onMessage(evt) };
     websocket.onerror = function(evt) { onError(evt) };
 }
-*/
+
+// method invoked when chat websocket is opened, sends handshake of join message and auth message
+//
+var onOpen = function(evt) {
+    log_msg("CONNECTED");
+    join_message = "{\"kind\":2,\"payload\":\"{\\\"kind\\\":1,\\\"body\\\":\\\"{\\\\\\\"room\\\\\\\":\\\\\\\"replace_this\\\\\\\"}\\\"}\"}";
+    auth_message = "{\"kind\":3,\"payload\":\"{\\\"access_token\\\":\\\"replace_this\\\"}\"}";
+    joinJsonMessage = joinJsonMessage.gsub("replace_this", broadcastID);
+    authJsonMessage = authJsonMessage.gsub("replace_this", chatAccessToken);
+    doSend(join_message);
+    doSend(auth_message);
+}
+
+// method invoked when chat websocket is closed
+//
+var onClose = function(evt) {
+    log_msg("DISCONNECTED");
+}
+
+// method invoked when chat websocket receives a message, parse message and say it
+//
+var onMessage = function(evt) {
+    log_msg("Message: " + evt.data);
+}
+
+// method invoked when chat websocket has an error
+//
+var onError = function(evt) {
+    log_msg("Error:" + evt.data);
+}
+
+// method to send a message on the websocket to the Periscope chat server
+//
+var doSend = function(message) {
+    log_msg("SENT: " + message);
+    websocket.send(message);
+}
+
 
 // method to queue a message to be said
 //
