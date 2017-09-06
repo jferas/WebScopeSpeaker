@@ -9,6 +9,7 @@ var speech_in_progress = false;
 var websocket;
 var chat_endpoint_url;
 var chat_access_token;
+var broadcast_id;
 
 // method to log message to message display object on screen
 //
@@ -79,6 +80,7 @@ var onSuccessGetChatData = function(response, status_info) {
     else {
         chat_endpoint_url = response_array[0];
         chat_access_token = response_array[1];
+        broadcast_id = response_array[2];
         log_msg("URL is: " + chat_endpoint_url);
         log_msg("Chat Access Token is: " + chat_access_token);
         queue_message_to_say("Got a good response from the periscope server about " + username);
@@ -103,8 +105,8 @@ var onOpen = function(evt) {
     log_msg("CONNECTED");
     join_message = "{\"kind\":2,\"payload\":\"{\\\"kind\\\":1,\\\"body\\\":\\\"{\\\\\\\"room\\\\\\\":\\\\\\\"replace_this\\\\\\\"}\\\"}\"}";
     auth_message = "{\"kind\":3,\"payload\":\"{\\\"access_token\\\":\\\"replace_this\\\"}\"}";
-    joinJsonMessage = joinJsonMessage.gsub("replace_this", broadcastID);
-    authJsonMessage = authJsonMessage.gsub("replace_this", chatAccessToken);
+    joinJsonMessage = joinJsonMessage.gsub("replace_this", broadcast_id);
+    authJsonMessage = authJsonMessage.gsub("replace_this", chat_access_token);
     doSend(join_message);
     doSend(auth_message);
 }

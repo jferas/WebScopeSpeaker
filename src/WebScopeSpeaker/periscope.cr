@@ -114,6 +114,6 @@ def get_chat_endpoint_info(user)
     chat_endpoint_url_data_response = get_periscope_data(PERISCOPE_CHAT_ACCESS_URL + chat_url_access_token)
     return {"error", "Querying server for endpoint URL and token"} if chat_endpoint_url_data_response.size <= 0
     chat_endpoint_info = extract_chat_endpoint_info(chat_endpoint_url_data_response)
-    return chat_endpoint_info
+    return {chat_endpoint_info[0], chat_endpoint_info[1], broadcast_id}
 end
 
