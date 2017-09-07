@@ -27,10 +27,8 @@ start_callback = function() {
 // callback method when speech ends - say next message if present
 //
 stop_callback = function() {
-    log_msg("speech ended, queue length: " + queue.length);
     speech_in_progress = false;
     if (queue.length > 0) {
-        log_msg("starting next queued message");
         schedule_say_next(50);
     }
 };
@@ -71,7 +69,6 @@ var onAjaxError = function(err) {
 //
 var onSuccessGetChatData = function(response, status_info) {
     //alert("Server response:" + response);
-    log_msg(response);
     var response_array = JSON.parse(response);
     if (response_array[0] == "error") {
         queue_message_to_say("An error occurred, the problem is: " + response_array[1]);
@@ -81,7 +78,7 @@ var onSuccessGetChatData = function(response, status_info) {
         chat_endpoint_url = response_array[0];
         chat_access_token = response_array[1];
         broadcast_id = response_array[2];
-        log_msg("URL is: " + chat_endpoint_url);
+        log_msg("Chat server URL   is: " + chat_endpoint_url);
         log_msg("Chat Access Token is: " + chat_access_token);
         queue_message_to_say("Got a good response from the periscope server about " + username);
         queue_message_to_say("Chat messages will now begin");
@@ -102,25 +99,58 @@ var open_chat_websocket = function(url, token) {
 // method invoked when chat websocket is opened, sends handshake of join message and auth message
 //
 var onOpen = function(evt) {
-    log_msg("CONNECTED");
+    log_msg("<br>Secure web-socket connected to Periscope chat server at URL given above");
+    log_msg(" .. sending handshake auth and join messages<br>");
     join_message = "{\"kind\":2,\"payload\":\"{\\\"kind\\\":1,\\\"body\\\":\\\"{\\\\\\\"room\\\\\\\":\\\\\\\"replace_this\\\\\\\"}\\\"}\"}";
     auth_message = "{\"kind\":3,\"payload\":\"{\\\"access_token\\\":\\\"replace_this\\\"}\"}";
-    joinJsonMessage = joinJsonMessage.gsub("replace_this", broadcast_id);
-    authJsonMessage = authJsonMessage.gsub("replace_this", chat_access_token);
-    doSend(join_message);
+    join_message = join_message.replace("replace_this", broadcast_id);
+    auth_message = auth_message.replace("replace_this", chat_access_token);
     doSend(auth_message);
+    doSend(join_message);
 }
 
 // method invoked when chat websocket is closed
 //
 var onClose = function(evt) {
-    log_msg("DISCONNECTED");
+    log_msg("Web-socket disconnected");
 }
 
 // method invoked when chat websocket receives a message, parse message and say it
 //
 var onMessage = function(evt) {
-    log_msg("Message: " + evt.data);
+    try {
+        chat_message = JSON.parse(evt.data);
+        kind = chat_message.kind;
+        payload_string = chat_message.payload;
+        payload = JSON.parse(payload_string);
+        if (kind == 1) {
+            try {
+                body_string = payload.body;
+                outer_body = JSON.parse(body_string);
+                if (outer_body.body == null) {
+                    return;
+                }
+                what_they_said = outer_body.body;
+                sender = payload.sender;
+                if (sender.display_name == null) {
+                    return;
+                }
+                display_name = sender.display_name;
+                msg_to_say = display_name + " said: " + what_they_said;
+                queue_message_to_say(msg_to_say);
+            }
+            catch(err) {
+                log_msg("Inner Payload parse error: " + err);
+                log_msg("Message: " + evt.data);
+                websocket.close();
+            }
+        }
+    }
+    catch(err) {
+        log_msg("Payload parse error: " + err);
+        log_msg("Message: " + evt.data);
+        websocket.close();
+    }
 }
 
 // method invoked when chat websocket has an error
@@ -141,9 +171,7 @@ var doSend = function(message) {
 //
 var queue_message_to_say = function(m) {
     queue.push(m);
-    log_msg("message queued, length: " + queue.length);
     if (!speech_in_progress) {
-        log_msg("Voice is not active, saying next queued message");
         say_next();
     }
 };
@@ -152,7 +180,6 @@ var queue_message_to_say = function(m) {
 //
 var say_next = function() {
     if (speech_in_progress) {
-        log_msg("Delaying next while speech in progress...");
         schedule_say_next(500);
     }
 
@@ -160,12 +187,11 @@ var say_next = function() {
         speech_in_progress = true;
         var m = queue.shift();
         $("#chat").html(m);
-        log_msg(m);
         responsiveVoice.speak(m, "UK English Male", {onstart: start_callback, onend: stop_callback});
     }
 };
 
-log_msg("<u>Scopespeaker run log:</u><br>");
+log_msg("<u>Scopespeaker debug/run log:</u><br>");
 });
 
 
