@@ -75,21 +75,17 @@ var onSuccessGetChatData = function(response, status_info) {
         queue_message_to_say("Chat messages will not begin");
     }
     else {
-        chat_endpoint_url = response_array[0];
-        chat_access_token = response_array[1];
-        broadcast_id = response_array[2];
-        log_msg("Chat server URL   is: " + chat_endpoint_url);
-        log_msg("Chat Access Token is: " + chat_access_token);
+        broadcast_id = response_array[1];
         queue_message_to_say("Got a good response from the periscope server about " + username);
         queue_message_to_say("Chat messages will now begin");
-        open_chat_websocket(chat_endpoint_url);
+        open_chat_websocket();
     }
 }
 
 // method to open a chat websocket with the periscope chat server, given URL and access token
 //
-var open_chat_websocket = function(url, token) {
-    websocket = new WebSocket(url);
+var open_chat_websocket = function() {
+    websocket = new WebSocket("https://webscopespeaker.herokuapp.com/chat");
     websocket.onopen = function(evt) { onOpen(evt) };
     websocket.onclose = function(evt) { onClose(evt) };
     websocket.onmessage = function(evt) { onMessage(evt) };
@@ -99,13 +95,8 @@ var open_chat_websocket = function(url, token) {
 // method invoked when chat websocket is opened, sends handshake of join message and auth message
 //
 var onOpen = function(evt) {
-    log_msg("<br>Secure web-socket connected to Periscope chat server at URL given above");
-    log_msg(" .. sending handshake auth and join messages<br>");
-    join_message = "{\"kind\":2,\"payload\":\"{\\\"kind\\\":1,\\\"body\\\":\\\"{\\\\\\\"room\\\\\\\":\\\\\\\"replace_this\\\\\\\"}\\\"}\"}";
-    auth_message = "{\"kind\":3,\"payload\":\"{\\\"access_token\\\":\\\"replace_this\\\"}\"}";
-    join_message = join_message.replace("replace_this", broadcast_id);
-    auth_message = auth_message.replace("replace_this", chat_access_token);
-    doSend(auth_message);
+    log_msg("<br>Secure web-socket connected to ScopeSpeaker proxy server");
+    join_message = "{\"room\":, \" + broadcast_id + \"}";
     doSend(join_message);
 }
 

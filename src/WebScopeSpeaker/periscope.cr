@@ -91,12 +91,16 @@ def extract_chat_endpoint_info(response_data)
     else
         the_endpoint = e.endpoint.gsub("https", "ws")
     end
+
+    puts "Chat endpoint: " + the_endpoint
+    puts "Access token: " + e.access_token
+
     return {the_endpoint + CHAT_SUFFIX, e.access_token}
 end
 
 # method to perform all the necessary periscope queries to get the live chat info of user's broadcast
 #
-def get_chat_endpoint_info(user)
+def get_periscope_chat_connection(user)
     s = get_periscope_data("http://www.google.com")
     user_data_response = get_periscope_data(PERISCOPE_URL + user)
     return {"error", "Querying server for user data"} if user_data_response.size <= 0
@@ -113,7 +117,20 @@ def get_chat_endpoint_info(user)
 
     chat_endpoint_url_data_response = get_periscope_data(PERISCOPE_CHAT_ACCESS_URL + chat_url_access_token)
     return {"error", "Querying server for endpoint URL and token"} if chat_endpoint_url_data_response.size <= 0
+
     chat_endpoint_info = extract_chat_endpoint_info(chat_endpoint_url_data_response)
-    return {chat_endpoint_info[0], chat_endpoint_info[1], broadcast_id}
+    socket = connect_to_chat_server(chat_endpoint_info)
+    return {"error", "Unable to connect to chat server"} if !socket
+
+    puts "Secure web-socket connected to Periscope chat server at URL given above"
+    puts " .. sending handshake auth and join messages"
+    join_message = "{\"kind\":2,\"payload\":\"{\\\"kind\\\":1,\\\"body\\\":\\\"{\\\\\\\"room\\\\\\\":\\\\\\\"replace_this\\\\\\\"}\\\"}\"}";
+    auth_message = "{\"kind\":3,\"payload\":\"{\\\"access_token\\\":\\\"replace_this\\\"}\"}";
+    join_message = join_message.replace("replace_this", broadcast_id);
+    auth_message = auth_message.replace("replace_this", chat_access_token);
+    doSend(auth_message);
+    doSend(join_message);
+}
+    return {"success", broadcast_id}
 end
 

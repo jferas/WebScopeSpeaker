@@ -14,7 +14,7 @@ module Webscopespeaker
     #
     get "/chatinfo/:user" do |env|
         user = env.params.url["user"]
-        get_chat_endpoint_info(user).to_json
+        get_periscope_chat_connection(user).to_json
     end
 
     Kemal.run
