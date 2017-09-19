@@ -22,6 +22,7 @@ JSON_TAG_CHAT_ACCESS_TOKEN = "access_://assets.pscp.tv/univ/main-d863b608e0cdff3
 JSON_TAG_ENDPOINT_URL = "endpoint";
 
 VIDEO_TAG = "https://www.pscp.tv/w/"
+BROADCAST_ID_TAG = ",\"id\":\""
 
 CHAT_SUFFIX = "/chatapi/v1/chatnow"
 
@@ -29,6 +30,7 @@ CHAT_SUFFIX = "/chatapi/v1/chatnow"
 
 class BroadcastResponse
     JSON.mapping({
+        id: String,
         state: String,
         broadcast_source: String,
         username: String
@@ -68,20 +70,22 @@ def extract_broadcast_id(response_data)
 
     start_of_id = start_of_video_tag + VIDEO_TAG.size
     end_of_id = response_data.index("&", start_of_video_tag)
-    return nil !if end_of_id
+    return nil if !end_of_id
 
     id_string = response_data[start_of_id, end_of_id - start_of_id]
     return id_string
 end
 
-def extract_user_id(response_data)
-    actual_user_tag = USER_TAG.gsub("replace_this", userName)
+def extract_user_id(user, response_data)
+    actual_user_tag = USER_TAG.gsub("replace_this", user)
     start_of_user_tag = response_data.index(actual_user_tag);
     return nil if !start_of_user_tag
 
     start_of_id = start_of_user_tag + actual_user_tag.size
+    return nil if !start_of_id
     end_of_id = response_data.index('&', start_of_id)
-    idString = response_data[start_of_id, end_of_id - start_of_id]
+    return nil if !end_of_id
+    id_string = response_data[start_of_id, end_of_id - start_of_id]
     return id_string
 end
 
@@ -90,11 +94,25 @@ def extract_session_id(response_data)
     return nil if !start_of_session_tag
 
     start_of_id = start_of_session_tag + SESSION_TAG.size
+    return nil if !start_of_id
     end_of_id = response_data.index('&', start_of_id)
-    idString = response_data[start_of_id, end_of_id - start_of_id]
+    return nil if !end_of_id
+    id_string = response_data[start_of_id, end_of_id - start_of_id]
     return id_string
 end
 
+def extract_most_recent_broadcast_id(response_data)
+    start_of_id_tag = response_data.index(BROADCAST_ID_TAG)
+    return nil if !start_of_id_tag
+
+    start_of_id = start_of_id_tag + BROADCAST_ID_TAG.size
+    return nil if !start_of_id
+    end_of_id = response_data.index("\"", start_of_id)
+    return nil if !end_of_id
+
+    id_string = response_data[start_of_id, end_of_id - start_of_id]
+    return id_string
+end
 
 def extract_chat_url_access_token(response_data)
     bd = BroadcastDataResponse.from_json(response_data)
@@ -121,62 +139,97 @@ def extract_chat_endpoint_info(response_data)
     return {the_endpoint + CHAT_SUFFIX, e.access_token}
 end
 
-# method to perform all the necessary periscope queries to get the live chat info of user's broadcast
-#
-def get_periscope_chat_connection(user)
-    user_data_response = get_periscope_data(PERISCOPE_URL + user)
-    return {"error", "Querying server for user data"} if user_data_response.size <= 0
-    puts "User data response: " + user_data_response
-    broadcast_id = extract_broadcast_id(user_data_response)
-    if !broadcast_id
-        puts "New style periscope HTML response"
-        user_id = extract_user_id(user_data_response)
-        return {"error", "Extracting User ID"} if !user_id
-        session_id = extract_session_id(user_data_response)
-        return {"error", "Extracting Session ID"} if !session_id
+def connect_to_chat_server(chat_endpoint_info, broadcast_id)
+    socket = HTTP::WebSocket.new(chat_endpoint_info[0])
+    return nil if !socket
+    puts "Secure web-socket connected to Periscope chat server at URL given above"
+    puts " .. sending handshake auth and join messages"
+    join_message = "{\"kind\":2,\"payload\":\"{\\\"kind\\\":1,\\\"body\\\":\\\"{\\\\\\\"room\\\\\\\":\\\\\\\"replace_this\\\\\\\"}\\\"}\"}"
+    auth_message = "{\"kind\":3,\"payload\":\"{\\\"access_token\\\":\\\"replace_this\\\"}\"}"
+    join_message = join_message.gsub("replace_this", broadcast_id)
+    auth_message = auth_message.gsub("replace_this", chat_endpoint_info[1])
+    socket.send(auth_message)
+    socket.send(join_message)
+    puts "sent the auth and join messages"
+    return socket
+end
 
-        s1 = PERISCOPE_USER_BROADCAST_LIST_URL.gsub("replace_with_user_id", user_id);
-        user_broadcast_list_url = s1.gsub("replace_with_session_id", session_id);
-        
-        list_data_response = get_periscope_data(user_broadcast_list_url)
-        return {"error", "Error receiving broadcast list response"} if list_data_response.size <= 0
-        
-    else
-        puts "Old style periscope HTML response"
+def socket_runner(the_socket)
+    the_socket.run
+end
+
+class PeriscopeLiveChat
+
+    def initialize
     end
 
-    return {"error", "Extracting broadcast ID"} if !broadcast_id
-
-    puts "Got a broadcast ID of #{broadcast_id}"
-
-    broadcast_data_response = get_periscope_data(PERISCOPE_BROADCAST_INFO_URL + broadcast_id)
-    return {"error", "Querying server for broadcast data"} if (broadcast_data_response.size <= 0)
-    chat_url_access_token = extract_chat_url_access_token(broadcast_data_response)
-    return {"error", "Extracting chat URL access token"} if !chat_url_access_token
-
-    return {"error", "Broadcast is not live"} if chat_url_access_token == "REPLAY"
-
-    chat_endpoint_url_data_response = get_periscope_data(PERISCOPE_CHAT_ACCESS_URL + chat_url_access_token)
-    return {"error", "Querying server for endpoint URL and token"} if chat_endpoint_url_data_response.size <= 0
-
-    chat_endpoint_info = extract_chat_endpoint_info(chat_endpoint_url_data_response)
-
-    # commented out for now
-
-    #socket = connect_to_chat_server(chat_endpoint_info)
-    #return {"error", "Unable to connect to chat server"} if !socket
-
-    #puts "Secure web-socket connected to Periscope chat server at URL given above"
-    #puts " .. sending handshake auth and join messages"
-    #join_message = "{\"kind\":2,\"payload\":\"{\\\"kind\\\":1,\\\"body\\\":\\\"{\\\\\\\"room\\\\\\\":\\\\\\\"replace_this\\\\\\\"}\\\"}\"}";
-    #auth_message = "{\"kind\":3,\"payload\":\"{\\\"access_token\\\":\\\"replace_this\\\"}\"}";
-    #join_message = join_message.replace("replace_this", broadcast_id);
-    #auth_message = auth_message.replace("replace_this", chat_access_token);
-    #doSend(auth_message);
-    #doSend(join_message);
+    # method to perform all the necessary periscope queries to get the live chat info of user's broadcast
+    #
+    def get_periscope_chat_connection(user)
+        user_data_response = get_periscope_data(PERISCOPE_URL + user)
+        return {"error", "Querying server for user data"} if user_data_response.size <= 0
+        broadcast_id = extract_broadcast_id(user_data_response)
+        if !broadcast_id
+            puts "New style periscope HTML response"
+            user_id = extract_user_id(user, user_data_response)
+            return {"error", "Extracting User ID"} if !user_id
+            session_id = extract_session_id(user_data_response)
+            return {"error", "Extracting Session ID"} if !session_id
     
-    #end of commented out code */
+            s1 = PERISCOPE_USER_BROADCAST_LIST_URL.gsub("replace_with_user_id", user_id);
+            user_broadcast_list_url = s1.gsub("replace_with_session_id", session_id);
+            
+            list_data_response = get_periscope_data(user_broadcast_list_url)
+            return {"error", "Error receiving broadcast list response"} if list_data_response.size <= 0
+            broadcast_id = extract_most_recent_broadcast_id(list_data_response)
+            #puts "List data response:"
+            #puts list_data_response
+        else
+            puts "Old style periscope HTML response"
+        end
 
-    return {"success", broadcast_id}
+        return {"error", "Extracting broadcast ID"} if !broadcast_id
+    
+        puts "Got a broadcast ID of #{broadcast_id}"
+    
+        broadcast_data_response = get_periscope_data(PERISCOPE_BROADCAST_INFO_URL + broadcast_id)
+        return {"error", "Querying server for broadcast data"} if (broadcast_data_response.size <= 0)
+        chat_url_access_token = extract_chat_url_access_token(broadcast_data_response)
+        return {"error", "Extracting chat URL access token"} if !chat_url_access_token
+
+        return {"error", "Broadcast is not live"} if chat_url_access_token == "REPLAY"
+
+        chat_endpoint_url_data_response = get_periscope_data(PERISCOPE_CHAT_ACCESS_URL + chat_url_access_token)
+        return {"error", "Querying server for endpoint URL and token"} if chat_endpoint_url_data_response.size <= 0
+
+        chat_endpoint_info = extract_chat_endpoint_info(chat_endpoint_url_data_response)
+
+        socket = connect_to_chat_server(chat_endpoint_info, broadcast_id)
+        return {"error", "Unable to connect to chat server"} if !socket
+
+        socket.on_message do |message|
+            @listening_socket.try do |l|
+                puts "sending a message to a web client!"
+                l.send(message)
+            end
+        end
+    
+        socket.on_close do
+            puts "Socket got closed!"
+            @listening_socket.try do |l|
+                l.close if @listening_socket
+            end
+        end
+
+        spawn socket_runner(socket)
+    
+        return {"success", broadcast_id}
+    end
+
+    def add_periscope_listener(socket : HTTP::WebSocket)
+        @listening_socket = socket
+        puts "added a listening socket #{socket}"
+    end
+
 end
 

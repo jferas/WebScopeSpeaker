@@ -5,6 +5,8 @@ require "./WebScopeSpeaker/periscope"
 
 module Webscopespeaker
 
+    @@live_chat : PeriscopeLiveChat = PeriscopeLiveChat.new
+
     # Serve the web page
     get "/" do
         render "views/index.ecr"
@@ -14,7 +16,18 @@ module Webscopespeaker
     #
     get "/chatinfo/:user" do |env|
         user = env.params.url["user"]
-        get_periscope_chat_connection(user).to_json
+        #@@live_chat = PeriscopeLiveChat.new
+        @@live_chat.get_periscope_chat_connection(user).to_json
+    end
+
+    ws "/chat" do |socket|
+        # Add the client to the list of periscope listeners
+        puts "received a chat request from the web client"
+        @@live_chat.add_periscope_listener(socket)
+
+        # Remove clients from the list when it's closed
+        socket.on_close do
+        end
     end
 
     Kemal.run

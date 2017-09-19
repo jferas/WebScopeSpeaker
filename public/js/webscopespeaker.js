@@ -78,14 +78,14 @@ var onSuccessGetChatData = function(response, status_info) {
         broadcast_id = response_array[1];
         queue_message_to_say("Got a good response from the periscope server about " + username);
         queue_message_to_say("Chat messages will now begin");
-        // open_chat_websocket();
+        open_chat_websocket();
     }
 }
 
 // method to open a chat websocket with the periscope chat server, given URL and access token
 //
 var open_chat_websocket = function() {
-    websocket = new WebSocket("https://webscopespeaker.herokuapp.com/chat");
+    websocket = new WebSocket("ws://localhost:3000/chat");
     websocket.onopen = function(evt) { onOpen(evt) };
     websocket.onclose = function(evt) { onClose(evt) };
     websocket.onmessage = function(evt) { onMessage(evt) };
