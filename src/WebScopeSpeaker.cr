@@ -4,6 +4,7 @@ require "./WebScopeSpeaker/version"
 require "./WebScopeSpeaker/periscope"
 
 module Webscopespeaker
+    CHATS = [] of PeriscopeLiveChat
 
     @@live_chat : PeriscopeLiveChat = PeriscopeLiveChat.new
 
@@ -25,8 +26,14 @@ module Webscopespeaker
         puts "received a chat request from the web client"
         @@live_chat.add_periscope_listener(socket)
 
+        # right now, simply log that we received something from the client
+        socket.on_message do |message|
+            puts "Got a message from the browser: " + message
+        end
+
         # Remove clients from the list when it's closed
         socket.on_close do
+            puts "Browser web socket closed"
         end
     end
 

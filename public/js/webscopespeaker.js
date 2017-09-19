@@ -78,7 +78,7 @@ var onSuccessGetChatData = function(response, status_info) {
         broadcast_id = response_array[1];
         queue_message_to_say("Got a good response from the periscope server about " + username);
         queue_message_to_say("Chat messages will now begin");
-        open_chat_websocket();
+        open_chat_websocket(broadcast_id);
     }
 }
 
@@ -96,8 +96,9 @@ var open_chat_websocket = function() {
 //
 var onOpen = function(evt) {
     log_msg("<br>Secure web-socket connected to ScopeSpeaker proxy server");
-    join_message = "{\"room\":, \" + broadcast_id + \"}";
-    doSend(join_message);
+    join_message = {};
+    join_message["room"] = broadcast_id;
+    doSend(JSON.stringify(join_message));
 }
 
 // method invoked when chat websocket is closed
