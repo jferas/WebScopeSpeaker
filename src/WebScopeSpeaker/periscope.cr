@@ -51,137 +51,146 @@ class ChatAccessResponse
     })
 end
 
-# method to get data from Periscope via HTTP request
-#
-def get_periscope_data(url : String)
-    response = HTTP::Client.get(url)
-    if response.status_code == 200
-        retval = response.body
-    else
-        retval = "Eror on #{url} .. We got an error of #{response.status_code}"
-        puts retval
-    end
-    return retval
-end
-
-# method to extract the most recent broadcast ID from the plain HTML (non-react) Periscope response
-#
-def extract_broadcast_id(response_data)
-    start_of_video_tag = response_data.index(VIDEO_TAG)
-    return nil if !start_of_video_tag
-
-    start_of_id = start_of_video_tag + VIDEO_TAG.size
-    end_of_id = response_data.index("&", start_of_video_tag)
-    return nil if !end_of_id
-
-    id_string = response_data[start_of_id, end_of_id - start_of_id]
-    return id_string
-end
-
-# method to extract the user ID from the HTML of the react-based Periscope response
-#
-def extract_user_id(user, response_data)
-    actual_user_tag = USER_TAG.gsub("replace_this", user)
-    start_of_user_tag = response_data.index(actual_user_tag);
-    return nil if !start_of_user_tag
-
-    start_of_id = start_of_user_tag + actual_user_tag.size
-    return nil if !start_of_id
-    end_of_id = response_data.index('&', start_of_id)
-    return nil if !end_of_id
-    id_string = response_data[start_of_id, end_of_id - start_of_id]
-    return id_string
-end
-
-# method to extract the session ID from the HTML of the react-based Periscope response
-#
-def extract_session_id(response_data)
-    start_of_session_tag = response_data.index(SESSION_TAG);
-    return nil if !start_of_session_tag
-
-    start_of_id = start_of_session_tag + SESSION_TAG.size
-    return nil if !start_of_id
-    end_of_id = response_data.index('&', start_of_id)
-    return nil if !end_of_id
-    id_string = response_data[start_of_id, end_of_id - start_of_id]
-    return id_string
-end
-
-# method to extract the most recent broadcast ID from API request for a user's broadcasts
-#
-def extract_most_recent_broadcast_id(response_data)
-    start_of_id_tag = response_data.index(BROADCAST_ID_TAG)
-    return nil if !start_of_id_tag
-
-    start_of_id = start_of_id_tag + BROADCAST_ID_TAG.size
-    return nil if !start_of_id
-    end_of_id = response_data.index("\"", start_of_id)
-    return nil if !end_of_id
-
-    id_string = response_data[start_of_id, end_of_id - start_of_id]
-    return id_string
-end
-
-# method to extract the chat token from the response containing data about most recent broadcast (returns "REPLAY" if the broadcast is not live)
-#
-def extract_chat_url_access_token(response_data)
-    bd = BroadcastDataResponse.from_json(response_data)
-    b = bd.broadcast
-    if b.state == "RUNNING"
-        return bd.chat_token
-    else
-        return "REPLAY"
-    end
-end
-
-# method to extract the Periscope chat endpoint URL and the chat access token from the response to the chat info query
-#
-def extract_chat_endpoint_info(response_data)
-    e = ChatAccessResponse.from_json(response_data)
-    https_location = e.endpoint.index("https")
-    if https_location
-        the_endpoint = e.endpoint.gsub("https", "wss")
-    else
-        the_endpoint = e.endpoint.gsub("https", "ws")
-    end
-
-    puts "Chat endpoint: " + the_endpoint
-    puts "Access token: " + e.access_token
-
-    return {the_endpoint + CHAT_SUFFIX, e.access_token}
-end
-
-# method to connect to (and exchange registration and auhorization info with) a Periscope chat server
-#
-def connect_to_chat_server(chat_endpoint_info, broadcast_id)
-    socket = HTTP::WebSocket.new(chat_endpoint_info[0])
-    return nil if !socket
-    puts "Secure web-socket connected to Periscope chat server at URL given above"
-    puts " .. sending handshake auth and join messages"
-    join_message = "{\"kind\":2,\"payload\":\"{\\\"kind\\\":1,\\\"body\\\":\\\"{\\\\\\\"room\\\\\\\":\\\\\\\"replace_this\\\\\\\"}\\\"}\"}"
-    auth_message = "{\"kind\":3,\"payload\":\"{\\\"access_token\\\":\\\"replace_this\\\"}\"}"
-    join_message = join_message.gsub("replace_this", broadcast_id)
-    auth_message = auth_message.gsub("replace_this", chat_endpoint_info[1])
-    socket.send(auth_message)
-    socket.send(join_message)
-    puts "sent the auth and join messages"
-    return socket
-end
-
-# method to run a thread for receiving chat messages on the socket connected to the Periscope chat server (this method is 'spawn'ed)
-#
-def socket_runner(the_socket)
-    the_socket.run
-end
-
 class PeriscopeLiveChat
 
+    # instance variables.. what we need to remember about the chat connection to periscope
+
+    @periscope_socket : HTTP::WebSocket
+    @user = "unknown"
+    @broadcast_id = "unknown"
+    
     def initialize
+    end
+
+    # method to get data from Periscope via HTTP request
+    #
+    def get_periscope_data(url : String)
+        response = HTTP::Client.get(url)
+        if response.status_code == 200
+            retval = response.body
+        else
+            retval = "Eror on #{url} .. We got an error of #{response.status_code}"
+            puts retval
+        end
+        return retval
+    end
+
+    # method to extract the most recent broadcast ID from the plain HTML (non-react) Periscope response
+    #
+    def extract_broadcast_id(response_data)
+        start_of_video_tag = response_data.index(VIDEO_TAG)
+        return nil if !start_of_video_tag
+
+        start_of_id = start_of_video_tag + VIDEO_TAG.size
+        end_of_id = response_data.index("&", start_of_video_tag)
+        return nil if !end_of_id
+
+        id_string = response_data[start_of_id, end_of_id - start_of_id]
+        return id_string
+    end
+
+    # method to extract the user ID from the HTML of the react-based Periscope response
+    #
+    def extract_user_id(user, response_data)
+        actual_user_tag = USER_TAG.gsub("replace_this", user)
+        start_of_user_tag = response_data.index(actual_user_tag);
+        return nil if !start_of_user_tag
+
+        start_of_id = start_of_user_tag + actual_user_tag.size
+        return nil if !start_of_id
+        end_of_id = response_data.index('&', start_of_id)
+        return nil if !end_of_id
+        id_string = response_data[start_of_id, end_of_id - start_of_id]
+        return id_string
+    end
+
+    # method to extract the session ID from the HTML of the react-based Periscope response
+    #
+    def extract_session_id(response_data)
+        start_of_session_tag = response_data.index(SESSION_TAG);
+        return nil if !start_of_session_tag
+
+        start_of_id = start_of_session_tag + SESSION_TAG.size
+        return nil if !start_of_id
+        end_of_id = response_data.index('&', start_of_id)
+        return nil if !end_of_id
+        id_string = response_data[start_of_id, end_of_id - start_of_id]
+        return id_string
+    end
+
+    # method to extract the most recent broadcast ID from API request for a user's broadcasts
+    #
+    def extract_most_recent_broadcast_id(response_data)
+        start_of_id_tag = response_data.index(BROADCAST_ID_TAG)
+        return nil if !start_of_id_tag
+
+        start_of_id = start_of_id_tag + BROADCAST_ID_TAG.size
+        return nil if !start_of_id
+        end_of_id = response_data.index("\"", start_of_id)
+        return nil if !end_of_id
+
+        id_string = response_data[start_of_id, end_of_id - start_of_id]
+        return id_string
+    end
+
+    # method to extract the chat token from the response containing data about most recent broadcast (returns "REPLAY" if the broadcast is not live)
+    #
+    def extract_chat_url_access_token(response_data)
+        bd = BroadcastDataResponse.from_json(response_data)
+        b = bd.broadcast
+        if b.state == "RUNNING"
+            return bd.chat_token
+        else
+            return "REPLAY"
+        end
+    end
+
+    # method to extract the Periscope chat endpoint URL and the chat access token from the response to the chat info query
+    #
+    def extract_chat_endpoint_info(response_data)
+        e = ChatAccessResponse.from_json(response_data)
+        https_location = e.endpoint.index("https")
+        if https_location
+            the_endpoint = e.endpoint.gsub("https", "wss")
+        else
+            the_endpoint = e.endpoint.gsub("https", "ws")
+        end
+
+        puts "Chat endpoint: " + the_endpoint
+        puts "Access token: " + e.access_token
+
+        return {the_endpoint + CHAT_SUFFIX, e.access_token}
+    end
+
+    # method to connect to (and exchange registration and auhorization info with) a Periscope chat server
+    #
+    def connect_to_chat_server(chat_endpoint_info, broadcast_id) : HTTP::WebSocket
+        socket : HTTP::WebSocket
+
+        socket = HTTP::WebSocket.new(chat_endpoint_info[0])
+
+        puts "Secure web-socket connected to Periscope chat server at URL given above"
+        puts " .. sending handshake auth and join messages"
+        join_message = "{\"kind\":2,\"payload\":\"{\\\"kind\\\":1,\\\"body\\\":\\\"{\\\\\\\"room\\\\\\\":\\\\\\\"replace_this\\\\\\\"}\\\"}\"}"
+        auth_message = "{\"kind\":3,\"payload\":\"{\\\"access_token\\\":\\\"replace_this\\\"}\"}"
+        join_message = join_message.gsub("replace_this", broadcast_id)
+        auth_message = auth_message.gsub("replace_this", chat_endpoint_info[1])
+        socket.send(auth_message)
+        socket.send(join_message)
+        puts "sent the auth and join messages"
+        return socket
+    end
+
+    # method to run a thread for receiving chat messages on the socket connected to the Periscope chat server (this method is 'spawn'ed)
+    #
+    def socket_runner(the_socket : HTTP::WebSocket)
+        the_socket.run
     end
 
     # method to perform all the necessary periscope queries to get the live chat info of user's broadcast
     #
-    def get_periscope_chat_connection(user)
+    def get_periscope_chat_connection(user : String)
+        @user = user
         user_data_response = get_periscope_data(PERISCOPE_URL + user)
         return {"error", "Querying server for user data"} if user_data_response.size <= 0
         broadcast_id = extract_broadcast_id(user_data_response)
@@ -191,7 +200,7 @@ class PeriscopeLiveChat
             return {"error", "Extracting User ID"} if !user_id
             session_id = extract_session_id(user_data_response)
             return {"error", "Extracting Session ID"} if !session_id
-    
+
             s1 = PERISCOPE_USER_BROADCAST_LIST_URL.gsub("replace_with_user_id", user_id);
             user_broadcast_list_url = s1.gsub("replace_with_session_id", session_id);
             
@@ -205,9 +214,10 @@ class PeriscopeLiveChat
         end
 
         return {"error", "Extracting broadcast ID"} if !broadcast_id
-    
+
         puts "Got a broadcast ID of #{broadcast_id}"
-    
+
+        @broadcast_id = broadcast_id
         broadcast_data_response = get_periscope_data(PERISCOPE_BROADCAST_INFO_URL + broadcast_id)
         return {"error", "Querying server for broadcast data"} if (broadcast_data_response.size <= 0)
         chat_url_access_token = extract_chat_url_access_token(broadcast_data_response)
@@ -223,6 +233,7 @@ class PeriscopeLiveChat
         socket = connect_to_chat_server(chat_endpoint_info, broadcast_id)
         return {"error", "Unable to connect to chat server"} if !socket
 
+        @periscope_socket = socket
         socket.on_message do |message|
             @listening_socket.try do |l|
                 puts "sending a message to a web client!"
@@ -236,13 +247,13 @@ class PeriscopeLiveChat
                 l.close if @listening_socket
             end
         end
-
         spawn socket_runner(socket)
-    
         return {"success", broadcast_id}
     end
 
-    def add_periscope_listener(socket : HTTP::WebSocket)
+
+    # add a listening socket to be used to send messages to web clients
+    def add_web_client_listener(socket : HTTP::WebSocket)
         @listening_socket = socket
         puts "added a listening socket #{socket}"
     end

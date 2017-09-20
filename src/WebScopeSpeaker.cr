@@ -3,10 +3,9 @@ require "crustache"
 require "./WebScopeSpeaker/version"
 require "./WebScopeSpeaker/periscope"
 
+
 module Webscopespeaker
     CHATS = [] of PeriscopeLiveChat
-
-    @@live_chat : PeriscopeLiveChat = PeriscopeLiveChat.new
 
     # Serve the web page
     get "/" do
@@ -17,18 +16,26 @@ module Webscopespeaker
     #
     get "/chatinfo/:user" do |env|
         user = env.params.url["user"]
-        #@@live_chat = PeriscopeLiveChat.new
-        @@live_chat.get_periscope_chat_connection(user).to_json
-    end
+        p = PeriscopeLiveChat.new
+        chat_data = p.get_periscope_chat_connection(user)
+        return chat_data if chat_data[0] == "error"
+
+        CHATS << p
+
+        chat_data
+    
+     end
+    
 
     ws "/chat" do |socket|
-        # Add the client to the list of periscope listeners
+        # Add the web client to the list of periscope listeners
         puts "received a chat request from the web client"
-        @@live_chat.add_periscope_listener(socket)
 
         # right now, simply log that we received something from the client
         socket.on_message do |message|
             puts "Got a message from the browser: " + message
+            p = CHATS[0]
+            p.add_web_client_listener(socket)
         end
 
         # Remove clients from the list when it's closed
