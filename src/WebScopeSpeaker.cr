@@ -4,6 +4,8 @@ require "./WebScopeSpeaker/version"
 require "./WebScopeSpeaker/periscope"
 
 
+# A class defining structure of web client request
+#
 class WebClientRequest
     JSON.mapping({
         room: String,
@@ -13,7 +15,8 @@ end
 module Webscopespeaker
     CHATS = [] of PeriscopeLiveChat
 
-    # Serve the web page
+    # Serve the main web page
+    #
     get "/" do
         render "views/index.ecr"
     end
@@ -32,17 +35,18 @@ module Webscopespeaker
      end
     
 
+    # Respond to chat request from browser.. Add the web client to the list of periscope listeners
+    #
     ws "/chat" do |socket|
-        # Add the web client to the list of periscope listeners
         puts "received a chat request from the web client"
 
         # right now, simply log that we received something from the client
         socket.on_message do |message|
-            puts "Got a message from the browser: " + message
+            puts "Got a message from a browser: " + message
 
             #
-            # TODO: add logic here to parse broadcast ID from the JSON, then find that broadcast ID in the chat instances,
-            #        and add the web client listening socket to that chat instance. (right now we cheat with instance 0)
+            # Parse broadcast ID from the JSON web client message, then find that broadcast ID in the chat instances,
+            #  and add the web client listening socket to the matched chat instance.
             #
             client_request = WebClientRequest.from_json(message)
             parsed_broadcast_id = client_request.room
