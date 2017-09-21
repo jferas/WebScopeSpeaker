@@ -263,5 +263,15 @@ class PeriscopeLiveChat
         puts "added a listening socket #{socket}"
     end
 
+    # get the listening socket
+    def get_listening_socket
+        @listening_socket
+    end
+
+    # get the broadcast ID
+    def get_listening_socket
+        @broadcast_id
+    end
+
 end
 
