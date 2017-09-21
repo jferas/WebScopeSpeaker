@@ -4,6 +4,12 @@ require "./WebScopeSpeaker/version"
 require "./WebScopeSpeaker/periscope"
 
 
+class WebClientRequest
+    JSON.mapping({
+        room: String,
+    })
+end
+
 module Webscopespeaker
     CHATS = [] of PeriscopeLiveChat
 
@@ -38,12 +44,13 @@ module Webscopespeaker
             # TODO: add logic here to parse broadcast ID from the JSON, then find that broadcast ID in the chat instances,
             #        and add the web client listening socket to that chat instance. (right now we cheat with instance 0)
             #
-            parsed_broadcast_id = "xxxxx"
-            #CHATS.each |c| do
-                #if (c.broadcast_id == parse_broadcast_id) && !c.listening_socket
-                #    c.add_web_client_listener(socket)
-                #end
-            #end
+            client_request = WebClientRequest.from_json(message)
+            parsed_broadcast_id = client_request.room
+            CHATS.each do |c|
+                if (c.broadcast_id == parsed_broadcast_id) && !c.listening_socket
+                    c.add_web_client_listener(socket)
+                end
+            end
         end
 
         # Remove clients from the list when it's closed

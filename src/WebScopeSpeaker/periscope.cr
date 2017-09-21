@@ -264,12 +264,12 @@ class PeriscopeLiveChat
     end
 
     # get the listening socket
-    def get_listening_socket
+    def listening_socket
         @listening_socket
     end
 
     # get the broadcast ID
-    def get_listening_socket
+    def broadcast_id
         @broadcast_id
     end
 
