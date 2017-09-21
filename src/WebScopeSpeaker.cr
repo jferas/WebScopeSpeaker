@@ -16,13 +16,17 @@ module Webscopespeaker
     #
     get "/chatinfo/:user" do |env|
         user = env.params.url["user"]
-        p = PeriscopeLiveChat.new
-        chat_data = p.get_periscope_chat_connection(user)
-        return chat_data if chat_data[0] == "error"
+        chat_data = get_periscope_chat_connection(user)
+        if chat_data[0] != "error"
 
-        CHATS << p
+            broadcast_id = chat_data[1]
+            chat_endpoint = chat_data[2]
+            chat_access_token = chat_data[3]
 
-        chat_data
+            p = PeriscopeLiveChat.new(user, broadcast_id, chat_endpoint, chat_access_token)
+            CHATS << p
+        end
+        chat_data.to_json
     
      end
     
