@@ -38,6 +38,12 @@ module Webscopespeaker
         # right now, simply log that we received something from the client
         socket.on_message do |message|
             puts "Got a message from the browser: " + message
+
+            #
+            # TODO: add logic here to parse broadcast ID from the JSON, then find that broadcast ID in the chat instances,
+            #        and add the web client listening socket to that chat instance. (right now we cheat with instance 0)
+            #
+
             p = CHATS[0]
             p.add_web_client_listener(socket)
         end

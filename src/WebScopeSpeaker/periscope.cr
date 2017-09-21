@@ -1,7 +1,7 @@
 
 require "json"
 
-# Utilities to get and parse Periscope broadcast and chat info
+# Utilitiy methods and classes to get and parse Periscope broadcast and chat info
 
 PERISCOPE_URL = "https://www.periscope.tv/"
 PERISCOPE_BROADCAST_INFO_URL = "https://api.periscope.tv/api/v2/accessVideoPublic?broadcast_id="
@@ -217,6 +217,7 @@ class PeriscopeLiveChat
     @user : String
     @broadcast_id : String
     @periscope_socket : HTTP::WebSocket
+    @message_count = 0
     
     # class init method to connect to (and exchange registration and auhorization info with) a Periscope chat server
     #
@@ -237,8 +238,12 @@ class PeriscopeLiveChat
 
         @periscope_socket.on_message do |message|
             @listening_socket.try do |l|
-                puts "sending a message to a web client!"
                 l.send(message)
+                @message_count += 1
+                if @message_count >= 10
+                    puts "10 more messages sent to the client"
+                    @message_count = 0
+                end
             end
         end
 
