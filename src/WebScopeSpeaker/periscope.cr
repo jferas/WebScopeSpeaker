@@ -241,7 +241,7 @@ class PeriscopeLiveChat
                 l.send(message)
                 @message_count += 1
                 if @message_count >= 10
-                    puts "10 more messages sent to the client"
+                    puts "10 more messages sent to the client in the broadcast by " + @user
                     @message_count = 0
                 end
             end
