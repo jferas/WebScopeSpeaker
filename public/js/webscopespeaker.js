@@ -85,7 +85,8 @@ var onSuccessGetChatData = function(response, status_info) {
 // method to open a chat websocket with the periscope chat server, given URL and access token
 //
 var open_chat_websocket = function() {
-    websocket = new WebSocket("ws://localhost:3000/chat");
+    chat_url = window.location.href.replace("http", "ws") + "chat";
+    websocket = new WebSocket(chat_url);
     websocket.onopen = function(evt) { onOpen(evt) };
     websocket.onclose = function(evt) { onClose(evt) };
     websocket.onmessage = function(evt) { onMessage(evt) };
