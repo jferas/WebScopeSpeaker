@@ -25,7 +25,7 @@ module Webscopespeaker
     #
     get "/chatinfo/:user" do |env|
         user = env.params.url["user"]
-        status, broadcast_id, chat_endpoint, chat_access_token = get_periscope_chat_connection(user)
+        status, broadcast_id, chat_endpoint, chat_access_token = PeriscopeLiveChat.get_periscope_chat_connection(user)
         if status != "error"
             p = PeriscopeLiveChat.new(user, broadcast_id, chat_endpoint, chat_access_token)
             CHATS << p
@@ -35,19 +35,19 @@ module Webscopespeaker
      end
     
 
-    # Respond to chat request from browser.. Add the web client to the list of periscope listeners
+    # Respond to a browser's request to receive chat messages .. Add the client websocket to the appropriate periscope
+    #  chat instance in the list of periscope chat listeners
     #
     ws "/chat" do |socket|
-        puts "received a chat request from the web client"
+        puts "received a request for chat messages from a web client"
 
-        # right now, simply log that we received something from the client
+        #
+        # Parse broadcast ID from the JSON web client message, then find that broadcast ID in the chat instances,
+        #  and add the web client listening socket to the matched chat instance.
+        #
         socket.on_message do |message|
             puts "Got a message from a browser: " + message
 
-            #
-            # Parse broadcast ID from the JSON web client message, then find that broadcast ID in the chat instances,
-            #  and add the web client listening socket to the matched chat instance.
-            #
             client_request = WebClientRequest.from_json(message)
             parsed_broadcast_id = client_request.room
             CHATS.each do |c|
@@ -57,9 +57,18 @@ module Webscopespeaker
             end
         end
 
-        # Remove clients from the list when it's closed
+        # Remove appropriate chat client from the list when the socket is closed
+        #
         socket.on_close do
             puts "Browser web socket closed"
+            CHATS.each do |c|
+                if c.listening_socket == socket
+                    s = c.periscope_socket
+                    s.close if s && s.closed?
+                    CHATS.delete(c)
+                    puts "Chat instance deleted"
+                end
+            end
         end
     end
 
