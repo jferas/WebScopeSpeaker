@@ -2,9 +2,9 @@
 
 A Crystal / Kemal web application that communicates with Periscope chat servers via websockets to receive messages and uses the ResponsiveVoice javascript text-to-speech library to speak those messages.
 
-The Crystal/Kemal server acts a proxy between a simple web client in a browser and the Periscope chat server, maintaining a separate browser-to-chat-server mapping for web client.
+The Crystal/Kemal server acts a proxy between a simple web client in a browser and the Periscope chat server, maintaining a separate browser-to-chat-server mapping for each web client.
 
-This is essentially a web app version of the ScopeSpeaker Android app found at https://github.com/jferas/ScopeSpeaker/ and hasbeen a learning experience to learn Crystal and its Kemal web framework.
+This is essentially a web app version of the ScopeSpeaker Android app found at https://github.com/jferas/ScopeSpeaker/ and has been a learning experience to learn Crystal and its Kemal web framework.
 
 ## Installation
 
@@ -16,7 +16,7 @@ crystal run src/WebScopeSpeaker.cr
 
 ## Usage
 
-Go to `http://localhost:3000/` to see it in action.
+Go to `http://localhost:3000/` to see it in action locally on your development machine.
 
 Enter the name of a Periscope user who is currently broadcasting live, wait for the app to connect to the chat servers, and then listen to the incoming chat messages from the broadcast.
 
