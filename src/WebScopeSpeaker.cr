@@ -28,6 +28,7 @@ module Webscopespeaker
     if status != "error"
       p = PeriscopeLiveChat.new(user, broadcast_id, chat_endpoint, chat_access_token)
       CHATS << p
+      puts "Just added chat, number of chats is: #{CHATS.size}"
     end
     {status, broadcast_id}.to_json
   end
@@ -63,7 +64,7 @@ module Webscopespeaker
           s = c.periscope_socket
           s.close if s && s.closed?
           CHATS.delete(c)
-          puts "Chat instance deleted"
+          puts "Just deleted chat, number of chats is: #{CHATS.size}"
         end
       end
     end
