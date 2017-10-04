@@ -21,7 +21,8 @@ var bot_words = [];
 var name_length = 10;
 var saying_emojis = true;
 var saying_translations = true;
-var said_word = "said ";
+var said_word = "said";
+var translated_word = "translated";
 var saying_left_messages = false;
 var saying_join_messages = false;
 var saying_display_names = true;
@@ -344,9 +345,6 @@ var say_next = function() {
 // function to speak text
 //
 var sayIt = function(who, announce_word, message_to_say, additional_screen_info) {
-    log_msg("sayIt, who: " + who);
-    log_msg("sayIt, message_to_say: " + message_to_say);
-    log_msg("sayIt, additional_screen_info: " + additional_screen_info);
     var speak_string;
     var sayer;
     var announce_phrase = announce_word + ": ";
@@ -379,19 +377,71 @@ var sayIt = function(who, announce_word, message_to_say, additional_screen_info)
     }
 };
 
+// function to send a translation request to Yandex language translation service
+//
+var send_translation_request = function(who_said_it, text_to_be_translated, language_pair) {
+    var jsonString;
+    var translation_command;
+
+    if (language_pair.indexOf("?") == 0) {
+        translation_command = language_pair.split("-")[1];
+    }
+    else {
+        translation_command = language_pair;
+    }
+    var yandexKey = "trnsl.1.1.20170707T040715Z.91d8bbf749039bd6.313fa4324e6371e9ae58a30e2a4f93b47dca1ca2";
+    var yandexUrl = "https://translate.yandex.net/api/v1.5/tr.json/translate?key=" + yandexKey
+             + "&text=" + encodeURI(text_to_be_translated) + "&lang=" + translation_command;
+    $.ajax({url: yandexUrl, type: 'GET',
+            contentType: 'application/x-www-form-urlencoded', dataType: 'text',
+            success: function(response, status_info) {
+                         var result_string = response;
+
+                         log_msg("got translation response: " + response);
+
+                         //Getting the characters between [ and ]
+                         result_string = result_string.substring(result_string.indexOf('[')+1);
+                         result_string = result_string.substring(0,result_string.indexOf("]"));
+
+                         //Getting the characters between " and "
+                         result_string = result_string.substring(result_string.indexOf("\"")+1);
+                         result_string = result_string.substring(0,result_string.indexOf("\""));
+
+                         log_msg("got translation text: " + result_string);
+
+                         say_translated_text(who_said_it, result_string,
+                "<br><br>(" + this.languagePair + ") Translation powered by <a href=\"http://translate.yandex.com\">Yandex.Translate</a>");
+                     }, 
+            error: onAjaxError});
+};
+
+// function to say text that has been translated
+//
+var say_translated_text = function(who_said_it, what_was_said, translation_info) {
+    log_msg("After translation: " + what_was_said);
+    if ( (what_was_said == "joined") || (what_was_said == "Joined")
+    ||   (what_was_said == "Participation") || (what_was_said == "has joined") )  {
+            speaking = false;
+            queued_message_being_said = null;
+            say_next();
+            return;
+        }
+        var announce_word = translated_word;
+
+        if (translation_info.indexOf("?L") >= 0) {
+            var source_language = translation_info.split("-")[0].split("L")[1];
+            if (source_language == defaultLanguage) {
+                announce_word = said_word;
+            }
+        }
+        sayIt(who_said_it, announce_word, what_was_said, translation_info);
+};
+
 // function to remove emoji from a given string
 //
 var removeEmoji = function(s) {
     return s.replace(/([\uE000-\uF8FF]|\uD83C[\uDF00-\uDFFF]|\uD83D[\uDC00-\uDDFF])/g, '');
 };
-
-// function to send translation request
-//
-var send_translation_request = function(who_said_it, what_was_said, translation_cmd) {
-    sayIt(who_said_it, "needs translate of ", what_was_said, "");
-    speaking = false;
-};
-
 
 log_msg("<u>Scopespeaker debug/run log:</u><br>");
 });
