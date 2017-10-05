@@ -192,7 +192,7 @@ var extractChatMessage = function(chat_msg) {
                     who_said_it = display_name;
                 }
                 else {
-                    who_said_it = username;
+                    who_said_it = user_name;
                 }
                 language_tag = "";
                 if (language_array.length > 1) {
