@@ -1,17 +1,15 @@
-<!doctype html>
+<html>
 <html>
   <head>
-    <title>ScopeSpeaker (web)</title>
-    <script src="https://code.jquery.com/jquery-1.11.3.js"></script>
+    <title>ScopeSpeaker (Web / React-js)</title>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react-dom.min.js"></script>
     <script src="https://code.responsivevoice.org/responsivevoice.js"></script>
-    <script src="/js/webscopespeaker.js"></script>
+    <link rel="stylesheet" href="/styles/webscopespeaker.css">
   </head>
   <body>
-      <input id="start_chat" type="button" value="Say the chat messages of">
-      <input id='user' placeholder='Periscope user name...' />
-      <hr>
-      <pre id='chat'></pre>
-      <hr>
-      <pre id='message'></pre>
+    <main id="webscopespeaker"></main>
+    <script src="/js/webscopespeaker.js"></script>
   </body>
 </html>
+

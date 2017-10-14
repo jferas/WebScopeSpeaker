@@ -1,36 +1,57 @@
+// ScopeSpeaker React/Web client
 
-// ScopeSpeaker web client
+var WebScopeSpeaker = React.createClass({
 
-$(document).ready(function() {
+  getInitialState: function () {
+    return {
+      username: "",
+      current_language: "UK English Male",
+      messages: [],
+      speaking: false,
+      websocket: null,
+      chat_endpoint_url: null,
+      chat_access_token: null,
+      broadcast_id: null,
+      queued_message_being_said: "",
+      dropping_messages: false,
+      known_bots: [],
+      bot_words: [],
+      name_length: 10,
+      saying_emojis: true,
+      saying_translations: true,
+      said_word: "said",
+      translated_word: "translated",
+      saying_left_messages: false,
+      saying_join_messages: false,
+      saying_display_names: false,
+      high_water_mark: 10,
+      low_water_mark: 5,
+      detect_length: 120,
+      default_language: "en"
+    };
+  },
 
-var username = "";
-var current_language = "UK English Male";
-var messages = [];
-var speaking = false;
-var websocket;
-var chat_endpoint_url;
-var chat_access_token;
-var broadcast_id;
-var queued_message_being_said = "";
-var dropping_messages = false;
-var known_bots = [];
-var bot_words = [];
+  componentDidMount: function () {
+    var self = this;
+    this.sendable = true;
+    this.user = localStorage.getItem('user') || "";
+    localStorage.setItem('user', this.user);
+  },
 
-// settings variables
+  render: function () {
+    return React.createElement("div", null,
+      React.createElement("button", { type: "button", onClick: this.sendMessage }, "Say the chat messages of"),
+      React.createElement("input", { autofocus: true, placeholder: "Periscope user name...", type: "text", ref: "user", onKeyUp: this.sendMessageWithEnter })
+    ); 
+  }
+});
+ 
+// inital invocation of render method
 //
-var name_length = 10;
-var saying_emojis = true;
-var saying_translations = true;
-var said_word = "said";
-var translated_word = "translated";
-var saying_left_messages = false;
-var saying_join_messages = false;
-var saying_display_names = false;
-var high_water_mark = 10;
-var low_water_mark = 5;
-var detect_length = 120;
-var default_language = "en";
+ReactDOM.render(React.createElement(WebScopeSpeaker, null), document.getElementById('webscopespeaker'));
 
+/*
+ 
 // method to log message to message display object on screen
 //
 log_msg = function(msg) {
@@ -148,7 +169,6 @@ var onMessage = function(evt) {
         queue_message_to_say(to_be_said);
     }
 }
-
 
 // method invoked when chat websocket has an error
 //
@@ -444,6 +464,5 @@ var removeEmoji = function(s) {
 };
 
 log_msg("<u>Scopespeaker debug/run log:</u><br>");
-});
 
-
+*/
