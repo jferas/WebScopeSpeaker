@@ -30,7 +30,9 @@ module Webscopespeaker
       CHATS << p
       puts "Just added chat, number of chats is: #{CHATS.size}"
     end
-    {status, broadcast_id}.to_json
+    r = {status, broadcast_id}.to_json
+    puts "response is: #{r}"
+    r
   end
 
   # Respond to a browser's request to receive chat messages .. Add the client websocket to the appropriate periscope

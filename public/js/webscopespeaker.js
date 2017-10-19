@@ -1,73 +1,258 @@
 // ScopeSpeaker React/Web client
 
+var current_language = "UK English Male";
+var messages = [];
+var speaking = false;
+var websocket = null;
+var chat_endpoint_url = null;
+var chat_access_token = null;
+var broadcast_id = null;
+var queued_message_being_said = "";
+var dropping_messages = false;
+var known_bots = [];
+var bot_words = [];
+var name_length = 10;
+var saying_emojis = true;
+var saying_translations = true;
+var said_word = "said";
+var translated_word = "translated";
+var saying_left_messages = false;
+var saying_join_messages = false;
+var saying_display_names = false;
+var high_water_mark = 10;
+var low_water_mark = 5;
+var detect_length = 120;
+var default_language = "en";
+
+var chat_log = "";
+
 var WebScopeSpeaker = React.createClass({
 
   getInitialState: function () {
     return {
-      username: "",
-      current_language: "UK English Male",
-      messages: [],
-      speaking: false,
-      websocket: null,
-      chat_endpoint_url: null,
-      chat_access_token: null,
-      broadcast_id: null,
-      queued_message_being_said: "",
-      dropping_messages: false,
-      known_bots: [],
-      bot_words: [],
-      name_length: 10,
-      saying_emojis: true,
-      saying_translations: true,
-      said_word: "said",
-      translated_word: "translated",
-      saying_left_messages: false,
-      saying_join_messages: false,
-      saying_display_names: false,
-      high_water_mark: 10,
-      low_water_mark: 5,
-      detect_length: 120,
-      default_language: "en"
+      message_to_be_said: ""
     };
   },
 
   componentDidMount: function () {
     var self = this;
+    console.log("in did mount");
     this.sendable = true;
     this.user = localStorage.getItem('user') || "";
     localStorage.setItem('user', this.user);
   },
 
   render: function () {
+    console.log("in render");
     return React.createElement("div", null,
-      React.createElement("button", { type: "button", onClick: this.sendMessage }, "Say the chat messages of"),
-      React.createElement("input", { autofocus: true, placeholder: "Periscope user name...", type: "text", ref: "user", onKeyUp: this.sendMessageWithEnter })
+      React.createElement("button", { type: "button", onClick: this.getUserData }, "Say the chat messages of"),
+      React.createElement("input", { autofocus: true, placeholder: "Periscope user name...", type: "text", ref: "user", onKeyUp: this.getUserDataWithEnter })
     ); 
-  }
-});
+  },
+
+  getUserData: function () {
+    console.log("about to ask for user info");
+    axios.get(window.location.href + "chatinfo/" + this.refs.user.value).then(
+      function(response) {
+        console.log("response data is: " + response.data);
+        //var response_array = response.data.split(",");
+        if (response.data[0] == "error") {
+          queue_message_to_say("An error occurred, the problem is: " + response.data[1]);
+          queue_message_to_say("Chat messages will not begin");
+        }
+        else {
+          broadcast_id = response.data[1];
+          console.log("Got a broadcast ID of: " + broadcast_id);
+          queue_message_to_say("Got a good response from the periscope server about " + this.refs.user.value);
+          queue_message_to_say("Chat messages will now begin");
+          console.log("about to open web socket");
+          open_chat_websocket(broadcast_id);
+        }
+      }
+    ).catch(
+      function(err) {
+        append_to_chat_log("An error occured: " + err);
+        queue_message_to_say("An error occured: " + err);
+      }
+    )
+  },
+
+  getUserDataWithEnter: function() {
+  },
+
  
+  // method to open a chat websocket with the periscope chat server, given URL and access token
+  //
+  open_chat_websocket: function() {
+      chat_url = window.location.href.replace("http", "ws") + "chat";
+      websocket = new WebSocket(chat_url);
+      websocket.onopen = function(evt) { onOpen(evt) };
+      websocket.onclose = function(evt) { onClose(evt) };
+      websocket.onmessage = function(evt) { onMessage(evt) };
+      websocket.onerror = function(evt) { onError(evt) };
+  },
+
+  // method invoked when chat websocket is opened, sends handshake of join message and auth message
+  //
+  onOpen: function(evt) {
+      append_to_chat_log("<br>Secure web-socket connected to ScopeSpeaker proxy server");
+      join_message = {};
+      join_message["room"] = broadcast_id;
+      doSend(JSON.stringify(join_message));
+  },
+
+  // method invoked when chat websocket is closed
+  //
+  onClose: function(evt) {
+      append_to_chat_log("Web-socket disconnected");
+  },
+
+  // method invoked when chat websocket receives a message, parse message and say it
+  //
+  onMessage: function(evt) {
+      message_to_say = extractChatMessage(evt.data);
+      if (message_to_say != null) {
+          msg_fields = message_to_say.split(":");
+          language_tag = msg_fields[0];
+          who_said_it = msg_fields[1];
+          msg_fields.shift();
+          msg_fields.shift();
+          what_was_said = msg_fields.join(" ");
+          if ( (what_was_said == "left") && (!saying_left_messages) ) {
+              return;
+          }
+          if ( (what_was_said == "joined") && (!saying_join_messages) ) {
+              return;
+          }
+          to_be_said = language_tag + ":" + who_said_it + ":" + what_was_said;
+          queue_message_to_say(to_be_said);
+      }
+  },
+
+  // method invoked when chat websocket has an error
+  //
+  onError: function(evt) {
+      append_to_chat_log("Error:" + evt.data);
+  },
+
+  // method to send a message on the websocket to the Periscope chat server
+  //
+  doSend: function(message) {
+      append_to_chat_log("SENT: " + message);
+      websocket.send(message);
+  },
+
+  // method to extract information from the incoming Periscope chat message
+  extractChatMessage: function(chat_msg) {
+      var who_said_it = "";
+      var what_they_said = "";
+      try {
+          chat_message = JSON.parse(chat_msg);
+          kind = chat_message.kind;
+          payload_string = chat_message.payload;
+          payload = JSON.parse(payload_string);
+          if (kind == 1) {
+              try {
+                  body_string = payload.body;
+                  outer_body = JSON.parse(body_string);
+                  if (outer_body.body == null) {
+                      return;
+                  }
+                  what_they_said = outer_body.body;
+                  sender = payload.sender;
+                  if (sender.display_name == null) {
+                      return;
+                  }
+                  language_array = sender.lang;
+                  chat_message_language = language_array[0];
+                  display_name = sender.display_name;
+                  user_name = sender.username;
+                  if (saying_display_names) {
+                      who_said_it = display_name;
+                  }
+                  else {
+                      who_said_it = user_name;
+                  }
+                  language_tag = "";
+                  if (language_array.length > 1) {
+                      language_tag = "?M";
+                  }
+                  if ( (language_tag.length == 0) && (what_they_said.length > detect_length) ) {
+                      language_tag = "?L";
+                  }
+                  language_tag += chat_message_language;
+                  if (what_they_said == "joined") {
+                      return null;
+                  }
+                  if (known_bots.indexOf(user_name) >= 0) {
+                      return null;
+                  }
+                  if (bot_words.indexOf(what_they_said) >= 0) {
+                      known_bots.push(user_name);
+                      return null;
+                  }
+              }
+              catch(err) {
+                  append_to_chat_log("Inner Payload parse error: " + err);
+                  append_to_chat_log("Message: " + err.message);
+                  websocket.close();
+                  return null;
+              }
+          }
+          else if (kind == 2) {
+              payload_kind = payload.kind;
+              sender = payload.sender;
+              if (payload_kind == 1) {
+                  message_for_chatlog = sender.username + "joined";
+                  if (saying_join_messages) {
+                      queue_message_to_say(message_for_chatlog);
+                  }
+                  else {
+                      append_to_chat_log(message_for_chatlog);
+                  }
+                  return null;
+              }
+              else if (payload_kind == 2) {
+                  message_for_chatlog = sender.username + "left";
+                  if (saying_left_messages) {
+                      queue_message_to_say(message_for_chatlog);
+                  }
+                  else {
+                      append_to_chat_log(message_for_chatlog);
+                  }
+                  return null;
+              }
+          }
+      }
+      catch(err) {
+          append_to_chat_log("Payload parse error: " + err);
+          append_to_chat_log("Message: " + err.message);
+          queue_priority_message_to_say("Chat message payload parse error");
+          websocket.close();
+          return null;
+      }
+
+      if ( (who_said_it.length == 0) || (what_they_said.length == 0) ) {
+          return null;
+      }
+      return language_tag + ":" + who_said_it + ":" + what_they_said;
+  }
+
+});
+
+
 // inital invocation of render method
 //
 ReactDOM.render(React.createElement(WebScopeSpeaker, null), document.getElementById('webscopespeaker'));
 
-/*
- 
-// method to log message to message display object on screen
-//
-log_msg = function(msg) {
-    var s = $("#message").html();
-    s = msg + "<br>" + s;
-    $("#message").html(s);
-}
-
 // callback method when speech begins
 //
-start_callback = function() {
-}
+var start_callback = function() {
+};
 
 // callback method when speech ends - say next message if present
 //
-stop_callback = function() {
+var stop_callback = function() {
     speaking = false;
     if (messages.length > 0) {
         schedule_say_next(50);
@@ -76,208 +261,9 @@ stop_callback = function() {
 
 // method to set up a scheduled call to say_next within a given number of milliseconds
 //
-schedule_say_next = function(t) {
-    setTimeout(say_next, t);
+var schedule_say_next = function(t) {
+      setTimeout(say_next, t);
 };
-
-// button function to get user name from text field and query server for Periscope chat token
-
-$("#start_chat").click(function() {
-    username = $('#user').val();
-    queue_message_to_say("trying " + username);
-    getPeriscopeChatData(username);
-    //alert("User name is: " + username);
-});
-
-// method to request data about a Periscope user
-//
-var getPeriscopeChatData = function(user) {
-
-    $.ajax({url: window.location.href + "chatinfo/" + user, type: 'GET',
-            contentType: 'application/x-www-form-urlencoded', dataType: 'text',
-            success: onSuccessGetChatData, error: onAjaxError});
-};
-
-// AJAX error handler - recevied HTTP error from server
-//
-var onAjaxError = function(err) {
-    log_msg("An error occured: " + err);
-    queue_message_to_say("An error occured: " + err);
-};
-
-// AJAX success handler - received Periscope chat token from server
-//
-var onSuccessGetChatData = function(response, status_info) {
-    //alert("Server response:" + response);
-    var response_array = JSON.parse(response);
-    if (response_array[0] == "error") {
-        queue_message_to_say("An error occurred, the problem is: " + response_array[1]);
-        queue_message_to_say("Chat messages will not begin");
-    }
-    else {
-        broadcast_id = response_array[1];
-        queue_message_to_say("Got a good response from the periscope server about " + username);
-        queue_message_to_say("Chat messages will now begin");
-        open_chat_websocket(broadcast_id);
-    }
-}
-
-// method to open a chat websocket with the periscope chat server, given URL and access token
-//
-var open_chat_websocket = function() {
-    chat_url = window.location.href.replace("http", "ws") + "chat";
-    websocket = new WebSocket(chat_url);
-    websocket.onopen = function(evt) { onOpen(evt) };
-    websocket.onclose = function(evt) { onClose(evt) };
-    websocket.onmessage = function(evt) { onMessage(evt) };
-    websocket.onerror = function(evt) { onError(evt) };
-}
-
-// method invoked when chat websocket is opened, sends handshake of join message and auth message
-//
-var onOpen = function(evt) {
-    log_msg("<br>Secure web-socket connected to ScopeSpeaker proxy server");
-    join_message = {};
-    join_message["room"] = broadcast_id;
-    doSend(JSON.stringify(join_message));
-}
-
-// method invoked when chat websocket is closed
-//
-var onClose = function(evt) {
-    log_msg("Web-socket disconnected");
-}
-
-// method invoked when chat websocket receives a message, parse message and say it
-//
-var onMessage = function(evt) {
-    message_to_say = extractChatMessage(evt.data);
-    if (message_to_say != null) {
-        msg_fields = message_to_say.split(":");
-        language_tag = msg_fields[0];
-        who_said_it = msg_fields[1];
-        msg_fields.shift();
-        msg_fields.shift();
-        what_was_said = msg_fields.join(" ");
-        if ( (what_was_said == "left") && (!saying_left_messages) ) {
-            return;
-        }
-        if ( (what_was_said == "joined") && (!saying_join_messages) ) {
-            return;
-        }
-        to_be_said = language_tag + ":" + who_said_it + ":" + what_was_said;
-        queue_message_to_say(to_be_said);
-    }
-}
-
-// method invoked when chat websocket has an error
-//
-var onError = function(evt) {
-    log_msg("Error:" + evt.data);
-}
-
-// method to send a message on the websocket to the Periscope chat server
-//
-var doSend = function(message) {
-    log_msg("SENT: " + message);
-    websocket.send(message);
-}
-
-// method to extract information from the incoming Periscope chat message
-var extractChatMessage = function(chat_msg) {
-    var who_said_it = "";
-    var what_they_said = "";
-    try {
-        chat_message = JSON.parse(chat_msg);
-        kind = chat_message.kind;
-        payload_string = chat_message.payload;
-        payload = JSON.parse(payload_string);
-        if (kind == 1) {
-            try {
-                body_string = payload.body;
-                outer_body = JSON.parse(body_string);
-                if (outer_body.body == null) {
-                    return;
-                }
-                what_they_said = outer_body.body;
-                sender = payload.sender;
-                if (sender.display_name == null) {
-                    return;
-                }
-                language_array = sender.lang;
-                chat_message_language = language_array[0];
-                display_name = sender.display_name;
-                user_name = sender.username;
-                if (saying_display_names) {
-                    who_said_it = display_name;
-                }
-                else {
-                    who_said_it = user_name;
-                }
-                language_tag = "";
-                if (language_array.length > 1) {
-                    language_tag = "?M";
-                }
-                if ( (language_tag.length == 0) && (what_they_said.length > detect_length) ) {
-                    language_tag = "?L";
-                }
-                language_tag += chat_message_language;
-                if (what_they_said == "joined") {
-                    return null;
-                }
-                if (known_bots.indexOf(user_name) >= 0) {
-                    return null;
-                }
-                if (bot_words.indexOf(what_they_said) >= 0) {
-                    known_bots.push(user_name);
-                    return null;
-                }
-            }
-            catch(err) {
-                log_msg("Inner Payload parse error: " + err);
-                log_msg("Message: " + err.message);
-                websocket.close();
-                return null;
-            }
-        }
-        else if (kind == 2) {
-            payload_kind = payload.kind;
-            sender = payload.sender;
-            if (payload_kind == 1) {
-                message_for_chatlog = sender.username + "joined";
-                if (saying_join_messages) {
-                    queue_message_to_say(message_for_chatlog);
-                }
-                else {
-                    log_msg(message_for_chatlog);
-                }
-                return null;
-            }
-            else if (payload_kind == 2) {
-                message_for_chatlog = sender.username + "left";
-                if (saying_left_messages) {
-                    queue_message_to_say(message_for_chatlog);
-                }
-                else {
-                    log_msg(message_for_chatlog);
-                }
-                return null;
-            }
-        }
-    }
-    catch(err) {
-        log_msg("Payload parse error: " + err);
-        log_msg("Message: " + err.message);
-        queue_priority_message_to_say("Chat message payload parse error");
-        websocket.close();
-        return null;
-    }
-
-    if ( (who_said_it.length == 0) || (what_they_said.length == 0) ) {
-        return null;
-    }
-    return language_tag + ":" + who_said_it + ":" + what_they_said;
-}
 
 // method to put a priority message to be said at the front of the queue
 //
@@ -300,7 +286,7 @@ var queue_message_to_say = function(m) {
         the_message = "Scope Speaker un-said queue has " + high_water_mark
                     + " messages, new messages won't be said till queue is down to " + low_water_mark;
         messages.unshift(the_message);
-        log_msg(the_message);
+        append_to_chat_log(the_message);
         dropping_messages = true;
     }
     if (!speaking) {
@@ -315,12 +301,12 @@ var say_next = function() {
     var what_was_said = "";
 
     if (speaking) {
-        log_msg("exit say_next because speech in progress");
+        append_to_chat_log("exit say_next because speech in progress");
         return;
     }
 
     if (messages.length == 0) {
-        log_msg("exit say_next because no messages");
+        append_to_chat_log("exit say_next because no messages");
         return;
     }
 
@@ -333,7 +319,7 @@ var say_next = function() {
         dropping_messages = false;
         messages.unshift(speak_string);
         speak_string = "Scope Speaker has recovered the un-said message queue down to " + lowWaterMark + ", new messages will resume being said";
-        log_msg(speak_string);
+        append_to_chat_log(speak_string);
     }
     message_processed = false;
     queued_message_being_said = speak_string;
@@ -346,7 +332,7 @@ var say_next = function() {
         what_was_said = msg_fields[2];
         if (saying_translations && (language_tag != default_language)) {
             translation_command = language_tag + "-" + default_language;
-            log_msg(who_said_it + " said before translation(" + translation_command + "): " + what_was_said);
+            append_to_chat_log(who_said_it + " said before translation(" + translation_command + "): " + what_was_said);
             send_translation_request(who_said_it, what_was_said, translation_command);
         }
         else {
@@ -357,7 +343,7 @@ var say_next = function() {
 
     // message not processed above means it isn't from someone, but is informative from app
     if (!message_processed) {
-        log_msg(speak_string);
+        append_to_chat_log(speak_string);
         sayIt("", "", speak_string, "");
     }
 };
@@ -385,15 +371,15 @@ var sayIt = function(who, announce_word, message_to_say, additional_screen_info)
     else {
         sayer = who;
     }
-    $("#chat").html( sayer + " " + announce_phrase + speak_string + additional_screen_info);
+    //$("#chat").html( sayer + " " + announce_phrase + speak_string + additional_screen_info);
+    console.log("about to try to say something");
     if ( (name_length == 0) || (sayer.length == 0) ) {
         responsiveVoice.speak(speak_string, current_language , {onstart: start_callback, onend: stop_callback});
     }
     else {
         shortend_who = who.substring(0, Math.min(who.length, name_length));
         responsiveVoice.speak(shortend_who + " " + announce_word + ": " + speak_string,
-                current_language , {onstart: start_callback, onend: stop_callback});
-
+              current_language, {onstart: start_callback, onend: stop_callback});
     }
 };
 
@@ -412,33 +398,36 @@ var send_translation_request = function(who_said_it, text_to_be_translated, lang
     var yandexKey = "trnsl.1.1.20170707T040715Z.91d8bbf749039bd6.313fa4324e6371e9ae58a30e2a4f93b47dca1ca2";
     var yandexUrl = "https://translate.yandex.net/api/v1.5/tr.json/translate?key=" + yandexKey
              + "&text=" + encodeURI(text_to_be_translated) + "&lang=" + translation_command;
-    $.ajax({url: yandexUrl, type: 'GET',
-            contentType: 'application/x-www-form-urlencoded', dataType: 'text',
-            success: function(response, status_info) {
-                         var result_string = response;
+    axios.get(yandexUrl).then(
+        function(response, status_info) {
+            var result_string = response;
 
-                         log_msg("got translation response: " + response);
+            append_to_chat_log("got translation response: " + response);
 
-                         //Getting the characters between [ and ]
-                         result_string = result_string.substring(result_string.indexOf('[')+1);
-                         result_string = result_string.substring(0,result_string.indexOf("]"));
+            //Getting the characters between [ and ]
+            result_string = result_string.substring(result_string.indexOf('[')+1);
+            result_string = result_string.substring(0,result_string.indexOf("]"));
 
-                         //Getting the characters between " and "
-                         result_string = result_string.substring(result_string.indexOf("\"")+1);
-                         result_string = result_string.substring(0,result_string.indexOf("\""));
+            //Getting the characters between " and "
+            result_string = result_string.substring(result_string.indexOf("\"")+1);
+            result_string = result_string.substring(0,result_string.indexOf("\""));
 
-                         log_msg("got translation text: " + result_string);
-
-                         say_translated_text(who_said_it, result_string,
+            append_to_chat_log("got translation text: " + result_string);
+            say_translated_text(who_said_it, result_string,
                 "<br><br>(" + this.languagePair + ") Translation powered by <a href=\"http://translate.yandex.com\">Yandex.Translate</a>");
-                     }, 
-            error: onAjaxError});
+        }
+     ).catch(
+        function(err) {
+            append_to_chat_log("An error occured: " + err);
+            queue_message_to_say("An error occured: " + err);
+        }
+     );
 };
 
 // function to say text that has been translated
 //
-var say_translated_text = function(who_said_it, what_was_said, translation_info) {
-    log_msg("After translation: " + what_was_said);
+say_translated_text = function(who_said_it, what_was_said, translation_info) {
+    append_to_chat_log("After translation: " + what_was_said);
     if ( (what_was_said == "joined") || (what_was_said == "Joined")
     ||   (what_was_said == "Participation") || (what_was_said == "has joined") )  {
             speaking = false;
@@ -459,10 +448,15 @@ var say_translated_text = function(who_said_it, what_was_said, translation_info)
 
 // function to remove emoji from a given string
 //
-var removeEmoji = function(s) {
-    return s.replace(/([\uE000-\uF8FF]|\uD83C[\uDF00-\uDFFF]|\uD83D[\uDC00-\uDDFF])/g, '');
+removeEmoji = function(s) {
+  return s.replace(/([\uE000-\uF8FF]|\uD83C[\uDF00-\uDFFF]|\uD83D[\uDC00-\uDDFF])/g, '');
 };
 
-log_msg("<u>Scopespeaker debug/run log:</u><br>");
+// method to log message to message display object on screen
+//
+var append_to_chat_log = function(msg) {
+      chat_log = msg + "<br>" + chat_log;
+};
 
-*/
+append_to_chat_log("<u>Scopespeaker debug/run log:</u><br>");
+
