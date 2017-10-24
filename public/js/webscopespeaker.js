@@ -28,9 +28,10 @@ var the_message_object = null;
 
 var chat_log = "";
 
-// method to log message to message display object on screen
+// method to append message to running log of chat
 //
 var append_to_chat_log = function (msg) {
+    console.log("chat log: " + msg);
     chat_log = msg + "<br>" + chat_log;
 };
 
@@ -46,14 +47,13 @@ var WebScopeSpeaker = React.createClass({
 
     componentDidMount: function () {
         var self = this;
-        console.log("in did mount");
         this.sendable = true;
         this.user = localStorage.getItem('user') || "";
-        localStorage.setItem('user', this.user);
+        this.refs.user.value = this.user;
+        console.log("in did mount, user is:" + this.user);
     },
 
     render: function () {
-        console.log("in render");
         return React.createElement(
             "div",
             null,
@@ -87,10 +87,8 @@ var WebScopeSpeaker = React.createClass({
             } else {
                 broadcast_id = response.data[1];
                 console.log("Got a broadcast ID of: " + broadcast_id);
-                console.log("For the user we were given");
                 queue_message_to_say("Got a good response from the periscope server about " + localStorage.getItem('user'));
                 queue_message_to_say("Chat messages will now begin");
-                console.log("about to open web socket");
                 openChatWebsocket();
             }
         }).catch(function (err) {
@@ -393,7 +391,6 @@ var sayIt = function (who, announce_word, message_to_say, additional_screen_info
         sayer = who;
     }
     //$("#chat").html( sayer + " " + announce_phrase + speak_string + additional_screen_info);
-    console.log("about to try to say: " + speak_string);
     console.log("before setting message");
     the_message_object.innerHTML = speak_string;
     console.log("after setting message");

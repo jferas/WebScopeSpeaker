@@ -24,6 +24,7 @@ module Webscopespeaker
   #
   get "/chatinfo/:user" do |env|
     user = env.params.url["user"]
+    puts "Got request for chat info for user #{user}"
     status, broadcast_id, chat_endpoint, chat_access_token = PeriscopeLiveChat.get_periscope_chat_connection(user)
     if status != "error"
       p = PeriscopeLiveChat.new(user, broadcast_id, chat_endpoint, chat_access_token)
