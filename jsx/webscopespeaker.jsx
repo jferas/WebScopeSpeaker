@@ -1,5 +1,7 @@
 // ScopeSpeaker React/Web client
 
+// global used by speech (non-react) sections of code
+
 var current_language = "UK English Male";
 var messages = [];
 var speaking = false;
@@ -29,14 +31,14 @@ var the_message_object = null;
 var chat_log = "";
 
 
-// method to append message to running log of chat
+// method to append message to running log of chat messages
 //
 var append_to_chat_log = function(msg) {
   console.log("chat log: " + msg);
   chat_log = msg + "<br>" + chat_log;
 };
 
-// React Class to manague the user interface
+// React Class to manage the user interface
 //
 var WebScopeSpeaker = React.createClass({
 
@@ -50,7 +52,7 @@ var WebScopeSpeaker = React.createClass({
     this.sendable = true;
     this.user = localStorage.getItem('user') || "";
     this.refs.user.value = this.user;
-    console.log("in did mount, user is:" + this.user);
+    append_to_chat_log("in did mount, user is:" + this.user);
   },
 
   render: function () {
@@ -58,16 +60,19 @@ var WebScopeSpeaker = React.createClass({
       <div>
         <input
           type="button"
+          className="say_button"
           onClick={this.getUserData}
           value="Say the chat messages of" />
         <input
+          type="text"
+          className="user_input"
           autofocus="true"
           placeholder='Periscope user name...'
-          type="text"
           ref="user"
           onKeyUp={this.getUserDataWithEnter} />
         <hr/>
         <pre
+          className="message"
           ref={(msg) => { the_message_object = msg; }} >
         </pre>
       </div>
@@ -75,11 +80,11 @@ var WebScopeSpeaker = React.createClass({
   },
 
   getUserData: function () {
-    console.log("about to ask for user info");
+    append_to_chat_log("about to ask for user info");
     localStorage.setItem('user', this.refs.user.value);
     axios.get(window.location.href + "chatinfo/" + this.refs.user.value).then(
       function(response) {
-        console.log("response data is: " + response.data);
+        append_to_chat_log("response data is: " + response.data);
         //var response_array = response.data.split(",");
         if (response.data[0] == "error") {
           queue_message_to_say("An error occurred, the problem is: " + response.data[1]);
@@ -87,7 +92,7 @@ var WebScopeSpeaker = React.createClass({
         }
         else {
           broadcast_id = response.data[1];
-          console.log("Got a broadcast ID of: " + broadcast_id);
+          append_to_chat_log("Got a broadcast ID of: " + broadcast_id);
           queue_message_to_say("Got a good response from the periscope server about " + localStorage.getItem('user'));
           queue_message_to_say("Chat messages will now begin");
           openChatWebsocket();
@@ -399,10 +404,7 @@ var sayIt = function(who, announce_word, message_to_say, additional_screen_info)
     else {
         sayer = who;
     }
-    //$("#chat").html( sayer + " " + announce_phrase + speak_string + additional_screen_info);
-    console.log("before setting message");
     the_message_object.innerHTML = speak_string;
-    console.log("after setting message");
     if ( (name_length == 0) || (sayer.length == 0) ) {
         responsiveVoice.speak(speak_string, current_language , {onstart: start_callback, onend: stop_callback});
     }
