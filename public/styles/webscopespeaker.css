@@ -31,10 +31,8 @@ body {
 }
 [class*="col-"] {
     float: left;
-    padding-top: 15px;
-    padding-bottom: 15px;
-    padding-left: 15px;
-    padding-right: 15px;
+    font-size: 20px;
+    margin-top: 15px;
 }
 .col-1 {width: 8.33%;}
 .col-2 {width: 16.66%;}
