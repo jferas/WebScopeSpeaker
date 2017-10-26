@@ -1,0 +1,4 @@
+echo Converting jsx code to js
+./jsx2js
+echo Running crystal web app
+crystal run --error-trace  src/WebScopeSpeaker.cr
