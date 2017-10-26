@@ -68,8 +68,10 @@ var WebScopeSpeaker = React.createClass({
                     "ScopeSpeaker (on the web)"
                 )
             ),
+            React.createElement("span", { className: "col-1" }),
             React.createElement("input", { type: "button", className: "col-3", onClick: this.getUserData, value: "Say the chat messages of" }),
-            React.createElement("input", { type: "text", className: "col-9", autofocus: "true",
+            React.createElement("span", { className: "col-1" }),
+            React.createElement("input", { type: "text", className: "col-6", autofocus: "true",
                 placeholder: "Periscope user name...", ref: "user", onKeyUp: this.getUserDataWithEnter }),
             React.createElement("pre", { className: "col-12", ref: function (msg) {
                     the_message_object = msg;
