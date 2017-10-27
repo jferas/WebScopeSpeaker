@@ -68,23 +68,33 @@ var WebScopeSpeaker = React.createClass({
                     "ScopeSpeaker (on the web)"
                 )
             ),
-            React.createElement("span", { className: "col-1" }),
-            React.createElement("input", { type: "button", className: "col-3", onClick: this.getUserData, value: "Say the chat messages of" }),
-            React.createElement("span", { className: "col-1" }),
-            React.createElement("input", { type: "text", className: "col-6", autofocus: "true",
-                placeholder: "Periscope user name...", ref: "user", onKeyUp: this.getUserDataWithEnter }),
-            React.createElement("pre", { className: "col-12", ref: function (msg) {
-                    the_message_object = msg;
-                } })
+            React.createElement(
+                "div",
+                { className: "row" },
+                React.createElement(
+                    "button",
+                    { className: "col-3 say_button", onClick: this.getUserData },
+                    "Say the chat messages of"
+                ),
+                React.createElement("input", { type: "text", className: "col-8 user_input", autofocus: "true",
+                    placeholder: "Periscope user name...", ref: "user", onKeyUp: this.getUserDataWithEnter })
+            ),
+            React.createElement(
+                "div",
+                { className: "row" },
+                React.createElement("pre", { className: "col-12", ref: function (msg) {
+                        the_message_object = msg;
+                    } })
+            )
         );
     },
 
     getUserData: function () {
         append_to_chat_log("about to ask for user info");
         localStorage.setItem('user', this.refs.user.value);
+        queue_message_to_say("Looking for a Periscope live stream by " + this.refs.user.value);
         axios.get(window.location.href + "chatinfo/" + this.refs.user.value).then(function (response) {
             append_to_chat_log("response data is: " + response.data);
-            //var response_array = response.data.split(",");
             if (response.data[0] == "error") {
                 queue_message_to_say("An error occurred, the problem is: " + response.data[1]);
                 queue_message_to_say("Chat messages will not begin");
@@ -394,10 +404,11 @@ var sayIt = function (who, announce_word, message_to_say, additional_screen_info
     } else {
         sayer = who;
     }
-    the_message_object.innerHTML = speak_string;
     if (name_length == 0 || sayer.length == 0) {
+        the_message_object.innerHTML = speak_string;
         responsiveVoice.speak(speak_string, current_language, { onstart: start_callback, onend: stop_callback });
     } else {
+        the_message_object.innerHTML = who + " " + announce_word + ": " + speak_string;
         shortend_who = who.substring(0, Math.min(who.length, name_length));
         responsiveVoice.speak(shortend_who + " " + announce_word + ": " + speak_string, current_language, { onstart: start_callback, onend: stop_callback });
     }
@@ -416,18 +427,9 @@ var send_translation_request = function (who_said_it, text_to_be_translated, lan
     }
     var yandexKey = "trnsl.1.1.20170707T040715Z.91d8bbf749039bd6.313fa4324e6371e9ae58a30e2a4f93b47dca1ca2";
     var yandexUrl = "https://translate.yandex.net/api/v1.5/tr.json/translate?key=" + yandexKey + "&text=" + encodeURI(text_to_be_translated) + "&lang=" + translation_command;
-    axios.get(yandexUrl).then(function (response, status_info) {
-        var result_string = response;
-
-        append_to_chat_log("got translation response: " + response);
-
-        //Getting the characters between [ and ]
-        result_string = result_string.substring(result_string.indexOf('[') + 1);
-        result_string = result_string.substring(0, result_string.indexOf("]"));
-
-        //Getting the characters between " and "
-        result_string = result_string.substring(result_string.indexOf("\"") + 1);
-        result_string = result_string.substring(0, result_string.indexOf("\""));
+    append_to_chat_log("Yandex URL: " + yandexUrl);
+    axios.get(yandexUrl).then(function (response) {
+        var result_string = response.data.text;
 
         append_to_chat_log("got translation text: " + result_string);
         say_translated_text(who_said_it, result_string, "<br><br>(" + this.languagePair + ") Translation powered by <a href=\"http://translate.yandex.com\">Yandex.Translate</a>");
