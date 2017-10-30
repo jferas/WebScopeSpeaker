@@ -67,7 +67,7 @@ var WebScopeSpeaker = React.createClass({
                placeholder='Periscope user name...' ref="user" onKeyUp={this.getUserDataWithEnter} />
         </div>
         <div className="row">
-          <pre className="col-12" ref={(msg) => { the_message_object = msg; }} />
+          <div className="col-12" ref={(msg) => { the_message_object = msg; }} />
         </div>
       </div>
     );

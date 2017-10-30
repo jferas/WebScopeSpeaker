@@ -82,7 +82,7 @@ var WebScopeSpeaker = React.createClass({
             React.createElement(
                 "div",
                 { className: "row" },
-                React.createElement("pre", { className: "col-12", ref: function (msg) {
+                React.createElement("div", { className: "col-12", ref: function (msg) {
                         the_message_object = msg;
                     } })
             )
