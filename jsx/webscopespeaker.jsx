@@ -403,7 +403,7 @@ var sayIt = function(who, announce_word, message_to_say, additional_screen_info)
         responsiveVoice.speak(speak_string, current_language , {onstart: start_callback, onend: stop_callback});
     }
     else {
-        the_message_object.innerHTML = who + " " + announce_word + ": " + speak_string;
+        the_message_object.innerHTML = who + " " + announce_word + ": " + speak_string + additional_screen_info;
         shortend_who = who.substring(0, Math.min(who.length, name_length));
         responsiveVoice.speak(shortend_who + " " + announce_word + ": " + speak_string,
               current_language, {onstart: start_callback, onend: stop_callback});
@@ -432,7 +432,7 @@ var send_translation_request = function(who_said_it, text_to_be_translated, lang
 
             append_to_chat_log("got translation text: " + result_string);
             say_translated_text(who_said_it, result_string,
-                "<br><br>(" + this.languagePair + ") Translation powered by <a href=\"http://translate.yandex.com\">Yandex.Translate</a>");
+                "<br><br>(" + language_pair + ") Translation powered by <a href=\"http://translate.yandex.com\">Yandex.Translate</a>");
         }
      ).catch(
         function(err) {
