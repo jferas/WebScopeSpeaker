@@ -62,7 +62,7 @@ var WebScopeSpeaker = React.createClass({
           <h1>ScopeSpeaker (on the web)</h1>
         </div>
         <div className="row">
-          <button className="col-3 say_button" onClick={this.getUserData}>Say the chat messages of</button>
+          <button className="col-2 say_button" onClick={this.getUserData}>Say chat of</button>
           <input type="text" className="col-8 user_input" autofocus="true"
                placeholder='Periscope user name...' ref="user" onKeyUp={this.getUserDataWithEnter} />
         </div>
