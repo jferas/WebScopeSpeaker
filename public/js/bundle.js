@@ -10682,7 +10682,6 @@ var WebScopeSpeaker = React.createClass({
     },
 
     componentDidMount: function () {
-        var self = this;
         this.sendable = true;
         this.user = localStorage.getItem('user') || "";
         this.refs.user.value = this.user;
@@ -10813,6 +10812,10 @@ var WebScopeSpeaker = React.createClass({
         if (e.keyCode == 13) {
             this.getUserData();
         }
+    },
+
+    setMessage: function (the_message) {
+        this.setState({ message: the_message });
     }
 
 });
@@ -11104,9 +11107,11 @@ var sayIt = function (who, announce_word, message_to_say, additional_screen_info
         sayer = who;
     }
     if (name_length == 0 || sayer.length == 0) {
+        //WebScopeSpeaker.setMessage(speak_string);
         the_message_object.innerHTML = speak_string;
         responsiveVoice.speak(speak_string, current_language, { onstart: start_callback, onend: stop_callback });
     } else {
+        //WebScopeSpeaker.setMessage(who + " " + announce_word + ": " + speak_string + additional_screen_info);
         the_message_object.innerHTML = who + " " + announce_word + ": " + speak_string + additional_screen_info;
         var shortend_who = who.substring(0, Math.min(who.length, name_length));
         responsiveVoice.speak(shortend_who + " " + announce_word + ": " + speak_string, current_language, { onstart: start_callback, onend: stop_callback });
