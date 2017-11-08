@@ -1,5 +1,11 @@
 // ScopeSpeaker React/Web client
 
+// import React UI menu and settings pane components
+
+import { slide as Menu } from 'react-burger-menu';
+
+import { SettingsPane, SettingsPage, SettingsContent, SettingsMenu } from 'react-settings-pane';
+
 // global used by speech (non-react) sections of code
 
 var current_language = "UK English Male";
@@ -30,6 +36,42 @@ var the_message_object = null;
 
 var chat_log = "";
 
+// styling of the Burger menu
+var menu_styles = {
+    bmBurgerButton: {
+        position: 'fixed',
+        width: '36px',
+        height: '30px',
+        right: '20px',
+        top: '36px'
+    },
+    bmBurgerBars: {
+        background: '#373a47'
+    },
+    bmCrossButton: {
+        height: '24px',
+        width: '24px'
+    },
+    bmCross: {
+        background: '#bdc3c7'
+    },
+    bmMenu: {
+        background: '#373a47',
+        padding: '2.5em 1.5em 0',
+        fontSize: '1.15em'
+    },
+    bmMorphShape: {
+        fill: '#373a47'
+    },
+    bmItemList: {
+        color: '#b8b7ad',
+        padding: '0.8em'
+    },
+    bmOverlay: {
+        background: 'rgba(0, 0, 0, 0.3)'
+    }
+};
+
 // method to append message to running log of chat messages
 //
 var append_to_chat_log = function (msg) {
@@ -40,11 +82,17 @@ var append_to_chat_log = function (msg) {
 // React Class to manage the user interface
 //
 var WebScopeSpeaker = React.createClass({
-    displayName: "WebScopeSpeaker",
+    displayName: 'WebScopeSpeaker',
+
+    //class WebScopeSpeaker extends React.Component {
 
 
     getInitialState: function () {
-        return {};
+        return {
+            message: "",
+            menu_open_state: false,
+            page_showing: "help"
+        };
     },
 
     componentDidMount: function () {
@@ -55,38 +103,102 @@ var WebScopeSpeaker = React.createClass({
         append_to_chat_log("in did mount, user is:" + this.user);
     },
 
-    render: function () {
+    menu: function () {
         return React.createElement(
-            "div",
-            null,
+            Menu,
+            { isOpen: this.state.menu_open_state, styles: menu_styles, right: true },
             React.createElement(
-                "div",
-                { className: "header" },
-                React.createElement(
-                    "h1",
-                    null,
-                    "ScopeSpeaker (on the web)"
-                )
+                'button',
+                { onClick: this.changeVoice, className: 'col-6 abutton', href: '/about' },
+                'Change Voice'
             ),
             React.createElement(
-                "div",
-                { className: "row" },
-                React.createElement(
-                    "button",
-                    { className: "col-2 say_button", onClick: this.getUserData },
-                    "Say Chat of"
-                ),
-                React.createElement("input", { type: "text", className: "col-8 user_input", autofocus: "true",
-                    placeholder: "Periscope user name...", ref: "user", onKeyUp: this.getUserDataWithEnter })
+                'button',
+                { onClick: this.doSettings, className: 'col-6 abutton', href: '/contact' },
+                'Settings'
             ),
             React.createElement(
-                "div",
-                { className: "row" },
-                React.createElement("div", { className: "col-12", ref: function (msg) {
-                        the_message_object = msg;
-                    } })
+                'button',
+                { onClick: this.showHelp, className: 'col-6 abutton', href: '' },
+                'Help'
             )
         );
+    },
+
+    header: function () {
+        return React.createElement(
+            'div',
+            null,
+            React.createElement(
+                'div',
+                { className: 'header' },
+                React.createElement(
+                    'h1',
+                    null,
+                    'ScopeSpeaker (on the web)'
+                )
+            )
+        );
+    },
+
+    topOfPage: function () {
+        return React.createElement(
+            'div',
+            null,
+            this.menu(),
+            this.header()
+        );
+    },
+
+    messagePage: function () {
+        return React.createElement(
+            'div',
+            null,
+            React.createElement(
+                'div',
+                { className: 'row' },
+                React.createElement(
+                    'button',
+                    { className: 'col-2 abutton', onClick: this.getUserData },
+                    'Say Chat of'
+                ),
+                React.createElement('input', { type: 'text', className: 'col-8 user_input', autofocus: 'true',
+                    placeholder: 'Periscope user name...', ref: 'user', onKeyUp: this.getUserDataWithEnter })
+            ),
+            React.createElement(
+                'div',
+                { className: 'row' },
+                React.createElement(
+                    'div',
+                    { className: 'col-12', ref: function (msg) {
+                            the_message_object = msg;
+                        } },
+                    this.state.message
+                )
+            )
+        );
+    },
+
+    render: function () {
+        return React.createElement(
+            'div',
+            null,
+            this.topOfPage(),
+            this.messagePage()
+        );
+    },
+
+    changeVoice: function () {
+        this.setState({ menu_open_state: false });
+    },
+
+    doSettings: function () {
+        this.setState({ menu_open_state: false });
+    },
+
+    showHelp: function () {
+        this.setState({ message: "This is a Help message" });
+        this.setState({ menu_open_state: false });
     },
 
     getUserData: function () {
@@ -128,7 +240,7 @@ ReactDOM.render(React.createElement(WebScopeSpeaker, null), document.getElementB
 // method to open a chat websocket with the periscope chat server, given URL and access token
 //
 var openChatWebsocket = function () {
-    chat_url = window.location.href.replace("http", "ws") + "chat";
+    var chat_url = window.location.href.replace("http", "ws") + "chat";
     websocket = new WebSocket(chat_url);
     websocket.onopen = function (evt) {
         onOpen(evt);
@@ -148,7 +260,7 @@ var openChatWebsocket = function () {
 //
 var onOpen = function (evt) {
     append_to_chat_log("<br>Secure web-socket connected to ScopeSpeaker proxy server");
-    join_message = {};
+    var join_message = {};
     join_message["room"] = broadcast_id;
     doSend(JSON.stringify(join_message));
 };
@@ -162,21 +274,21 @@ var onClose = function (evt) {
 // method invoked when chat websocket receives a message, parse message and say it
 //
 var onMessage = function (evt) {
-    message_to_say = extractChatMessage(evt.data);
+    var message_to_say = extractChatMessage(evt.data);
     if (message_to_say != null) {
-        msg_fields = message_to_say.split(":");
-        language_tag = msg_fields[0];
-        who_said_it = msg_fields[1];
+        var msg_fields = message_to_say.split(":");
+        var language_tag = msg_fields[0];
+        var who_said_it = msg_fields[1];
         msg_fields.shift();
         msg_fields.shift();
-        what_was_said = msg_fields.join(" ");
+        var what_was_said = msg_fields.join(" ");
         if (what_was_said == "left" && !saying_left_messages) {
             return;
         }
         if (what_was_said == "joined" && !saying_join_messages) {
             return;
         }
-        to_be_said = language_tag + ":" + who_said_it + ":" + what_was_said;
+        var to_be_said = language_tag + ":" + who_said_it + ":" + what_was_said;
         queue_message_to_say(to_be_said);
     }
 };
@@ -199,32 +311,32 @@ var extractChatMessage = function (chat_msg) {
     var who_said_it = "";
     var what_they_said = "";
     try {
-        chat_message = JSON.parse(chat_msg);
-        kind = chat_message.kind;
-        payload_string = chat_message.payload;
-        payload = JSON.parse(payload_string);
+        var chat_message = JSON.parse(chat_msg);
+        var kind = chat_message.kind;
+        var payload_string = chat_message.payload;
+        var payload = JSON.parse(payload_string);
         if (kind == 1) {
             try {
-                body_string = payload.body;
-                outer_body = JSON.parse(body_string);
+                var body_string = payload.body;
+                var outer_body = JSON.parse(body_string);
                 if (outer_body.body == null) {
                     return;
                 }
                 what_they_said = outer_body.body;
-                sender = payload.sender;
+                var sender = payload.sender;
                 if (sender.display_name == null) {
                     return;
                 }
-                language_array = sender.lang;
-                chat_message_language = language_array[0];
-                display_name = sender.display_name;
-                user_name = sender.username;
+                var language_array = sender.lang;
+                var chat_message_language = language_array[0];
+                var display_name = sender.display_name;
+                var user_name = sender.username;
                 if (saying_display_names) {
                     who_said_it = display_name;
                 } else {
                     who_said_it = user_name;
                 }
-                language_tag = "";
+                var language_tag = "";
                 if (language_array.length > 1) {
                     language_tag = "?M";
                 }
@@ -249,8 +361,9 @@ var extractChatMessage = function (chat_msg) {
                 return null;
             }
         } else if (kind == 2) {
-            payload_kind = payload.kind;
-            sender = payload.sender;
+            var payload_kind = payload.kind;
+            var sender = payload.sender;
+            var message_for_chatlog = "";
             if (payload_kind == 1) {
                 message_for_chatlog = sender.username + "joined";
                 if (saying_join_messages) {
@@ -318,7 +431,7 @@ var queue_message_to_say = function (m) {
         return;
     }
     messages.push(m);
-    queue_size = messages.length;
+    var queue_size = messages.length;
     if (queue_size == high_water_mark) {
         the_message = "Scope Speaker un-said queue has " + high_water_mark + " messages, new messages won't be said till queue is down to " + low_water_mark;
         messages.unshift(the_message);
@@ -357,17 +470,17 @@ var say_next = function () {
         speak_string = "Scope Speaker has recovered the un-said message queue down to " + lowWaterMark + ", new messages will resume being said";
         append_to_chat_log(speak_string);
     }
-    message_processed = false;
+    var message_processed = false;
     queued_message_being_said = speak_string;
-    colon_location = speak_string.indexOf(":");
-    question_mark_location = speak_string.indexOf("?");
+    var colon_location = speak_string.indexOf(":");
+    var question_mark_location = speak_string.indexOf("?");
     if (question_mark_location == 0 || colon_location > 0 && colon_location < 6) {
-        msg_fields = speak_string.split(":");
-        language_tag = msg_fields[0];
+        var msg_fields = speak_string.split(":");
+        var language_tag = msg_fields[0];
         who_said_it = msg_fields[1];
         what_was_said = msg_fields[2];
         if (saying_translations && language_tag != default_language) {
-            translation_command = language_tag + "-" + default_language;
+            var translation_command = language_tag + "-" + default_language;
             append_to_chat_log(who_said_it + " said before translation(" + translation_command + "): " + what_was_said);
             send_translation_request(who_said_it, what_was_said, translation_command);
         } else {
@@ -409,7 +522,7 @@ var sayIt = function (who, announce_word, message_to_say, additional_screen_info
         responsiveVoice.speak(speak_string, current_language, { onstart: start_callback, onend: stop_callback });
     } else {
         the_message_object.innerHTML = who + " " + announce_word + ": " + speak_string + additional_screen_info;
-        shortend_who = who.substring(0, Math.min(who.length, name_length));
+        var shortend_who = who.substring(0, Math.min(who.length, name_length));
         responsiveVoice.speak(shortend_who + " " + announce_word + ": " + speak_string, current_language, { onstart: start_callback, onend: stop_callback });
     }
 };
@@ -441,7 +554,7 @@ var send_translation_request = function (who_said_it, text_to_be_translated, lan
 
 // function to say text that has been translated
 //
-say_translated_text = function (who_said_it, what_was_said, translation_info) {
+var say_translated_text = function (who_said_it, what_was_said, translation_info) {
     append_to_chat_log("After translation: " + what_was_said);
     if (what_was_said == "joined" || what_was_said == "Joined" || what_was_said == "Participation" || what_was_said == "has joined") {
         speaking = false;
@@ -462,7 +575,7 @@ say_translated_text = function (who_said_it, what_was_said, translation_info) {
 
 // function to remove emoji from a given string
 //
-removeEmoji = function (s) {
+var removeEmoji = function (s) {
     return s.replace(/([\uE000-\uF8FF]|\uD83C[\uDF00-\uDFFF]|\uD83D[\uDC00-\uDDFF])/g, '');
 };
 
