@@ -10618,7 +10618,11 @@ var low_water_mark = 5;
 var detect_length = 120;
 var default_language = "en";
 
-var the_message_object = null;
+// callback function to allow chat message processing to statefully set the message displayed via 'react'
+
+var setMessage = null;
+
+// running chat log of messages
 
 var chat_log = "";
 
@@ -10688,6 +10692,15 @@ var WebScopeSpeaker = React.createClass({
         append_to_chat_log("in did mount, user is:" + this.user);
     },
 
+    componentWillMount() {
+        var _this = this;
+
+        setMessage = function (the_message) {
+            console.log("in setMessage:" + the_message);
+            _this.setState({ message: the_message });
+        };
+    },
+
     menu: function () {
         return React.createElement(
             __WEBPACK_IMPORTED_MODULE_0_react_burger_menu__["slide"],
@@ -10755,9 +10768,7 @@ var WebScopeSpeaker = React.createClass({
                 { className: 'row' },
                 React.createElement(
                     'div',
-                    { className: 'col-12', ref: function (msg) {
-                            the_message_object = msg;
-                        } },
+                    { className: 'col-12' },
                     this.state.message
                 )
             )
@@ -10812,10 +10823,6 @@ var WebScopeSpeaker = React.createClass({
         if (e.keyCode == 13) {
             this.getUserData();
         }
-    },
-
-    setMessage: function (the_message) {
-        this.setState({ message: the_message });
     }
 
 });
@@ -11107,12 +11114,10 @@ var sayIt = function (who, announce_word, message_to_say, additional_screen_info
         sayer = who;
     }
     if (name_length == 0 || sayer.length == 0) {
-        //WebScopeSpeaker.setMessage(speak_string);
-        the_message_object.innerHTML = speak_string;
+        setMessage(speak_string);
         responsiveVoice.speak(speak_string, current_language, { onstart: start_callback, onend: stop_callback });
     } else {
-        //WebScopeSpeaker.setMessage(who + " " + announce_word + ": " + speak_string + additional_screen_info);
-        the_message_object.innerHTML = who + " " + announce_word + ": " + speak_string + additional_screen_info;
+        setMessage(who + " " + announce_word + ": " + speak_string + additional_screen_info);
         var shortend_who = who.substring(0, Math.min(who.length, name_length));
         responsiveVoice.speak(shortend_who + " " + announce_word + ": " + speak_string, current_language, { onstart: start_callback, onend: stop_callback });
     }
@@ -11136,7 +11141,7 @@ var send_translation_request = function (who_said_it, text_to_be_translated, lan
         var result_string = response.data.text;
 
         append_to_chat_log("got translation text: " + result_string);
-        say_translated_text(who_said_it, result_string, "<br><br>(" + language_pair + ") Translation powered by <a href=\"http://translate.yandex.com\">Yandex.Translate</a>");
+        say_translated_text(who_said_it, result_string, " <br><br>(" + language_pair + ") Translation powered by <a href=\"http://translate.yandex.com\">Yandex.Translate</a>");
     }).catch(function (err) {
         append_to_chat_log("An error occured: " + err);
         queue_message_to_say("An error occured: " + err);
