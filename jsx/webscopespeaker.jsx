@@ -80,7 +80,7 @@ let menu_styles = {
 //
 var append_to_chat_log = function(msg) {
   console.log("chat log: " + msg);
-  chat_log = msg + "<br>" + chat_log;
+  chat_log = msg + "\n" + chat_log;
 };
 
 // React Class to manage the user interface
@@ -92,6 +92,7 @@ var WebScopeSpeaker = React.createClass({
   getInitialState: function () {
     return {
       message: "",
+      translation_info: "",
       menu_open_state: false,
       page_showing: "help"
     };
@@ -105,9 +106,10 @@ var WebScopeSpeaker = React.createClass({
   },
 
   componentWillMount(){
-     setMessage = (the_message) => {
+     setMessage = (the_message, translation_info) => {
        console.log("in setMessage:" + the_message);
        this.setState({message: the_message});
+       this.setState({translation_info: translation_info});
     };
   },
 
@@ -140,7 +142,26 @@ var WebScopeSpeaker = React.createClass({
     );
   },
 
+  link_html: function () {
+    var translated = this.state.translation_info;
+    var yandex_url = "http://translate.yandex.com";
+
+    if ( (translated != null) && (translated.length > 0) ) {
+      return( 
+        <div className="col-12"  >
+          <br></br>
+          <br></br>
+          ({translated}) Translation powered by <a href={yandex_url}> Yandex.Translate</a>
+        </div>
+      );
+    }
+    else {
+      return null;
+    }
+  },
+
   messagePage: function () {
+
     return(
       <div>
         <div className="row">
@@ -153,6 +174,7 @@ var WebScopeSpeaker = React.createClass({
             {this.state.message}
           </div>
         </div>
+        { this.link_html() }
       </div>
     );
   },
@@ -216,7 +238,7 @@ var WebScopeSpeaker = React.createClass({
 
 // log app startup, and do inital invocation of render method to initially display the user interface
 //
-append_to_chat_log("<u>Scopespeaker debug/run log:</u><br>");
+append_to_chat_log("Scopespeaker debug/run log:\n");
 
 ReactDOM.render(React.createElement(WebScopeSpeaker, null), document.getElementById('webscopespeaker'));
 
@@ -235,7 +257,7 @@ var openChatWebsocket = function() {
 // method invoked when chat websocket is opened, sends handshake of join message and auth message
 //
 var onOpen = function(evt) {
-    append_to_chat_log("<br>Secure web-socket connected to ScopeSpeaker proxy server");
+    append_to_chat_log("\nSecure web-socket connected to ScopeSpeaker proxy server");
     var join_message = {};
     join_message["room"] = broadcast_id;
     doSend(JSON.stringify(join_message));
@@ -484,7 +506,7 @@ var say_next = function() {
 
 // function to speak text
 //
-var sayIt = function(who, announce_word, message_to_say, additional_screen_info) {
+var sayIt = function(who, announce_word, message_to_say, translation_info) {
     var speak_string;
     var sayer;
     var announce_phrase = announce_word + ": ";
@@ -506,11 +528,11 @@ var sayIt = function(who, announce_word, message_to_say, additional_screen_info)
         sayer = who;
     }
     if ( (name_length == 0) || (sayer.length == 0) ) {
-        setMessage(speak_string);
+        setMessage(speak_string, null);
         responsiveVoice.speak(speak_string, current_language , {onstart: start_callback, onend: stop_callback});
     }
     else {
-        setMessage(who + " " + announce_word + ": " + speak_string + additional_screen_info);
+        setMessage(who + " " + announce_word + ": " + speak_string, translation_info);
         var shortend_who = who.substring(0, Math.min(who.length, name_length));
         responsiveVoice.speak(shortend_who + " " + announce_word + ": " + speak_string,
               current_language, {onstart: start_callback, onend: stop_callback});
@@ -538,8 +560,7 @@ var send_translation_request = function(who_said_it, text_to_be_translated, lang
             var result_string = response.data.text;
 
             append_to_chat_log("got translation text: " + result_string);
-            say_translated_text(who_said_it, result_string,
-                " <br><br>(" + language_pair + ") Translation powered by <a href=\"http://translate.yandex.com\">Yandex.Translate</a>");
+            say_translated_text(who_said_it, result_string, language_pair);
         }
      ).catch(
         function(err) {
