@@ -4,7 +4,7 @@
 
 import { slide as Menu } from 'react-burger-menu'
 
-import {SettingsPane, SettingsPage, SettingsContent, SettingsMenu} from 'react-settings-pane'
+import Toggle from 'react-toggle'
 
 // global used by speech (non-react) sections of code
 
@@ -26,6 +26,7 @@ var said_word = "said";
 var translated_word = "translated";
 var saying_left_messages = false;
 var saying_join_messages = false;
+var displaying_messages = true;
 var saying_display_names = false;
 var high_water_mark = 10;
 var low_water_mark = 5;
@@ -94,7 +95,11 @@ var WebScopeSpeaker = React.createClass({
       message: "",
       translation_info: "",
       menu_open_state: false,
-      page_showing: "help"
+      page_showing: "help",
+      saying_emojis: true,
+      diplaying_messages: true,
+      saying_left_messages: false,
+      saying_join_messages: false
     };
   },
 
@@ -108,8 +113,14 @@ var WebScopeSpeaker = React.createClass({
   componentWillMount(){
      setMessage = (the_message, translation_info) => {
        console.log("in setMessage:" + the_message);
-       this.setState({message: the_message});
-       this.setState({translation_info: translation_info});
+       if (displaying_messages) {
+         this.setState({message: the_message});
+         this.setState({translation_info: translation_info});
+       }
+       else {
+         this.setState({message: ""});
+         this.setState({translation_info: ""});
+       }
     };
   },
 
@@ -161,13 +172,38 @@ var WebScopeSpeaker = React.createClass({
   },
 
   messagePage: function () {
-
     return(
       <div>
         <div className="row">
           <button className="col-2 abutton" onClick={this.getUserData}>Say Chat of</button>
           <input type="text" className="col-8 user_input" autofocus="true"
                placeholder='Periscope user name...' ref="user" onKeyUp={this.getUserDataWithEnter} />
+        </div>
+        <div className="row">
+          <label>
+            <Toggle
+              defaultChecked={saying_join_messages}
+              onChange={this.sayingJoinMessagesChange} />
+            <span>Join Msgs</span>
+          </label>
+          <label>
+            <Toggle
+              defaultChecked={displaying_messages}
+              onChange={this.displayingMessagesChange} />
+            <span>Text Display</span>
+          </label>
+          <label>
+            <Toggle
+              defaultChecked={saying_emojis}
+              onChange={this.sayingEmojiChange} />
+            <span>Emojis</span>
+          </label>
+          <label>
+            <Toggle
+              defaultChecked={saying_left_messages}
+              onChange={this.sayingLeftMessagesChange} />
+            <span>Left Msgs</span>
+          </label>
         </div>
         <div className="row">
           <div className="col-12" >
@@ -199,6 +235,26 @@ var WebScopeSpeaker = React.createClass({
   showHelp: function () {
     this.setState({message: "This is a Help message"});
     this.setState({menu_open_state: false });
+  },
+
+  sayingJoinMessagesChange: function(e) {
+    saying_join_messages = e.target.checked;
+    this.state.saying_join_messages = saying_join_messages;
+  },
+
+  sayingLeftMessagesChange: function(e) {
+    saying_left_messages = e.target.checked;
+    this.state.saying_left_messages = saying_left_messages;
+  },
+
+  sayingEmojiChange: function(e) {
+    saying_emojis = e.target.checked;
+    this.state.saying_emojis = saying_emojis;
+  },
+
+  displayingMessagesChange: function(e) {
+    displaying_messages = e.target.checked;
+    this.state.displaying_messages = displaying_messages;
   },
 
   getUserData: function () {
