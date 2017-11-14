@@ -33,6 +33,11 @@ var low_water_mark = 5;
 var detect_length = 120;
 var default_language = "en";
 
+var help_msg1 = "Enter the username of a Periscope user currently live broadcasting and tap the 'Say..' button to start ScopeSpeaker listening for the broadcast chat messages.";
+var help_msg2 = "While ScopeSpeaker is running, it is continuously listening to the chat messages of the Periscope stream, saying them aloud and translating them if necessary."
+var help_msg3 = "Translations powered by Yandex.Translate"
+var help_msg4 = "Disclaimer: ScopeSpeaker is a free app, and is provided 'as is'. No guarantee is made related to the consistency of the app performance with your goals and expectations.";
+
 // callback function to allow chat message processing to statefully set the message displayed via 'react'
 
 var setMessage = null;
@@ -93,6 +98,10 @@ var WebScopeSpeaker = React.createClass({
   getInitialState: function () {
     return {
       message: "",
+      help_msg1: "",
+      help_msg2: "",
+      help_msg3: "",
+      help_msg4: "",
       translation_info: "",
       menu_open_state: false,
       page_showing: "help",
@@ -113,6 +122,10 @@ var WebScopeSpeaker = React.createClass({
   componentWillMount(){
      setMessage = (the_message, translation_info) => {
        console.log("in setMessage:" + the_message);
+       this.setState({help_msg1: ""});
+       this.setState({help_msg2: ""});
+       this.setState({help_msg3: ""});
+       this.setState({help_msg4: ""});
        if (displaying_messages) {
          this.setState({message: the_message});
          this.setState({translation_info: translation_info});
@@ -180,28 +193,28 @@ var WebScopeSpeaker = React.createClass({
                placeholder='Periscope user name...' ref="user" onKeyUp={this.getUserDataWithEnter} />
         </div>
         <div className="row">
-          <span className="toggle">
+          <span className="col-6">
             <Toggle
               id="join_toggle"
               defaultChecked={saying_join_messages}
               onChange={this.sayingJoinMessagesChange} />
             <span className="toggle-label" htmlFor="join_toggle">Join Msgs</span>
           </span>
-          <span className="toggle">
+          <span className="col-6">
             <Toggle
               id="display_toggle"
               defaultChecked={displaying_messages}
               onChange={this.displayingMessagesChange} />
             <span className="toggle-label" htmlFor="display_toggle">Text Display</span>
           </span>
-          <span className="toggle">
+          <span className="col-6">
             <Toggle
               id="emojis_toggle"
               defaultChecked={saying_emojis}
               onChange={this.sayingEmojiChange} />
             <span className="toggle-label" htmlFor="emojis_toggle">Emojis</span>
           </span>
-          <span className="toggle">
+          <span className="col-6">
             <Toggle
               id="left_toggle"
               defaultChecked={saying_left_messages}
@@ -215,6 +228,21 @@ var WebScopeSpeaker = React.createClass({
           </div>
         </div>
         { this.link_html() }
+        <div className="row">
+            {this.state.help_msg1}
+        </div>
+        <br></br>
+        <div className="row">
+            {this.state.help_msg2}
+        </div>
+        <br></br>
+        <div className="row">
+            {this.state.help_msg3}
+        </div>
+        <br></br>
+        <div className="row">
+            {this.state.help_msg4}
+        </div>
       </div>
     );
   },
@@ -237,7 +265,11 @@ var WebScopeSpeaker = React.createClass({
   },
 
   showHelp: function () {
-    this.setState({message: "This is a Help message"});
+    this.setState({message: ""});
+    this.setState({help_msg1: help_msg1});
+    this.setState({help_msg2: help_msg2});
+    this.setState({help_msg3: help_msg3});
+    this.setState({help_msg4: help_msg4});
     this.setState({menu_open_state: false });
   },
 
