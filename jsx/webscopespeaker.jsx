@@ -180,30 +180,34 @@ var WebScopeSpeaker = React.createClass({
                placeholder='Periscope user name...' ref="user" onKeyUp={this.getUserDataWithEnter} />
         </div>
         <div className="row">
-          <label>
+          <span className="toggle">
             <Toggle
+              id="join_toggle"
               defaultChecked={saying_join_messages}
               onChange={this.sayingJoinMessagesChange} />
-            <span>Join Msgs</span>
-          </label>
-          <label>
+            <span className="toggle-label" htmlFor="join_toggle">Join Msgs</span>
+          </span>
+          <span className="toggle">
             <Toggle
+              id="display_toggle"
               defaultChecked={displaying_messages}
               onChange={this.displayingMessagesChange} />
-            <span>Text Display</span>
-          </label>
-          <label>
+            <span className="toggle-label" htmlFor="display_toggle">Text Display</span>
+          </span>
+          <span className="toggle">
             <Toggle
+              id="emojis_toggle"
               defaultChecked={saying_emojis}
               onChange={this.sayingEmojiChange} />
-            <span>Emojis</span>
-          </label>
-          <label>
+            <span className="toggle-label" htmlFor="emojis_toggle">Emojis</span>
+          </span>
+          <span className="toggle">
             <Toggle
+              id="left_toggle"
               defaultChecked={saying_left_messages}
               onChange={this.sayingLeftMessagesChange} />
-            <span>Left Msgs</span>
-          </label>
+            <span className="toggle-label" htmlFor="left_toggle">Left Msgs</span>
+          </span>
         </div>
         <div className="row">
           <div className="col-12" >

@@ -217,50 +217,54 @@ var WebScopeSpeaker = React.createClass({
         'div',
         { className: 'row' },
         React.createElement(
-          'label',
-          null,
+          'span',
+          { className: 'toggle' },
           React.createElement(Toggle, {
+            id: 'join_toggle',
             defaultChecked: saying_join_messages,
             onChange: this.sayingJoinMessagesChange }),
           React.createElement(
             'span',
-            null,
+            { className: 'toggle-label', htmlFor: 'join_toggle' },
             'Join Msgs'
           )
         ),
         React.createElement(
-          'label',
-          null,
+          'span',
+          { className: 'toggle' },
           React.createElement(Toggle, {
+            id: 'display_toggle',
             defaultChecked: displaying_messages,
             onChange: this.displayingMessagesChange }),
           React.createElement(
             'span',
-            null,
+            { className: 'toggle-label', htmlFor: 'display_toggle' },
             'Text Display'
           )
         ),
         React.createElement(
-          'label',
-          null,
+          'span',
+          { className: 'toggle' },
           React.createElement(Toggle, {
+            id: 'emojis_toggle',
             defaultChecked: saying_emojis,
             onChange: this.sayingEmojiChange }),
           React.createElement(
             'span',
-            null,
+            { className: 'toggle-label', htmlFor: 'emojis_toggle' },
             'Emojis'
           )
         ),
         React.createElement(
-          'label',
-          null,
+          'span',
+          { className: 'toggle' },
           React.createElement(Toggle, {
+            id: 'left_toggle',
             defaultChecked: saying_left_messages,
             onChange: this.sayingLeftMessagesChange }),
           React.createElement(
             'span',
-            null,
+            { className: 'toggle-label', htmlFor: 'left_toggle' },
             'Left Msgs'
           )
         )
