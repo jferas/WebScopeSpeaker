@@ -193,34 +193,34 @@ var WebScopeSpeaker = React.createClass({
                placeholder='Periscope user name...' ref="user" onKeyUp={this.getUserDataWithEnter} />
         </div>
         <div className="row">
-          <span className="col-6">
+          <div className="sctoggle">
             <Toggle
               id="join_toggle"
               defaultChecked={saying_join_messages}
               onChange={this.sayingJoinMessagesChange} />
             <span className="toggle-label" htmlFor="join_toggle">Join Msgs</span>
-          </span>
-          <span className="col-6">
+          </div>
+          <div className="sctoggle">
             <Toggle
               id="display_toggle"
               defaultChecked={displaying_messages}
               onChange={this.displayingMessagesChange} />
             <span className="toggle-label" htmlFor="display_toggle">Text Display</span>
-          </span>
-          <span className="col-6">
+          </div>
+          <div className="sctoggle">
             <Toggle
               id="emojis_toggle"
               defaultChecked={saying_emojis}
               onChange={this.sayingEmojiChange} />
             <span className="toggle-label" htmlFor="emojis_toggle">Emojis</span>
-          </span>
-          <span className="col-6">
+          </div>
+          <div className="sctoggle">
             <Toggle
               id="left_toggle"
               defaultChecked={saying_left_messages}
               onChange={this.sayingLeftMessagesChange} />
             <span className="toggle-label" htmlFor="left_toggle">Left Msgs</span>
-          </span>
+          </div>
         </div>
         <div className="row">
           <div className="col-12" >
@@ -228,19 +228,19 @@ var WebScopeSpeaker = React.createClass({
           </div>
         </div>
         { this.link_html() }
-        <div className="row">
+        <div className="row col-12">
             {this.state.help_msg1}
         </div>
         <br></br>
-        <div className="row">
+        <div className="row col-12">
             {this.state.help_msg2}
         </div>
         <br></br>
-        <div className="row">
+        <div className="row col-12">
             {this.state.help_msg3}
         </div>
         <br></br>
-        <div className="row">
+        <div className="row col-12">
             {this.state.help_msg4}
         </div>
       </div>

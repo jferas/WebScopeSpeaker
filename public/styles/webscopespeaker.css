@@ -21,6 +21,26 @@ body {
     display: table;
 }
 
+/* below is for mobile */
+@media only screen and (max-width: 768px) {
+    .sctoggle {
+        width: 100%;
+        margin: 5px;
+	      font-size: 20px;
+    }
+}
+
+/* above width is for mobile, below is for desktop */
+@media only screen and (min-width: 768px) {
+    .sctoggle {
+        width: 25%;
+        margin: 5px;
+	      font-size: 20px;
+    }
+}
+
+.toggle-label {padding-left: 2px;}
+
 [class*="col-"] {
     padding: 10px;
     margin: 15px;
@@ -28,16 +48,7 @@ body {
     width: 100%;
 }
 
-.toggle {
-    width: 25%;
-    padding: 10px;
-    margin: 15px;
-	  font-size: 20px;
-}
-
-.toggle-label {padding-left: 2px;}
-
-/* above width is for desktop, below is for mobile */
+/* above width is for mobile, below is for desktop */
 @media only screen and (min-width: 768px) {
     .col-1 {width: 8.33%;}
     .col-2 {width: 16.66%;}

@@ -10816,8 +10816,8 @@ var WebScopeSpeaker = React.createClass({
                 'div',
                 { className: 'row' },
                 React.createElement(
-                    'span',
-                    { className: 'col-6' },
+                    'div',
+                    { className: 'sctoggle' },
                     React.createElement(__WEBPACK_IMPORTED_MODULE_1_react_toggle___default.a, {
                         id: 'join_toggle',
                         defaultChecked: saying_join_messages,
@@ -10829,8 +10829,8 @@ var WebScopeSpeaker = React.createClass({
                     )
                 ),
                 React.createElement(
-                    'span',
-                    { className: 'col-6' },
+                    'div',
+                    { className: 'sctoggle' },
                     React.createElement(__WEBPACK_IMPORTED_MODULE_1_react_toggle___default.a, {
                         id: 'display_toggle',
                         defaultChecked: displaying_messages,
@@ -10842,8 +10842,8 @@ var WebScopeSpeaker = React.createClass({
                     )
                 ),
                 React.createElement(
-                    'span',
-                    { className: 'col-6' },
+                    'div',
+                    { className: 'sctoggle' },
                     React.createElement(__WEBPACK_IMPORTED_MODULE_1_react_toggle___default.a, {
                         id: 'emojis_toggle',
                         defaultChecked: saying_emojis,
@@ -10855,8 +10855,8 @@ var WebScopeSpeaker = React.createClass({
                     )
                 ),
                 React.createElement(
-                    'span',
-                    { className: 'col-6' },
+                    'div',
+                    { className: 'sctoggle' },
                     React.createElement(__WEBPACK_IMPORTED_MODULE_1_react_toggle___default.a, {
                         id: 'left_toggle',
                         defaultChecked: saying_left_messages,
@@ -10880,25 +10880,25 @@ var WebScopeSpeaker = React.createClass({
             this.link_html(),
             React.createElement(
                 'div',
-                { className: 'row' },
+                { className: 'row col-12' },
                 this.state.help_msg1
             ),
             React.createElement('br', null),
             React.createElement(
                 'div',
-                { className: 'row' },
+                { className: 'row col-12' },
                 this.state.help_msg2
             ),
             React.createElement('br', null),
             React.createElement(
                 'div',
-                { className: 'row' },
+                { className: 'row col-12' },
                 this.state.help_msg3
             ),
             React.createElement('br', null),
             React.createElement(
                 'div',
-                { className: 'row' },
+                { className: 'row col-12' },
                 this.state.help_msg4
             )
         );
