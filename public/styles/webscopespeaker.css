@@ -21,22 +21,16 @@ body {
     display: table;
 }
 
-/* below is for mobile */
-@media only screen and (max-width: 768px) {
-    .sctoggle {
-        width: 100%;
-        margin: 5px;
-	      font-size: 20px;
-    }
+.sctogglerow {
+    float: left;
+    width: 100%;
 }
 
-/* above width is for mobile, below is for desktop */
-@media only screen and (min-width: 768px) {
-    .sctoggle {
-        width: 25%;
-        margin: 5px;
-	      font-size: 20px;
-    }
+.sctoggle {
+    float: left;
+    width: 20%;
+    margin: 5px;
+   font-size: 20px;
 }
 
 .toggle-label {padding-left: 2px;}

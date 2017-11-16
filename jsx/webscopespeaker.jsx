@@ -192,35 +192,35 @@ var WebScopeSpeaker = React.createClass({
           <input type="text" className="col-8 user_input" autofocus="true"
                placeholder='Periscope user name...' ref="user" onKeyUp={this.getUserDataWithEnter} />
         </div>
-        <div className="row">
-          <div className="sctoggle">
+        <div className="row sctogglerow">
+          <span className="sctoggle">
+            <div className="toggle-label" htmlFor="join_toggle">Join Msgs</div>
             <Toggle
               id="join_toggle"
               defaultChecked={saying_join_messages}
               onChange={this.sayingJoinMessagesChange} />
-            <span className="toggle-label" htmlFor="join_toggle">Join Msgs</span>
-          </div>
-          <div className="sctoggle">
+          </span>
+          <span className="sctoggle">
+            <div className="toggle-label" htmlFor="display_toggle">Text Display</div>
             <Toggle
               id="display_toggle"
               defaultChecked={displaying_messages}
               onChange={this.displayingMessagesChange} />
-            <span className="toggle-label" htmlFor="display_toggle">Text Display</span>
-          </div>
-          <div className="sctoggle">
+          </span>
+          <span className="sctoggle">
+            <div className="toggle-label" htmlFor="emojis_toggle">Show Emojis</div>
             <Toggle
               id="emojis_toggle"
               defaultChecked={saying_emojis}
               onChange={this.sayingEmojiChange} />
-            <span className="toggle-label" htmlFor="emojis_toggle">Emojis</span>
-          </div>
-          <div className="sctoggle">
+          </span>
+          <span className="sctoggle">
+            <div className="toggle-label" htmlFor="left_toggle">Left Msgs</div>
             <Toggle
               id="left_toggle"
               defaultChecked={saying_left_messages}
               onChange={this.sayingLeftMessagesChange} />
-            <span className="toggle-label" htmlFor="left_toggle">Left Msgs</span>
-          </div>
+          </span>
         </div>
         <div className="row">
           <div className="col-12" >

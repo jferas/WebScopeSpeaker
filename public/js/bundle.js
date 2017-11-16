@@ -10814,58 +10814,58 @@ var WebScopeSpeaker = React.createClass({
             ),
             React.createElement(
                 'div',
-                { className: 'row' },
+                { className: 'row sctogglerow' },
                 React.createElement(
-                    'div',
+                    'span',
                     { className: 'sctoggle' },
+                    React.createElement(
+                        'div',
+                        { className: 'toggle-label', htmlFor: 'join_toggle' },
+                        'Join Msgs'
+                    ),
                     React.createElement(__WEBPACK_IMPORTED_MODULE_1_react_toggle___default.a, {
                         id: 'join_toggle',
                         defaultChecked: saying_join_messages,
-                        onChange: this.sayingJoinMessagesChange }),
-                    React.createElement(
-                        'span',
-                        { className: 'toggle-label', htmlFor: 'join_toggle' },
-                        'Join Msgs'
-                    )
+                        onChange: this.sayingJoinMessagesChange })
                 ),
                 React.createElement(
-                    'div',
+                    'span',
                     { className: 'sctoggle' },
+                    React.createElement(
+                        'div',
+                        { className: 'toggle-label', htmlFor: 'display_toggle' },
+                        'Text Display'
+                    ),
                     React.createElement(__WEBPACK_IMPORTED_MODULE_1_react_toggle___default.a, {
                         id: 'display_toggle',
                         defaultChecked: displaying_messages,
-                        onChange: this.displayingMessagesChange }),
-                    React.createElement(
-                        'span',
-                        { className: 'toggle-label', htmlFor: 'display_toggle' },
-                        'Text Display'
-                    )
+                        onChange: this.displayingMessagesChange })
                 ),
                 React.createElement(
-                    'div',
+                    'span',
                     { className: 'sctoggle' },
+                    React.createElement(
+                        'div',
+                        { className: 'toggle-label', htmlFor: 'emojis_toggle' },
+                        'Show Emojis'
+                    ),
                     React.createElement(__WEBPACK_IMPORTED_MODULE_1_react_toggle___default.a, {
                         id: 'emojis_toggle',
                         defaultChecked: saying_emojis,
-                        onChange: this.sayingEmojiChange }),
-                    React.createElement(
-                        'span',
-                        { className: 'toggle-label', htmlFor: 'emojis_toggle' },
-                        'Emojis'
-                    )
+                        onChange: this.sayingEmojiChange })
                 ),
                 React.createElement(
-                    'div',
+                    'span',
                     { className: 'sctoggle' },
+                    React.createElement(
+                        'div',
+                        { className: 'toggle-label', htmlFor: 'left_toggle' },
+                        'Left Msgs'
+                    ),
                     React.createElement(__WEBPACK_IMPORTED_MODULE_1_react_toggle___default.a, {
                         id: 'left_toggle',
                         defaultChecked: saying_left_messages,
-                        onChange: this.sayingLeftMessagesChange }),
-                    React.createElement(
-                        'span',
-                        { className: 'toggle-label', htmlFor: 'left_toggle' },
-                        'Left Msgs'
-                    )
+                        onChange: this.sayingLeftMessagesChange })
                 )
             ),
             React.createElement(
