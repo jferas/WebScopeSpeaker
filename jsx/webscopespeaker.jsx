@@ -98,13 +98,13 @@ var WebScopeSpeaker = React.createClass({
   getInitialState: function () {
     return {
       message: "",
-      help_msg1: "",
-      help_msg2: "",
-      help_msg3: "",
-      help_msg4: "",
+      help_msg1: help_msg1,
+      help_msg2: help_msg2,
+      help_msg3: help_msg3,
+      help_msg4: help_msg4,
       translation_info: "",
       menu_open_state: false,
-      page_showing: "help",
+      page_showing: "message",
       saying_emojis: true,
       diplaying_messages: true,
       saying_left_messages: false,
@@ -185,66 +185,88 @@ var WebScopeSpeaker = React.createClass({
   },
 
   messagePage: function () {
-    return(
-      <div>
-        <div className="row">
-          <button className="col-2 abutton" onClick={this.getUserData}>Say Chat of</button>
-          <input type="text" className="col-8 user_input" autofocus="true"
-               placeholder='Periscope user name...' ref="user" onKeyUp={this.getUserDataWithEnter} />
-        </div>
-        <div className="row sctogglerow">
-          <span className="sctoggle">
-            <div className="toggle-label" htmlFor="join_toggle">Join Msgs</div>
-            <Toggle
-              id="join_toggle"
-              defaultChecked={saying_join_messages}
-              onChange={this.sayingJoinMessagesChange} />
-          </span>
-          <span className="sctoggle">
-            <div className="toggle-label" htmlFor="display_toggle">Text Display</div>
-            <Toggle
-              id="display_toggle"
-              defaultChecked={displaying_messages}
-              onChange={this.displayingMessagesChange} />
-          </span>
-          <span className="sctoggle">
-            <div className="toggle-label" htmlFor="emojis_toggle">Show Emojis</div>
-            <Toggle
-              id="emojis_toggle"
-              defaultChecked={saying_emojis}
-              onChange={this.sayingEmojiChange} />
-          </span>
-          <span className="sctoggle">
-            <div className="toggle-label" htmlFor="left_toggle">Left Msgs</div>
-            <Toggle
-              id="left_toggle"
-              defaultChecked={saying_left_messages}
-              onChange={this.sayingLeftMessagesChange} />
-          </span>
-        </div>
-        <div className="row">
-          <div className="col-12" >
-            {this.state.message}
+    if (this.state.page_showing == "message") {
+      return(
+        <div>
+          <div className="row">
+            <button className="col-2 abutton" onClick={this.getUserData}>Say Chat of</button>
+            <input type="text" className="col-8 user_input" autofocus="true"
+                 placeholder='Periscope user name...' ref="user" onKeyUp={this.getUserDataWithEnter} />
+          </div>
+          <div className="row sctogglerow">
+            <span className="sctoggle">
+              <div className="toggle-label" htmlFor="join_toggle">Join Msgs</div>
+              <Toggle
+                id="join_toggle"
+                defaultChecked={saying_join_messages}
+                onChange={this.sayingJoinMessagesChange} />
+            </span>
+            <span className="sctoggle">
+              <div className="toggle-label" htmlFor="display_toggle">Text Display</div>
+              <Toggle
+                id="display_toggle"
+                defaultChecked={displaying_messages}
+                onChange={this.displayingMessagesChange} />
+            </span>
+            <span className="sctoggle">
+              <div className="toggle-label" htmlFor="emojis_toggle">Show Emojis</div>
+              <Toggle
+                id="emojis_toggle"
+                defaultChecked={saying_emojis}
+                onChange={this.sayingEmojiChange} />
+            </span>
+            <span className="sctoggle">
+              <div className="toggle-label" htmlFor="left_toggle">Left Msgs</div>
+              <Toggle
+                id="left_toggle"
+                defaultChecked={saying_left_messages}
+                onChange={this.sayingLeftMessagesChange} />
+            </span>
+          </div>
+          <hr></hr>
+          <div className="row">
+            <div className="col-12" >
+              {this.state.message}
+            </div>
+          </div>
+          { this.link_html() }
+          <div className="row col-12">
+              {this.state.help_msg1}
+          </div>
+          <br></br>
+          <div className="row col-12">
+              {this.state.help_msg2}
+          </div>
+          <br></br>
+          <div className="row col-12">
+              {this.state.help_msg3}
+          </div>
+          <br></br>
+          <div className="row col-12">
+              {this.state.help_msg4}
           </div>
         </div>
-        { this.link_html() }
-        <div className="row col-12">
-            {this.state.help_msg1}
+      );
+    }
+    else {
+      return(null);
+    }
+  },
+
+  settingsPage: function () {
+    if (this.state.page_showing == "settings") {
+      return(
+        <div>
+          <div>
+            This will be a settings page with sliders on it
+          </div>
+          <button className="col-2 abutton" onClick={this.backToMessagePage}>Back to Messages</button>
         </div>
-        <br></br>
-        <div className="row col-12">
-            {this.state.help_msg2}
-        </div>
-        <br></br>
-        <div className="row col-12">
-            {this.state.help_msg3}
-        </div>
-        <br></br>
-        <div className="row col-12">
-            {this.state.help_msg4}
-        </div>
-      </div>
-    );
+      );
+    }
+    else {
+      return(null);
+    }
   },
 
   render: function () {
@@ -252,6 +274,7 @@ var WebScopeSpeaker = React.createClass({
       <div>
         { this.topOfPage() }
         { this.messagePage() }
+        { this.settingsPage() }
       </div>
     );
   },
@@ -262,9 +285,15 @@ var WebScopeSpeaker = React.createClass({
 
   doSettings: function () {
     this.setState({menu_open_state: false });
+    this.setState({page_showing: "settings"});
+  },
+
+  backToMessagePage: function () {
+    this.setState({page_showing: "message"});
   },
 
   showHelp: function () {
+    this.setState({page_showing: "message"});
     this.setState({message: ""});
     this.setState({help_msg1: help_msg1});
     this.setState({help_msg2: help_msg2});
