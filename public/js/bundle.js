@@ -10799,73 +10799,8 @@ var WebScopeSpeaker = React.createClass({
       return React.createElement(
         'div',
         null,
-        React.createElement(
-          'div',
-          { className: 'row' },
-          React.createElement(
-            'button',
-            { className: 'col-2 abutton', onClick: this.getUserData },
-            'Say Chat of'
-          ),
-          React.createElement('input', { type: 'text', className: 'col-8 user_input', autofocus: 'true',
-            placeholder: 'Periscope user name...', ref: 'user', onKeyUp: this.getUserDataWithEnter })
-        ),
-        React.createElement(
-          'div',
-          { className: 'row sctogglerow' },
-          React.createElement(
-            'span',
-            { className: 'sctoggle' },
-            React.createElement(
-              'div',
-              { className: 'toggle-label', htmlFor: 'join_toggle' },
-              'Join Msgs'
-            ),
-            React.createElement(__WEBPACK_IMPORTED_MODULE_1_react_toggle___default.a, {
-              id: 'join_toggle',
-              defaultChecked: saying_join_messages,
-              onChange: this.sayingJoinMessagesChange })
-          ),
-          React.createElement(
-            'span',
-            { className: 'sctoggle' },
-            React.createElement(
-              'div',
-              { className: 'toggle-label', htmlFor: 'display_toggle' },
-              'Text Display'
-            ),
-            React.createElement(__WEBPACK_IMPORTED_MODULE_1_react_toggle___default.a, {
-              id: 'display_toggle',
-              defaultChecked: displaying_messages,
-              onChange: this.displayingMessagesChange })
-          ),
-          React.createElement(
-            'span',
-            { className: 'sctoggle' },
-            React.createElement(
-              'div',
-              { className: 'toggle-label', htmlFor: 'emojis_toggle' },
-              'Show Emojis'
-            ),
-            React.createElement(__WEBPACK_IMPORTED_MODULE_1_react_toggle___default.a, {
-              id: 'emojis_toggle',
-              defaultChecked: saying_emojis,
-              onChange: this.sayingEmojiChange })
-          ),
-          React.createElement(
-            'span',
-            { className: 'sctoggle' },
-            React.createElement(
-              'div',
-              { className: 'toggle-label', htmlFor: 'left_toggle' },
-              'Left Msgs'
-            ),
-            React.createElement(__WEBPACK_IMPORTED_MODULE_1_react_toggle___default.a, {
-              id: 'left_toggle',
-              defaultChecked: saying_left_messages,
-              onChange: this.sayingLeftMessagesChange })
-          )
-        ),
+        this.promptGroup(),
+        this.toggleGroup(),
         React.createElement('hr', null),
         this.helpMessages(),
         React.createElement(
@@ -10882,6 +10817,79 @@ var WebScopeSpeaker = React.createClass({
     } else {
       return null;
     }
+  },
+
+  promptGroup: function () {
+    return React.createElement(
+      'div',
+      { className: 'row' },
+      React.createElement(
+        'button',
+        { className: 'col-2 abutton', onClick: this.getUserData },
+        'Say Chat of'
+      ),
+      React.createElement('input', { type: 'text', className: 'col-8 user_input', autofocus: 'true',
+        placeholder: 'Periscope user name...', ref: 'user', onKeyUp: this.getUserDataWithEnter })
+    );
+  },
+
+  toggleGroup: function () {
+    return React.createElement(
+      'div',
+      { className: 'row sctogglerow' },
+      React.createElement(
+        'span',
+        { className: 'sctoggle' },
+        React.createElement(
+          'div',
+          { className: 'toggle-label', htmlFor: 'join_toggle' },
+          'Join Msgs'
+        ),
+        React.createElement(__WEBPACK_IMPORTED_MODULE_1_react_toggle___default.a, {
+          id: 'join_toggle',
+          defaultChecked: saying_join_messages,
+          onChange: this.sayingJoinMessagesChange })
+      ),
+      React.createElement(
+        'span',
+        { className: 'sctoggle' },
+        React.createElement(
+          'div',
+          { className: 'toggle-label', htmlFor: 'display_toggle' },
+          'Text Display'
+        ),
+        React.createElement(__WEBPACK_IMPORTED_MODULE_1_react_toggle___default.a, {
+          id: 'display_toggle',
+          defaultChecked: displaying_messages,
+          onChange: this.displayingMessagesChange })
+      ),
+      React.createElement(
+        'span',
+        { className: 'sctoggle' },
+        React.createElement(
+          'div',
+          { className: 'toggle-label', htmlFor: 'emojis_toggle' },
+          'Show Emojis'
+        ),
+        React.createElement(__WEBPACK_IMPORTED_MODULE_1_react_toggle___default.a, {
+          id: 'emojis_toggle',
+          defaultChecked: saying_emojis,
+          onChange: this.sayingEmojiChange })
+      ),
+      React.createElement(
+        'span',
+        { className: 'sctoggle' },
+        React.createElement(
+          'div',
+          { className: 'toggle-label', htmlFor: 'left_toggle' },
+          'Left Msgs'
+        ),
+        React.createElement(__WEBPACK_IMPORTED_MODULE_1_react_toggle___default.a, {
+          id: 'left_toggle',
+          defaultChecked: saying_left_messages,
+          onChange: this.sayingLeftMessagesChange })
+      )
+    );
   },
 
   helpMessages: function () {
@@ -10906,16 +10914,18 @@ var WebScopeSpeaker = React.createClass({
     if (this.state.page_showing == "settings") {
       return React.createElement(
         'div',
-        null,
+        { className: 'row col-12' },
         React.createElement(
           'div',
           null,
-          'This will be a settings page with sliders on it'
+          'This is a test slider',
+          React.createElement('br', null),
+          React.createElement('input', { className: 'col-10', type: 'range', defaultValue: 50 })
         ),
         React.createElement(
           'button',
           { className: 'col-2 abutton', onClick: this.backToMessagePage },
-          'Back to Messages'
+          'Back'
         )
       );
     } else {

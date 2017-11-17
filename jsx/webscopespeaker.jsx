@@ -185,41 +185,8 @@ var WebScopeSpeaker = React.createClass({
     if (this.state.page_showing == "message") {
       return(
         <div>
-          <div className="row">
-            <button className="col-2 abutton" onClick={this.getUserData}>Say Chat of</button>
-            <input type="text" className="col-8 user_input" autofocus="true"
-                 placeholder='Periscope user name...' ref="user" onKeyUp={this.getUserDataWithEnter} />
-          </div>
-          <div className="row sctogglerow">
-            <span className="sctoggle">
-              <div className="toggle-label" htmlFor="join_toggle">Join Msgs</div>
-              <Toggle
-                id="join_toggle"
-                defaultChecked={saying_join_messages}
-                onChange={this.sayingJoinMessagesChange} />
-            </span>
-            <span className="sctoggle">
-              <div className="toggle-label" htmlFor="display_toggle">Text Display</div>
-              <Toggle
-                id="display_toggle"
-                defaultChecked={displaying_messages}
-                onChange={this.displayingMessagesChange} />
-            </span>
-            <span className="sctoggle">
-              <div className="toggle-label" htmlFor="emojis_toggle">Show Emojis</div>
-              <Toggle
-                id="emojis_toggle"
-                defaultChecked={saying_emojis}
-                onChange={this.sayingEmojiChange} />
-            </span>
-            <span className="sctoggle">
-              <div className="toggle-label" htmlFor="left_toggle">Left Msgs</div>
-              <Toggle
-                id="left_toggle"
-                defaultChecked={saying_left_messages}
-                onChange={this.sayingLeftMessagesChange} />
-            </span>
-          </div>
+          { this.promptGroup() }
+          { this.toggleGroup() }
           <hr></hr>
           { this.helpMessages() }
           <div className="row">
@@ -234,6 +201,52 @@ var WebScopeSpeaker = React.createClass({
     else {
       return(null);
     }
+  },
+
+  promptGroup: function () {
+    return(
+      <div className="row">
+        <button className="col-2 abutton" onClick={this.getUserData}>Say Chat of</button>
+        <input type="text" className="col-8 user_input" autofocus="true"
+             placeholder='Periscope user name...' ref="user" onKeyUp={this.getUserDataWithEnter} />
+      </div>
+    );
+  },
+ 
+
+  toggleGroup: function () {
+    return(
+      <div className="row sctogglerow">
+        <span className="sctoggle">
+          <div className="toggle-label" htmlFor="join_toggle">Join Msgs</div>
+          <Toggle
+            id="join_toggle"
+            defaultChecked={saying_join_messages}
+            onChange={this.sayingJoinMessagesChange} />
+        </span>
+        <span className="sctoggle">
+          <div className="toggle-label" htmlFor="display_toggle">Text Display</div>
+          <Toggle
+            id="display_toggle"
+            defaultChecked={displaying_messages}
+            onChange={this.displayingMessagesChange} />
+        </span>
+        <span className="sctoggle">
+          <div className="toggle-label" htmlFor="emojis_toggle">Show Emojis</div>
+          <Toggle
+            id="emojis_toggle"
+            defaultChecked={saying_emojis}
+            onChange={this.sayingEmojiChange} />
+        </span>
+        <span className="sctoggle">
+          <div className="toggle-label" htmlFor="left_toggle">Left Msgs</div>
+          <Toggle
+            id="left_toggle"
+            defaultChecked={saying_left_messages}
+            onChange={this.sayingLeftMessagesChange} />
+        </span>
+      </div>
+    );
   },
 
   helpMessages: function () {
@@ -256,11 +269,13 @@ var WebScopeSpeaker = React.createClass({
   settingsPage: function () {
     if (this.state.page_showing == "settings") {
       return(
-        <div>
+        <div className="row col-12" >
           <div>
-            This will be a settings page with sliders on it
+            This is a test slider
+            <br></br>
+            <input className="col-10" type="range" defaultValue={50} />
           </div>
-          <button className="col-2 abutton" onClick={this.backToMessagePage}>Back to Messages</button>
+          <button className="col-2 abutton" onClick={this.backToMessagePage}>Back</button>
         </div>
       );
     }
