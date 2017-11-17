@@ -10755,7 +10755,7 @@ var WebScopeSpeaker = React.createClass({
         React.createElement(
           'h1',
           null,
-          'ScopeSpeaker'
+          'Scope Speaker'
         )
       )
     );
