@@ -148,7 +148,7 @@ var WebScopeSpeaker = React.createClass({
     return(
       <div>
         <div className="header">
-          <h1>ScopeSpeaker</h1>
+          <h1>Scope Speaker</h1>
         </div>
       </div>
     );
