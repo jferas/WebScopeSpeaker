@@ -10621,8 +10621,7 @@ var default_language = "en";
 
 var help_msg1 = "Enter the username of a Periscope user currently live broadcasting and tap the 'Say..' button to start ScopeSpeaker listening for the broadcast chat messages.";
 var help_msg2 = "While ScopeSpeaker is running, it is continuously listening to the chat messages of the Periscope stream, saying them aloud and translating them if necessary.";
-var help_msg3 = "Translations powered by Yandex.Translate";
-var help_msg4 = "Disclaimer: ScopeSpeaker is a free app, and is provided 'as is'. No guarantee is made related to the consistency of the app performance with your goals and expectations.";
+var help_msg3 = "Disclaimer: ScopeSpeaker is a free app, and is provided 'as is'. No guarantee is made related to the consistency of the app performance with your goals and expectations.";
 
 // callback function to allow chat message processing to statefully set the message displayed via 'react'
 
@@ -10689,7 +10688,6 @@ var WebScopeSpeaker = React.createClass({
       help_msg1: help_msg1,
       help_msg2: help_msg2,
       help_msg3: help_msg3,
-      help_msg4: help_msg4,
       translation_info: "",
       menu_open_state: false,
       page_showing: "message",
@@ -10715,7 +10713,6 @@ var WebScopeSpeaker = React.createClass({
       _this.setState({ help_msg1: "" });
       _this.setState({ help_msg2: "" });
       _this.setState({ help_msg3: "" });
-      _this.setState({ help_msg4: "" });
       if (displaying_messages) {
         _this.setState({ message: the_message });
         _this.setState({ translation_info: translation_info });
@@ -10758,7 +10755,7 @@ var WebScopeSpeaker = React.createClass({
         React.createElement(
           'h1',
           null,
-          'ScopeSpeaker (on the web)'
+          'ScopeSpeaker'
         )
       )
     );
@@ -10870,6 +10867,7 @@ var WebScopeSpeaker = React.createClass({
           )
         ),
         React.createElement('hr', null),
+        this.helpMessages(),
         React.createElement(
           'div',
           { className: 'row' },
@@ -10879,30 +10877,25 @@ var WebScopeSpeaker = React.createClass({
             this.state.message
           )
         ),
-        this.link_html(),
-        React.createElement(
-          'div',
-          { className: 'row col-12' },
-          this.state.help_msg1
-        ),
+        this.link_html()
+      );
+    } else {
+      return null;
+    }
+  },
+
+  helpMessages: function () {
+    if (this.state.help_msg1.length > 0) {
+      return React.createElement(
+        'div',
+        { className: 'row col-12' },
+        this.state.help_msg1,
         React.createElement('br', null),
-        React.createElement(
-          'div',
-          { className: 'row col-12' },
-          this.state.help_msg2
-        ),
         React.createElement('br', null),
-        React.createElement(
-          'div',
-          { className: 'row col-12' },
-          this.state.help_msg3
-        ),
+        this.state.help_msg2,
         React.createElement('br', null),
-        React.createElement(
-          'div',
-          { className: 'row col-12' },
-          this.state.help_msg4
-        )
+        React.createElement('br', null),
+        this.state.help_msg3
       );
     } else {
       return null;
@@ -10959,7 +10952,6 @@ var WebScopeSpeaker = React.createClass({
     this.setState({ help_msg1: help_msg1 });
     this.setState({ help_msg2: help_msg2 });
     this.setState({ help_msg3: help_msg3 });
-    this.setState({ help_msg4: help_msg4 });
     this.setState({ menu_open_state: false });
   },
 
