@@ -10605,19 +10605,31 @@ var queued_message_being_said = "";
 var dropping_messages = false;
 var known_bots = [];
 var bot_words = [];
-var name_length = 10;
-var saying_emojis = true;
-var saying_translations = true;
 var said_word = "said";
 var translated_word = "translated";
+var default_language = "en";
+
+// Settings variables 
+
 var saying_left_messages = false;
 var saying_join_messages = false;
+var saying_emojis = true;
 var displaying_messages = true;
 var saying_display_names = false;
+var saying_translations = true;
+
+// length of name to be said, in characters (keeps long names from taking too long to be said)
+var name_length = 10;
+
+// delay (in seconds) after message is spoken before next message is spoken (give broadcaster time to responsd)
+var delay_time = 1;
+
+// Number of characters in a message that trigger language auto detection / translation
+var detect_length = 100;
+
+// Queue Full / Queue Empty high water / low water marks.. these control when messages will be enqueued or discarded
 var high_water_mark = 10;
 var low_water_mark = 5;
-var detect_length = 120;
-var default_language = "en";
 
 var help_msg1 = "Enter the username of a Periscope user currently live broadcasting and tap the 'Say..' button to start ScopeSpeaker listening for the broadcast chat messages.";
 var help_msg2 = "While ScopeSpeaker is running, it is continuously listening to the chat messages of the Periscope stream, saying them aloud and translating them if necessary.";
@@ -10685,6 +10697,11 @@ var WebScopeSpeaker = React.createClass({
   getInitialState: function () {
     return {
       message: "",
+      name_length: name_length,
+      delay_time: delay_time,
+      detect_length: detect_length,
+      high_water_mark: high_water_mark,
+      low_water_mark: low_water_mark,
       help_msg1: help_msg1,
       help_msg2: help_msg2,
       help_msg3: help_msg3,
@@ -10910,18 +10927,31 @@ var WebScopeSpeaker = React.createClass({
     }
   },
 
+  sliderComponent: function (sliderID, description, changeFunc, curVal, minVal, maxVal) {
+    return React.createElement(
+      'div',
+      { className: 'row col-12' },
+      description + ": ",
+      React.createElement(
+        'label',
+        null,
+        curVal
+      ),
+      React.createElement('br', null),
+      React.createElement('input', { id: sliderID, className: 'col-10', type: 'range', onChange: changeFunc, value: curVal, min: minVal, max: maxVal })
+    );
+  },
+
   settingsPage: function () {
     if (this.state.page_showing == "settings") {
       return React.createElement(
         'div',
-        { className: 'row col-12' },
-        React.createElement(
-          'div',
-          null,
-          'This is a test slider',
-          React.createElement('br', null),
-          React.createElement('input', { className: 'col-10', type: 'range', defaultValue: 50 })
-        ),
+        null,
+        this.sliderComponent("name_len", "Length of name to be said", this.nameLengthChange, this.state.name_length, 0, 50),
+        this.sliderComponent("delay_time", "Delay between spoken messages (secs)", this.delayTimeChange, this.state.delay_time, 0, 30),
+        this.sliderComponent("language_detect", "Characters in message to trigger language detect", this.detectLengthChange, this.state.detect_length, 0, 50),
+        this.sliderComponent("high_water", "Msg queue high water mark", this.highWaterMarkChange, this.state.high_water_mark, 0, 100),
+        this.sliderComponent("low_water", "Msg queue low water mark", this.lowWaterMarkChange, this.state.low_water_mark, 0, 100),
         React.createElement(
           'button',
           { className: 'col-2 abutton', onClick: this.backToMessagePage },
@@ -11011,6 +11041,36 @@ var WebScopeSpeaker = React.createClass({
     if (e.keyCode == 13) {
       this.getUserData();
     }
+  },
+
+  nameLengthChange: function (e) {
+    var slider_object = document.getElementById("name_len");
+    name_length = slider_object.value;
+    this.setState({ name_length: name_length });
+  },
+
+  delayTimeChange: function () {
+    var slider_object = document.getElementById("delay_time");
+    delay_time = slider_object.value;
+    this.setState({ delay_time: delay_time });
+  },
+
+  detectLengthChange: function () {
+    var slider_object = document.getElementById("language_detect");
+    detect_length = slider_object.value;
+    this.setState({ detect_length: detect_length });
+  },
+
+  highWaterMarkChange: function () {
+    var slider_object = document.getElementById("high_water");
+    high_water_mark = slider_object.value;
+    this.setState({ high_water_mark: high_water_mark });
+  },
+
+  lowWaterMarkChange: function () {
+    var slider_object = document.getElementById("low_water");
+    low_water_mark = slider_object.value;
+    this.setState({ low_water_mark: low_water_mark });
   }
 
 });
@@ -11189,7 +11249,7 @@ var start_callback = function () {};
 var stop_callback = function () {
   speaking = false;
   if (messages.length > 0) {
-    schedule_say_next(50);
+    schedule_say_next(delay_time * 1000);
   }
 };
 
