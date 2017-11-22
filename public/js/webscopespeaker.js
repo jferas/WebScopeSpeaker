@@ -2,9 +2,12 @@
 
 // import React UI menu and settings pane components
 
+import React from 'react';
+import ReactDOM from 'react-dom';
+
 import { slide as Menu } from 'react-burger-menu';
 
-import Toggle from 'react-toggle';
+import ToggleButton from 'react-toggle-button';
 
 // global used by speech (non-react) sections of code
 
@@ -23,14 +26,15 @@ var said_word = "said";
 var translated_word = "translated";
 var default_language = "en";
 
-// Settings variables 
+// variables retained in localStorage
 
+var user_name = "";
 var saying_left_messages = false;
 var saying_join_messages = false;
-var saying_emojis = true;
-var displaying_messages = true;
+var saying_emojis = false;
+var displaying_messages = false;
 var saying_display_names = false;
-var saying_translations = true;
+var saying_translations = false;
 
 // length of name to be said, in characters (keeps long names from taking too long to be said)
 var name_length = 10;
@@ -39,11 +43,13 @@ var name_length = 10;
 var delay_time = 1;
 
 // Number of characters in a message that trigger language auto detection / translation
-var detect_length = 100;
+var detect_length = 50;
 
 // Queue Full / Queue Empty high water / low water marks.. these control when messages will be enqueued or discarded
 var high_water_mark = 10;
 var low_water_mark = 5;
+
+// help message strings
 
 var help_msg1 = "Enter the username of a Periscope user currently live broadcasting and tap the 'Say..' button to start ScopeSpeaker listening for the broadcast chat messages.";
 var help_msg2 = "While ScopeSpeaker is running, it is continuously listening to the chat messages of the Periscope stream, saying them aloud and translating them if necessary.";
@@ -102,43 +108,89 @@ var append_to_chat_log = function (msg) {
 
 // React Class to manage the user interface
 //
-var WebScopeSpeaker = React.createClass({
-  displayName: 'WebScopeSpeaker',
+class WebScopeSpeaker extends React.Component {
 
-  //class WebScopeSpeaker extends React.Component {
+  // initial react component constructor
 
+  constructor(props) {
+    super(props);
 
-  getInitialState: function () {
-    return {
+    // bind 'this' to the methods that are triggered by UI actions
+    this.doSettings = this.doSettings.bind(this);
+    this.showHelp = this.showHelp.bind(this);
+    this.nameLengthChange = this.nameLengthChange.bind(this);
+    this.delayTimeChange = this.delayTimeChange.bind(this);
+    this.detectLengthChange = this.detectLengthChange.bind(this);
+    this.highWaterMarkChange = this.highWaterMarkChange.bind(this);
+    this.lowWaterMarkChange = this.lowWaterMarkChange.bind(this);
+    this.changeVoice = this.changeVoice.bind(this);
+    this.backToMessagePage = this.backToMessagePage.bind(this);
+
+    // setup the initial states for rendering
+    this.state = {
       message: "",
-      name_length: name_length,
-      delay_time: delay_time,
-      detect_length: detect_length,
-      high_water_mark: high_water_mark,
-      low_water_mark: low_water_mark,
       help_msg1: help_msg1,
       help_msg2: help_msg2,
       help_msg3: help_msg3,
       translation_info: "",
       menu_open_state: false,
       page_showing: "message",
-      saying_emojis: true,
-      diplaying_messages: true,
-      saying_left_messages: false,
-      saying_join_messages: false
+      user_name: user_name,
+      name_length: name_length,
+      delay_time: delay_time,
+      detect_length: detect_length,
+      high_water_mark: high_water_mark,
+      low_water_mark: low_water_mark,
+      saying_emojis: saying_emojis,
+      displaying_messages: displaying_messages,
+      saying_left_messages: saying_left_messages,
+      saying_join_messages: saying_join_messages,
+      saying_display_names: saying_display_names,
+      saying_translations: saying_translations
     };
-  },
+  }
 
-  componentDidMount: function () {
-    this.sendable = true;
-    this.user = localStorage.getItem('user') || "";
-    this.refs.user.value = this.user;
-    append_to_chat_log("in did mount, user is:" + this.user);
-  },
+  // acquire values for states from local storage just before rendering
+  componentDidMount() {}
 
+  // after compenent mounts, create function callable from outside React
   componentWillMount() {
     var _this = this;
 
+    user_name = localStorage.getItem('user') || "";
+
+    name_length = localStorage.getItem('name_length') || 10;
+    delay_time = localStorage.getItem('delay_time') || 1;
+    detect_length = localStorage.getItem('detect_length') || 50;
+    high_water_mark = localStorage.getItem('high_water_mark') || 10;
+    low_water_mark = localStorage.getItem('low_water_mark') || 5;
+
+    // retrieve settings from localStorage(strings), these will default to true if data not present
+    saying_emojis = localStorage.getItem('saying_emojis') != "false" ? true : false;
+    displaying_messages = localStorage.getItem('displaying_messages') != "false" ? true : false;
+    saying_translations = localStorage.getItem('saying_translations') != "false" ? true : false;
+
+    // retrieve settings from localStorage(strings), these will default to false if data not present
+    saying_left_messages = localStorage.getItem('saying_left_messages') == "true" ? true : false;
+    saying_join_messages = localStorage.getItem('saying_join_messages') == "true" ? true : false;
+    saying_display_names = localStorage.getItem('saying_display_names') == "true" ? true : false;
+
+    this.setState({ user_name: user_name });
+
+    this.setState({ name_length: name_length });
+    this.setState({ delay_time: delay_time });
+    this.setState({ detect_length: detect_length });
+    this.setState({ high_water_mark: high_water_mark });
+    this.setState({ low_water_mark: low_water_mark });
+
+    this.setState({ saying_emojis: saying_emojis });
+    this.setState({ displaying_messages: displaying_messages });
+    this.setState({ saying_left_messages: saying_left_messages });
+    this.setState({ saying_join_messages: saying_join_messages });
+    this.setState({ saying_display_names: saying_display_names });
+    this.setState({ saying_translations: saying_translations });
+
+    // create function callable from outside React to set message
     setMessage = function (the_message, translation_info) {
       console.log("in setMessage:" + the_message);
       _this.setState({ help_msg1: "" });
@@ -152,9 +204,49 @@ var WebScopeSpeaker = React.createClass({
         _this.setState({ translation_info: "" });
       }
     };
-  },
+  }
 
-  menu: function () {
+  // method to collect the username from the input text object
+  collectUserName() {
+    var text_object = document.getElementById("user_name_text");
+    user_name = text_object.value;
+    this.setState({ user_name: user_name });
+    console.log("in collectUsername, got a username of: " + user_name);
+  }
+
+  // method to send AJAX request to server get user info, and open user associate chat web socket, invoked from 'Say' button
+  getUserData() {
+    append_to_chat_log("about to ask for user info");
+    localStorage.setItem('user', user_name);
+    this.setState({ user_name: user_name });
+    queue_message_to_say("Looking for a Periscope live stream by " + user_name);
+    axios.get(window.location.href + "chatinfo/" + user_name).then(function (response) {
+      append_to_chat_log("response data is: " + response.data);
+      if (response.data[0] == "error") {
+        queue_message_to_say("An error occurred, the problem is: " + response.data[1]);
+        queue_message_to_say("Chat messages will not begin");
+      } else {
+        broadcast_id = response.data[1];
+        append_to_chat_log("Got a broadcast ID of: " + broadcast_id);
+        queue_message_to_say("Got a good response from the periscope server about " + localStorage.getItem('user'));
+        queue_message_to_say("Chat messages will now begin");
+        openChatWebsocket();
+      }
+    }).catch(function (err) {
+      append_to_chat_log("An error occured: " + err);
+      queue_message_to_say("An error occuored: " + err);
+    });
+  }
+
+  // method to invoke the getUserData method when the 'enter' key is pressed
+  getUserDataWithEnter(e) {
+    if (e.keyCode == 13) {
+      this.getUserData();
+    }
+  }
+
+  // method to return a render-able menu component
+  menu() {
     return React.createElement(
       Menu,
       { isOpen: this.state.menu_open_state, styles: menu_styles, right: true },
@@ -174,9 +266,10 @@ var WebScopeSpeaker = React.createClass({
         'Help'
       )
     );
-  },
+  }
 
-  header: function () {
+  // method to return a render-able header
+  header() {
     return React.createElement(
       'div',
       null,
@@ -190,18 +283,20 @@ var WebScopeSpeaker = React.createClass({
         )
       )
     );
-  },
+  }
 
-  topOfPage: function () {
+  // method to return a render-able page top containing a header and a side menu
+  topOfPage() {
     return React.createElement(
       'div',
       null,
       this.menu(),
       this.header()
     );
-  },
+  }
 
-  link_html: function () {
+  // method to return a link to the yandex translation service if the state indicates that the current message was translated
+  link_html() {
     var translated = this.state.translation_info;
     var yandex_url = "http://translate.yandex.com";
 
@@ -223,9 +318,184 @@ var WebScopeSpeaker = React.createClass({
     } else {
       return null;
     }
-  },
+  }
 
-  messagePage: function () {
+  // method to return a render-able group of toggle components
+  toggleGroup() {
+    var _this2 = this;
+
+    return React.createElement(
+      'div',
+      { className: 'row sctogglerow' },
+      React.createElement(
+        'span',
+        { className: 'toggle_left' },
+        React.createElement(
+          'div',
+          { className: 'toggle-label', htmlFor: 'left_toggle' },
+          'Left Msgs'
+        ),
+        React.createElement(ToggleButton, { id: 'left_toggle', value: this.state.saying_left_messages, onToggle: function (value) {
+            saying_left_messages = !value;
+            append_to_chat_log("left change triggered, now: " + saying_left_messages);
+            _this2.setState({ saying_left_messages: saying_left_messages });
+            localStorage.setItem('saying_left_messages', saying_left_messages);
+          } })
+      ),
+      React.createElement(
+        'span',
+        { className: 'toggle_left' },
+        React.createElement(
+          'div',
+          { className: 'toggle-label', htmlFor: 'join_toggle' },
+          'Join Msgs'
+        ),
+        React.createElement(ToggleButton, { id: 'join_toggle', value: this.state.saying_join_messages, onToggle: function (value) {
+            saying_join_messages = !value;
+            append_to_chat_log("join change triggered, now: " + saying_join_messages);
+            _this2.setState({ saying_join_messages: saying_join_messages });
+            localStorage.setItem('saying_join_messages', saying_join_messages);
+          } })
+      ),
+      React.createElement(
+        'span',
+        { className: 'toggle_right' },
+        React.createElement(
+          'div',
+          { className: 'toggle-label', htmlFor: 'display_toggle' },
+          'Text Display'
+        ),
+        React.createElement(ToggleButton, { id: 'display_toggle', value: this.state.displaying_messages, onToggle: function (value) {
+            displaying_messages = !value;
+            append_to_chat_log("display change triggered, now: " + displaying_messages);
+            _this2.setState({ displaying_messages: displaying_messages });
+            localStorage.setItem('displaying_messages', displaying_messages);
+          } })
+      ),
+      React.createElement(
+        'span',
+        { className: 'toggle_right' },
+        React.createElement(
+          'div',
+          { className: 'toggle-label', htmlFor: 'emojis_toggle' },
+          'Saying Emojis'
+        ),
+        React.createElement(ToggleButton, { id: 'emojis_toggle', value: this.state.saying_emojis, onToggle: function (value) {
+            saying_emojis = !value;
+            _this2.setState({ saying_emojis: saying_emojis });
+            localStorage.setItem('saying_emojis', saying_emojis);
+          } })
+      ),
+      React.createElement(
+        'span',
+        { className: 'toggle_left' },
+        React.createElement(
+          'div',
+          { className: 'toggle-label', htmlFor: 'translations_toggle' },
+          'Translate Msgs'
+        ),
+        React.createElement(ToggleButton, { id: 'translations_toggle', value: this.state.saying_translations, onToggle: function (value) {
+            saying_translations = !value;
+            _this2.setState({ saying_translations: saying_translations });
+            localStorage.setItem('saying_translations', saying_translations);
+          } })
+      ),
+      React.createElement(
+        'span',
+        { className: 'toggle_right' },
+        React.createElement(
+          'div',
+          { className: 'toggle-label', htmlFor: 'names_toggle' },
+          'Display Names'
+        ),
+        React.createElement(ToggleButton, { id: 'names_toggle', value: this.state.saying_display_names, onToggle: function (value) {
+            saying_display_names = !value;
+            _this2.setState({ saying_display_names: saying_display_names });
+            localStorage.setItem('saying_display_names', saying_display_names);
+          } })
+      )
+    );
+  }
+
+  // method invoked by toggle for left messages
+  sayingLeftMessagesChange(value) {
+    saying_left_messages = !value;
+    this.setState({ saying_left_messages: saying_left_messages });
+    localStorage.setItem('saying_left_messages', saying_left_messages);
+  }
+
+  // method invoked by toggle for join messages
+  sayingJoinMessagesChange(value) {
+    saying_join_messages = !value;
+    this.setState({ saying_join_messages: saying_join_messages });
+    localStorage.setItem('saying_join_messages', saying_join_messages);
+  }
+
+  // method invoked by toggle for displaying text messages
+  sayingDisplayingMessagesChange(value) {
+    displaying_messages = !value;
+    this.setState({ displaying_messages: displaying_messages });
+    localStorage.setItem('displaying_messages', displaying_messages);
+  }
+
+  // method invoked by toggle for saying emojis
+  sayingEmojisChange(value) {
+    saying_emojis = !value;
+    this.setState({ saying_emojis: saying_emojis });
+    localStorage.setItem('saying_emojis', saying_emojis);
+  }
+
+  // method invoked by toggle for saying translations
+  sayingTranslationsChange(value) {
+    saying_translations = !value;
+    this.setState({ saying_translations: saying_translations });
+    localStorage.setItem('saying_translations', saying_translations);
+  }
+
+  // method invoked by toggle for saying display names
+  sayingDisplayNamesChange(value) {
+    saying_display_name = !value;
+    this.setState({ saying_display_name: saying_display_name });
+    localStorage.setItem('saying_display_name', saying_display_name);
+  }
+
+  // method to return a render-able group for prompting, containing the "Say" button and the text object to contain the periscope user name
+  promptGroup() {
+    return React.createElement(
+      'div',
+      { className: 'row' },
+      React.createElement(
+        'button',
+        { className: 'col-2 abutton', onClick: this.getUserData },
+        'Say Chat of'
+      ),
+      React.createElement('input', { id: 'user_name_text', type: 'text', className: 'col-8 user_input', autoFocus: 'true', value: user_name,
+        placeholder: 'Periscope user name...', onChange: this.collectUserName, onKeyUp: this.getUserDataWithEnter })
+    );
+  }
+
+  // method to return a render-able group of help messages if state indicates they are required
+  helpMessages() {
+    if (this.state.help_msg1.length > 0) {
+      return React.createElement(
+        'div',
+        { className: 'row col-12' },
+        this.state.help_msg1,
+        React.createElement('br', null),
+        React.createElement('br', null),
+        this.state.help_msg2,
+        React.createElement('br', null),
+        React.createElement('br', null),
+        this.state.help_msg3
+      );
+    } else {
+      return null;
+    }
+  }
+
+  // method to return a render-able chat message or help messages, depending upon state
+  messagePage() {
+    append_to_chat_log("in messagePage, page_showing state is: " + this.state.page_showing);
     if (this.state.page_showing == "message") {
       return React.createElement(
         'div',
@@ -248,100 +518,10 @@ var WebScopeSpeaker = React.createClass({
     } else {
       return null;
     }
-  },
+  }
 
-  promptGroup: function () {
-    return React.createElement(
-      'div',
-      { className: 'row' },
-      React.createElement(
-        'button',
-        { className: 'col-2 abutton', onClick: this.getUserData },
-        'Say Chat of'
-      ),
-      React.createElement('input', { type: 'text', className: 'col-8 user_input', autofocus: 'true',
-        placeholder: 'Periscope user name...', ref: 'user', onKeyUp: this.getUserDataWithEnter })
-    );
-  },
-
-  toggleGroup: function () {
-    return React.createElement(
-      'div',
-      { className: 'row sctogglerow' },
-      React.createElement(
-        'span',
-        { className: 'sctoggle' },
-        React.createElement(
-          'div',
-          { className: 'toggle-label', htmlFor: 'join_toggle' },
-          'Join Msgs'
-        ),
-        React.createElement(Toggle, {
-          id: 'join_toggle',
-          defaultChecked: saying_join_messages,
-          onChange: this.sayingJoinMessagesChange })
-      ),
-      React.createElement(
-        'span',
-        { className: 'sctoggle' },
-        React.createElement(
-          'div',
-          { className: 'toggle-label', htmlFor: 'display_toggle' },
-          'Text Display'
-        ),
-        React.createElement(Toggle, {
-          id: 'display_toggle',
-          defaultChecked: displaying_messages,
-          onChange: this.displayingMessagesChange })
-      ),
-      React.createElement(
-        'span',
-        { className: 'sctoggle' },
-        React.createElement(
-          'div',
-          { className: 'toggle-label', htmlFor: 'emojis_toggle' },
-          'Show Emojis'
-        ),
-        React.createElement(Toggle, {
-          id: 'emojis_toggle',
-          defaultChecked: saying_emojis,
-          onChange: this.sayingEmojiChange })
-      ),
-      React.createElement(
-        'span',
-        { className: 'sctoggle' },
-        React.createElement(
-          'div',
-          { className: 'toggle-label', htmlFor: 'left_toggle' },
-          'Left Msgs'
-        ),
-        React.createElement(Toggle, {
-          id: 'left_toggle',
-          defaultChecked: saying_left_messages,
-          onChange: this.sayingLeftMessagesChange })
-      )
-    );
-  },
-
-  helpMessages: function () {
-    if (this.state.help_msg1.length > 0) {
-      return React.createElement(
-        'div',
-        { className: 'row col-12' },
-        this.state.help_msg1,
-        React.createElement('br', null),
-        React.createElement('br', null),
-        this.state.help_msg2,
-        React.createElement('br', null),
-        React.createElement('br', null),
-        this.state.help_msg3
-      );
-    } else {
-      return null;
-    }
-  },
-
-  sliderComponent: function (sliderID, description, changeFunc, curVal, minVal, maxVal) {
+  // method to return a render-able slider component for the settings page
+  sliderComponent(sliderID, description, changeFunc, curVal, minVal, maxVal) {
     return React.createElement(
       'div',
       { className: 'row col-12' },
@@ -354,18 +534,19 @@ var WebScopeSpeaker = React.createClass({
       React.createElement('br', null),
       React.createElement('input', { id: sliderID, className: 'col-10', type: 'range', onChange: changeFunc, value: curVal, min: minVal, max: maxVal })
     );
-  },
+  }
 
-  settingsPage: function () {
+  // method to return a render-able settings page if the state indicates it should be displayed
+  settingsPage() {
     if (this.state.page_showing == "settings") {
       return React.createElement(
         'div',
         null,
-        this.sliderComponent("name_len", "Length of name to be said", this.nameLengthChange, this.state.name_length, 0, 50),
-        this.sliderComponent("delay_time", "Delay between spoken messages (secs)", this.delayTimeChange, this.state.delay_time, 0, 30),
-        this.sliderComponent("language_detect", "Characters in message to trigger language detect", this.detectLengthChange, this.state.detect_length, 0, 50),
-        this.sliderComponent("high_water", "Msg queue high water mark", this.highWaterMarkChange, this.state.high_water_mark, 0, 100),
-        this.sliderComponent("low_water", "Msg queue low water mark", this.lowWaterMarkChange, this.state.low_water_mark, 0, 100),
+        this.sliderComponent("name_len", "Length of name to be said", this.nameLengthChange, name_length, 0, 50),
+        this.sliderComponent("delay_time", "Delay between spoken messages (secs)", this.delayTimeChange, delay_time, 0, 30),
+        this.sliderComponent("language_detect", "Characters in message to trigger language detect", this.detectLengthChange, detect_length, 0, 50),
+        this.sliderComponent("high_water", "Msg queue high water mark", this.highWaterMarkChange, high_water_mark, 0, 100),
+        this.sliderComponent("low_water", "Msg queue low water mark", this.lowWaterMarkChange, low_water_mark, 0, 100),
         React.createElement(
           'button',
           { className: 'col-2 abutton', onClick: this.backToMessagePage },
@@ -375,9 +556,10 @@ var WebScopeSpeaker = React.createClass({
     } else {
       return null;
     }
-  },
+  }
 
-  render: function () {
+  // the render method for the app which renders the page top, a message page, or a settings page
+  render() {
     return React.createElement(
       'div',
       null,
@@ -385,109 +567,76 @@ var WebScopeSpeaker = React.createClass({
       this.messagePage(),
       this.settingsPage()
     );
-  },
+  }
 
-  changeVoice: function () {
+  // method invoked by menu to change the spoken voice
+  changeVoice() {
     this.setState({ menu_open_state: false });
-  },
+  }
 
-  doSettings: function () {
+  // method invoked by menu to change the state to display the settings page
+  doSettings() {
     this.setState({ menu_open_state: false });
     this.setState({ page_showing: "settings" });
-  },
+  }
 
-  backToMessagePage: function () {
+  // method invoked by settings page back button to change the state to revert to the message page
+  //  (also saves all of the settings to localStorage)
+  backToMessagePage() {
     this.setState({ page_showing: "message" });
-  },
+  }
 
-  showHelp: function () {
+  // method invoked by menu to change the state to show the message page with help messages showing
+  showHelp() {
     this.setState({ page_showing: "message" });
     this.setState({ message: "" });
     this.setState({ help_msg1: help_msg1 });
     this.setState({ help_msg2: help_msg2 });
     this.setState({ help_msg3: help_msg3 });
     this.setState({ menu_open_state: false });
-  },
+  }
 
-  sayingJoinMessagesChange: function (e) {
-    saying_join_messages = e.target.checked;
-    this.state.saying_join_messages = saying_join_messages;
-  },
-
-  sayingLeftMessagesChange: function (e) {
-    saying_left_messages = e.target.checked;
-    this.state.saying_left_messages = saying_left_messages;
-  },
-
-  sayingEmojiChange: function (e) {
-    saying_emojis = e.target.checked;
-    this.state.saying_emojis = saying_emojis;
-  },
-
-  displayingMessagesChange: function (e) {
-    displaying_messages = e.target.checked;
-    this.state.displaying_messages = displaying_messages;
-  },
-
-  getUserData: function () {
-    append_to_chat_log("about to ask for user info");
-    localStorage.setItem('user', this.refs.user.value);
-    queue_message_to_say("Looking for a Periscope live stream by " + this.refs.user.value);
-    axios.get(window.location.href + "chatinfo/" + this.refs.user.value).then(function (response) {
-      append_to_chat_log("response data is: " + response.data);
-      if (response.data[0] == "error") {
-        queue_message_to_say("An error occurred, the problem is: " + response.data[1]);
-        queue_message_to_say("Chat messages will not begin");
-      } else {
-        broadcast_id = response.data[1];
-        append_to_chat_log("Got a broadcast ID of: " + broadcast_id);
-        queue_message_to_say("Got a good response from the periscope server about " + localStorage.getItem('user'));
-        queue_message_to_say("Chat messages will now begin");
-        openChatWebsocket();
-      }
-    }).catch(function (err) {
-      append_to_chat_log("An error occured: " + err);
-      queue_message_to_say("An error occuored: " + err);
-    });
-  },
-
-  getUserDataWithEnter: function (e) {
-    if (e.keyCode == 13) {
-      this.getUserData();
-    }
-  },
-
-  nameLengthChange: function (e) {
+  // method invoked by slider to change the name length value
+  nameLengthChange(e) {
     var slider_object = document.getElementById("name_len");
     name_length = slider_object.value;
     this.setState({ name_length: name_length });
-  },
+    localStorage.setItem('name_length', name_length);
+  }
 
-  delayTimeChange: function () {
+  // method invoked by slider to change the delay time value
+  delayTimeChange() {
     var slider_object = document.getElementById("delay_time");
     delay_time = slider_object.value;
     this.setState({ delay_time: delay_time });
-  },
+    localStorage.setItem('delay_time', delay_time);
+  }
 
-  detectLengthChange: function () {
+  // method invoked by slider to change the language detect value
+  detectLengthChange() {
     var slider_object = document.getElementById("language_detect");
     detect_length = slider_object.value;
     this.setState({ detect_length: detect_length });
-  },
+    localStorage.setItem('detect_length', detect_length);
+  }
 
-  highWaterMarkChange: function () {
+  // method invoked by slider to change the queue high water mark value
+  highWaterMarkChange() {
     var slider_object = document.getElementById("high_water");
     high_water_mark = slider_object.value;
     this.setState({ high_water_mark: high_water_mark });
-  },
+    localStorage.setItem('high_water_mark', high_water_mark);
+  }
 
-  lowWaterMarkChange: function () {
+  // method invoked by slider to change the queue low water mark value
+  lowWaterMarkChange() {
     var slider_object = document.getElementById("low_water");
     low_water_mark = slider_object.value;
     this.setState({ low_water_mark: low_water_mark });
+    localStorage.setItem('low_water_mark', low_water_mark);
   }
 
-});
+}
 
 // log app startup, and do inital invocation of render method to initially display the user interface
 //

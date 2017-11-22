@@ -26,8 +26,15 @@ body {
     width: 100%;
 }
 
-.sctoggle {
+.toggle_left {
     float: left;
+    width: 20%;
+    margin: 5px;
+   font-size: 20px;
+}
+
+.toggle_right {
+    float: right;
     width: 20%;
     margin: 5px;
    font-size: 20px;
@@ -64,6 +71,13 @@ body {
 
 .abutton {
   border-radius: 5%;
+}
+
+/* class below is to allow tag to only appear on mobile */
+@media only screen and (max-width: 768px) {
+  .only_on_mobile {
+    display: none;
+  }
 }
 
 /* below is for the react-toggle component */

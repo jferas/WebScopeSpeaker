@@ -1,9 +1,14 @@
 echo 
 echo Converting jsx code to js
-./jsx2js
-echo 
-echo Packing js dependancies via webpack
-webpack
-echo 
-echo Running crystal web app
-crystal run --error-trace  src/WebScopeSpeaker.cr
+babel jsx/webscopespeaker.jsx >public/js/webscopespeaker.js
+if [ $? -eq 0 ]; then
+    echo JSX to JS conversion successful
+    echo 
+    echo Packing js dependancies via webpack
+    webpack
+    echo 
+    echo Running crystal web app
+    crystal run --error-trace  src/WebScopeSpeaker.cr
+else
+    echo Error converting JSX to JS
+fi
