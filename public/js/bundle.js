@@ -1561,6 +1561,9 @@ class WebScopeSpeaker extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Comp
     super(props);
 
     // bind 'this' to the methods that are triggered by UI actions
+    this.getUserData = this.getUserData.bind(this);
+    this.getUserDataWithEnter = this.getUserDataWithEnter.bind(this);
+    this.collectUserName = this.collectUserName.bind(this);
     this.doSettings = this.doSettings.bind(this);
     this.showHelp = this.showHelp.bind(this);
     this.nameLengthChange = this.nameLengthChange.bind(this);
