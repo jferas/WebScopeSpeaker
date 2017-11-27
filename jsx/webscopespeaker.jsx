@@ -31,7 +31,7 @@ var voicelist = [];
 // variables retained in localStorage
 
 var user_name = "";
-var current_language = "UK English Male";
+var current_voice = "UK English Male";
 var saying_left_messages = false;
 var saying_join_messages = false;
 var saying_emojis = false;
@@ -156,7 +156,7 @@ class WebScopeSpeaker extends React.Component {
       saying_display_names: saying_display_names,
       saying_translations: saying_translations,
       voicelist: voicelist,
-      selectedVoice: {selectedOption: current_language}
+      selectedVoice: {selectedOption: current_voice}
       };
   };
 
@@ -168,7 +168,7 @@ class WebScopeSpeaker extends React.Component {
   componentWillMount() {
 
     user_name = localStorage.getItem('user') || "";
-    current_language = localStorage.getItem('current_language') || "UK English Male";
+    current_voice = localStorage.getItem('current_voice') || "UK English Male";
 
     name_length = localStorage.getItem('name_length') || 10;
     delay_time = localStorage.getItem('delay_time') || 1;
@@ -187,7 +187,7 @@ class WebScopeSpeaker extends React.Component {
     saying_display_names = (localStorage.getItem('saying_display_names') == "true") ? true : false;
 
     this.setState({user_name: user_name});
-    this.setState({selectedVoice:{selectedOption: current_language}});
+    this.setState({selectedVoice:{selectedOption: current_voice}});
 
     this.setState({name_length: name_length});
     this.setState({delay_time: delay_time});
@@ -230,6 +230,7 @@ class WebScopeSpeaker extends React.Component {
       voicelist.push(entry);
     }
     this.setState({voicelist: voicelist});
+    this.setState({selectedVoice:{value: current_voice, label: current_voice}});
   }
 
   // method to collect the username from the input text object
@@ -601,7 +602,10 @@ class WebScopeSpeaker extends React.Component {
   // method invoked when the selected voice is changed
   handleVoiceChange(selectedOption) {
     this.setState({selectedVoice: selectedOption });
+    append_to_chat_log("selectedOption.value: " + selectedOption.value);
+    append_to_chat_log("selectedOption.label: " + selectedOption.label);
     current_voice = selectedOption.label;
+    localStorage.setItem('current_voice', current_voice);
     append_to_chat_log("The newly selected voice is: " + current_voice);
   }
     
@@ -901,13 +905,13 @@ var sayIt = function(who, announce_word, message_to_say, translation_info) {
     }
     if ( (name_length == 0) || (sayer.length == 0) ) {
         setMessage(speak_string, null);
-        responsiveVoice.speak(speak_string, current_language , {onstart: start_callback, onend: stop_callback});
+        responsiveVoice.speak(speak_string, current_voice , {onstart: start_callback, onend: stop_callback});
     }
     else {
         setMessage(who + " " + announce_word + ": " + speak_string, translation_info);
         var shortend_who = who.substring(0, Math.min(who.length, name_length));
         responsiveVoice.speak(shortend_who + " " + announce_word + ": " + speak_string,
-              current_language, {onstart: start_callback, onend: stop_callback});
+              current_voice, {onstart: start_callback, onend: stop_callback});
     }
 };
 
