@@ -9,9 +9,10 @@ import { slide as Menu } from 'react-burger-menu'
 
 import ToggleButton from 'react-toggle-button'
 
+import Select from 'react-select';
+
 // global used by speech (non-react) sections of code
 
-var current_language = "UK English Male";
 var messages = [];
 var speaking = false;
 var websocket = null;
@@ -25,10 +26,12 @@ var bot_words = [];
 var said_word = "said";
 var translated_word = "translated";
 var default_language = "en";
+var voicelist = [];
 
 // variables retained in localStorage
 
 var user_name = "";
+var current_language = "UK English Male";
 var saying_left_messages = false;
 var saying_join_messages = false;
 var saying_emojis = false;
@@ -127,7 +130,8 @@ class WebScopeSpeaker extends React.Component {
     this.detectLengthChange = this.detectLengthChange.bind(this);
     this.highWaterMarkChange = this.highWaterMarkChange.bind(this);
     this.lowWaterMarkChange = this.lowWaterMarkChange.bind(this);
-    this.changeVoice = this.changeVoice.bind(this);
+    this.handleVoiceChange= this.handleVoiceChange.bind(this);
+    this.getAvailableVoices = this.getAvailableVoices.bind(this);
     this.backToMessagePage = this.backToMessagePage.bind(this);
 
     // setup the initial states for rendering
@@ -151,6 +155,8 @@ class WebScopeSpeaker extends React.Component {
       saying_join_messages: saying_join_messages,
       saying_display_names: saying_display_names,
       saying_translations: saying_translations,
+      voicelist: voicelist,
+      selectedVoice: {selectedOption: current_language}
       };
   };
 
@@ -162,6 +168,7 @@ class WebScopeSpeaker extends React.Component {
   componentWillMount() {
 
     user_name = localStorage.getItem('user') || "";
+    current_language = localStorage.getItem('current_language') || "UK English Male";
 
     name_length = localStorage.getItem('name_length') || 10;
     delay_time = localStorage.getItem('delay_time') || 1;
@@ -180,6 +187,7 @@ class WebScopeSpeaker extends React.Component {
     saying_display_names = (localStorage.getItem('saying_display_names') == "true") ? true : false;
 
     this.setState({user_name: user_name});
+    this.setState({selectedVoice:{selectedOption: current_language}});
 
     this.setState({name_length: name_length});
     this.setState({delay_time: delay_time});
@@ -193,6 +201,9 @@ class WebScopeSpeaker extends React.Component {
     this.setState({saying_join_messages: saying_join_messages});
     this.setState({saying_display_names: saying_display_names});
     this.setState({saying_translations: saying_translations});
+
+    // get the list of available voices
+    this.getAvailableVoices();
 
     // create function callable from outside React to set message
     setMessage = (the_message, translation_info) => {
@@ -209,6 +220,16 @@ class WebScopeSpeaker extends React.Component {
         this.setState({translation_info: ""});
       }
     };
+  }
+
+  // method to fetch the available voices from responsive voice API and properly populate options list for select object
+  getAvailableVoices() {
+    var vl = responsiveVoice.getVoices();
+    for (var i=0; i<vl.length; i++) {
+      var entry = {value: vl[i].name, label: vl[i].name};
+      voicelist.push(entry);
+    }
+    this.setState({voicelist: voicelist});
   }
 
   // method to collect the username from the input text object
@@ -259,7 +280,6 @@ class WebScopeSpeaker extends React.Component {
   menu() {
     return(
       <Menu isOpen={ this.state.menu_open_state } styles={ menu_styles } right>
-        <button onClick={ this.changeVoice } className="col-6 abutton" href="/about">Change Voice</button>
         <button onClick={ this.doSettings } className="col-6 abutton" href="/contact">Settings</button>
         <button onClick={ this.showHelp } className="col-6 abutton" href="">Help</button>
       </Menu>
@@ -472,11 +492,24 @@ class WebScopeSpeaker extends React.Component {
     );
   }
 
+  // method to return a render-able select component for changing the speaking voice
+  voiceSelect() {
+    return (
+      <Select
+        name="voice-name"
+        value={this.state.selectedVoice}
+        onChange={this.handleVoiceChange}
+        options={this.state.voicelist}
+      />
+    );
+  }
+
   // method to return a render-able settings page if the state indicates it should be displayed
   settingsPage() {
     if (this.state.page_showing == "settings") {
       return(
           <div>
+          { this.voiceSelect() }
           { this.sliderComponent("name_len", "Length of name to be said", this.nameLengthChange, name_length, 0, 50) }
           { this.sliderComponent("delay_time", "Delay between spoken messages (secs)", this.delayTimeChange, delay_time, 0, 30) }
           { this.sliderComponent("language_detect", "Characters in message to trigger language detect", this.detectLengthChange, detect_length, 0, 50) }
@@ -500,11 +533,6 @@ class WebScopeSpeaker extends React.Component {
         { this.settingsPage() }
       </div>
     );
-  }
-
-  // method invoked by menu to change the spoken voice
-  changeVoice() {
-    this.setState({menu_open_state: false });
   }
 
   // method invoked by menu to change the state to display the settings page
@@ -570,6 +598,13 @@ class WebScopeSpeaker extends React.Component {
     localStorage.setItem('low_water_mark', low_water_mark);
   }
 
+  // method invoked when the selected voice is changed
+  handleVoiceChange(selectedOption) {
+    this.setState({selectedVoice: selectedOption });
+    current_voice = selectedOption.label;
+    append_to_chat_log("The newly selected voice is: " + current_voice);
+  }
+    
 }
 
 // log app startup, and do inital invocation of render method to initially display the user interface
@@ -769,10 +804,11 @@ var queue_priority_message_to_say = function(m) {
 // method to queue a message to be said
 //
 var queue_message_to_say = function(m) {
+    var the_message = m;
     if (dropping_messages) {
         return;
     }
-    messages.push(m);
+    messages.push(the_message);
     var queue_size = messages.length;
     if (queue_size == high_water_mark) {
         the_message = "Scope Speaker un-said queue has " + high_water_mark
@@ -921,7 +957,7 @@ var say_translated_text = function(who_said_it, what_was_said, translation_info)
 
         if (translation_info.indexOf("?L") >= 0) {
             var source_language = translation_info.split("-")[0].split("L")[1];
-            if (source_language == defaultLanguage) {
+            if (source_language == default_language) {
                 announce_word = said_word;
             }
         }
