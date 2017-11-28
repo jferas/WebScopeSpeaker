@@ -430,34 +430,6 @@ class WebScopeSpeaker extends React.Component {
             _this2.setState({ saying_emojis: saying_emojis });
             localStorage.setItem('saying_emojis', saying_emojis);
           } })
-      ),
-      React.createElement(
-        'span',
-        { className: 'toggle_left' },
-        React.createElement(
-          'div',
-          { className: 'toggle-label', htmlFor: 'translations_toggle' },
-          'Translate Msgs'
-        ),
-        React.createElement(ToggleButton, { id: 'translations_toggle', value: this.state.saying_translations, onToggle: function (value) {
-            saying_translations = !value;
-            _this2.setState({ saying_translations: saying_translations });
-            localStorage.setItem('saying_translations', saying_translations);
-          } })
-      ),
-      React.createElement(
-        'span',
-        { className: 'toggle_right' },
-        React.createElement(
-          'div',
-          { className: 'toggle-label', htmlFor: 'names_toggle' },
-          'Display Names'
-        ),
-        React.createElement(ToggleButton, { id: 'names_toggle', value: this.state.saying_display_names, onToggle: function (value) {
-            saying_display_names = !value;
-            _this2.setState({ saying_display_names: saying_display_names });
-            localStorage.setItem('saying_display_names', saying_display_names);
-          } })
       )
     );
   }
@@ -592,6 +564,8 @@ class WebScopeSpeaker extends React.Component {
 
   // method to return a render-able settings page if the state indicates it should be displayed
   settingsPage() {
+    var _this3 = this;
+
     if (this.state.page_showing == "settings") {
       return React.createElement(
         'div',
@@ -602,6 +576,40 @@ class WebScopeSpeaker extends React.Component {
         this.sliderComponent("language_detect", "Characters in message to trigger language detect", this.detectLengthChange, detect_length, 0, 50),
         this.sliderComponent("high_water", "Msg queue high water mark", this.highWaterMarkChange, high_water_mark, 0, 100),
         this.sliderComponent("low_water", "Msg queue low water mark", this.lowWaterMarkChange, low_water_mark, 0, 100),
+        React.createElement(
+          'div',
+          null,
+          React.createElement(
+            'span',
+            { className: 'toggle_left' },
+            React.createElement(
+              'div',
+              { className: 'toggle-label', htmlFor: 'translations_toggle' },
+              'Translate Msgs'
+            ),
+            React.createElement(ToggleButton, { id: 'translations_toggle', value: this.state.saying_translations, onToggle: function (value) {
+                saying_translations = !value;
+                append_to_chat_log("toggle translations");
+                _this3.setState({ saying_translations: saying_translations });
+                localStorage.setItem('saying_translations', saying_translations);
+              } })
+          ),
+          React.createElement(
+            'span',
+            { className: 'toggle_right' },
+            React.createElement(
+              'div',
+              { className: 'toggle-label', htmlFor: 'names_toggle' },
+              'Display Names'
+            ),
+            React.createElement(ToggleButton, { id: 'names_toggle', value: this.state.saying_display_names, onToggle: function (value) {
+                append_to_chat_log("toggle display names");
+                saying_display_names = !value;
+                _this3.setState({ saying_display_names: saying_display_names });
+                localStorage.setItem('saying_display_names', saying_display_names);
+              } })
+          )
+        ),
         React.createElement(
           'button',
           { className: 'col-2 abutton', onClick: this.backToMessagePage },
