@@ -301,7 +301,7 @@ class WebScopeSpeaker extends React.Component {
       React.createElement(
         'button',
         { onClick: this.doSettings, className: 'col-6 abutton', href: '/contact' },
-        'Settings'
+        'Settings and Voice'
       ),
       React.createElement(
         'button',

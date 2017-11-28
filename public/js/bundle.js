@@ -10903,7 +10903,7 @@ class WebScopeSpeaker extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Comp
       __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
         'button',
         { onClick: this.doSettings, className: 'col-6 abutton', href: '/contact' },
-        'Settings'
+        'Settings and Voice'
       ),
       __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
         'button',

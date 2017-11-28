@@ -304,7 +304,7 @@ class WebScopeSpeaker extends React.Component {
   menu() {
     return(
       <Menu isOpen={ this.state.menu_open_state } styles={ menu_styles } right>
-        <button onClick={ this.doSettings } className="col-6 abutton" href="/contact">Settings</button>
+        <button onClick={ this.doSettings } className="col-6 abutton" href="/contact">Settings and Voice</button>
         <button onClick={ this.showHelp } className="col-6 abutton" href="">Help</button>
       </Menu>
     );
