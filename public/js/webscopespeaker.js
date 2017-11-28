@@ -297,9 +297,14 @@ class WebScopeSpeaker extends React.Component {
         'div',
         { className: 'header' },
         React.createElement(
-          'h1',
+          'h2',
           null,
-          'Scope Speaker'
+          'ScopeSpeaker'
+        ),
+        React.createElement(
+          'h3',
+          null,
+          '(hear Periscope chat messages)'
         )
       )
     );

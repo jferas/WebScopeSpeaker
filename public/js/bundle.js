@@ -1743,9 +1743,14 @@ class WebScopeSpeaker extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Comp
         'div',
         { className: 'header' },
         __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-          'h1',
+          'h2',
           null,
-          'Scope Speaker'
+          'ScopeSpeaker'
+        ),
+        __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+          'h3',
+          null,
+          '(hear Periscope chat messages)'
         )
       )
     );

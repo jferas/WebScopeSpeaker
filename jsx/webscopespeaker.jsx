@@ -292,7 +292,8 @@ class WebScopeSpeaker extends React.Component {
     return(
       <div>
         <div className="header">
-          <h1>Scope Speaker</h1>
+          <h2>ScopeSpeaker</h2>
+          <h3>(hear Periscope chat messages)</h3>
         </div>
       </div>
     );
