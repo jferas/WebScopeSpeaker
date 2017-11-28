@@ -11,6 +11,9 @@ import ToggleButton from 'react-toggle-button'
 
 import Select from 'react-select';
 
+const SAY_MESSAGES  = "Say Chat of";
+const STOP_MESSAGES = "Stop Msgs";
+
 // global used by speech (non-react) sections of code
 
 var messages = [];
@@ -59,9 +62,10 @@ var help_msg1 = "Enter the username of a Periscope user currently live broadcast
 var help_msg2 = "While ScopeSpeaker is running, it is continuously listening to the chat messages of the Periscope stream, saying them aloud and translating them if necessary."
 var help_msg3 = "Disclaimer: ScopeSpeaker is a free app, and is provided 'as is'. No guarantee is made related to the consistency of the app performance with your goals and expectations.";
 
-// callback function to allow chat message processing to statefully set the message displayed via 'react'
+// callback functions to allow chat message processing to statefully set the UI objects displayed via 'react'
 
 var setMessage = null;
+var setButtonPrompt = null;
 
 // running chat log of messages
 
@@ -156,7 +160,8 @@ class WebScopeSpeaker extends React.Component {
       saying_display_names: saying_display_names,
       saying_translations: saying_translations,
       voicelist: voicelist,
-      selectedVoice: {selectedOption: current_voice}
+      selectedVoice: {selectedOption: current_voice},
+      button_prompt: SAY_MESSAGES
       };
   };
 
@@ -220,6 +225,11 @@ class WebScopeSpeaker extends React.Component {
         this.setState({translation_info: ""});
       }
     };
+
+    // create function to set button prompt string
+    setButtonPrompt = (the_prompt) => {
+      this.setState({button_prompt: the_prompt});
+    }
   }
 
   // method to fetch the available voices from responsive voice API and properly populate options list for select object
@@ -242,15 +252,27 @@ class WebScopeSpeaker extends React.Component {
   }
 
   // method to send AJAX request to server get user info, and open user associate chat web socket, invoked from 'Say' button
+  //  (if messages are in progress, the button is labelled with STOP_MESSAGES and pressing it shuts down the chat messages)
+  //
   getUserData() {
+    if (this.state.button_prompt == STOP_MESSAGES) {
+      this.setState({button_prompt: SAY_MESSAGES});
+      websocket.close();
+      messages = [];
+      append_to_chat_log("Chat messages stopped");
+      queue_message_to_say("Chat messages stopped");
+      return;
+    }
     append_to_chat_log("about to ask for user info");
     localStorage.setItem('user', user_name);
     this.setState({user_name: user_name });
     queue_message_to_say("Looking for a Periscope live stream by " + user_name);
+    this.setState({button_prompt: STOP_MESSAGES});
     axios.get(window.location.href + "chatinfo/" + user_name).then(
       function(response) {
         append_to_chat_log("response data is: " + response.data);
         if (response.data[0] == "error") {
+          setButtonPrompt(SAY_MESSAGES);
           queue_message_to_say("An error occurred, the problem is: " + response.data[1]);
           queue_message_to_say("Chat messages will not begin");
         }
@@ -264,15 +286,16 @@ class WebScopeSpeaker extends React.Component {
       }
     ).catch(
       function(err) {
+        setButtonPrompt(SAY_MESSAGES);
         append_to_chat_log("An error occured: " + err);
-        queue_message_to_say("An error occuored: " + err);
+        queue_message_to_say("An error occured: " + err);
       }
     )
   }
 
   // method to invoke the getUserData method when the 'enter' key is pressed
   getUserDataWithEnter(e) {
-    if (e.keyCode == 13) {
+    if ( (e.keyCode == 13) && (this.state.button_prompt == SAY_MESSAGES) ) {
      this.getUserData(); 
     }
   }
@@ -293,7 +316,7 @@ class WebScopeSpeaker extends React.Component {
       <div>
         <div className="header">
           <h2>ScopeSpeaker</h2>
-          <h3>(hear Periscope chat messages)</h3>
+          <div>(hear Periscope chat messages)</div>
         </div>
       </div>
     );
@@ -336,7 +359,6 @@ class WebScopeSpeaker extends React.Component {
           <div className="toggle-label" htmlFor="left_toggle">Left Msgs</div>
           <ToggleButton id="left_toggle" value={this.state.saying_left_messages} onToggle={ (value) => {
             saying_left_messages = !value;
-            append_to_chat_log("left change triggered, now: " + saying_left_messages);
             this.setState({ saying_left_messages: saying_left_messages });
             localStorage.setItem('saying_left_messages', saying_left_messages);
             } } />
@@ -345,7 +367,6 @@ class WebScopeSpeaker extends React.Component {
           <div className="toggle-label" htmlFor="join_toggle">Join Msgs</div>
           <ToggleButton id="join_toggle" value={this.state.saying_join_messages} onToggle={ (value) => {
             saying_join_messages = !value;
-            append_to_chat_log("join change triggered, now: " + saying_join_messages);
             this.setState({ saying_join_messages: saying_join_messages });
             localStorage.setItem('saying_join_messages', saying_join_messages);
             } } />
@@ -354,7 +375,6 @@ class WebScopeSpeaker extends React.Component {
           <div className="toggle-label" htmlFor="display_toggle">Text Display</div>
           <ToggleButton id="display_toggle" value={this.state.displaying_messages} onToggle={ (value) => {
             displaying_messages = !value;
-            append_to_chat_log("display change triggered, now: " + displaying_messages);
             this.setState({ displaying_messages: displaying_messages });
             localStorage.setItem('displaying_messages', displaying_messages);
             } } />
@@ -433,7 +453,7 @@ class WebScopeSpeaker extends React.Component {
   promptGroup() {
     return(
       <div className="row">
-        <button className="col-2 abutton" onClick={this.getUserData}>Say Chat of</button>
+        <button className="col-2 abutton" onClick={this.getUserData}>{this.state.button_prompt}</button>
         <input id="user_name_text" type="text" className="col-8 user_input" autoFocus="true" value={user_name}
              placeholder='Periscope user name...' onChange={this.collectUserName} onKeyUp={this.getUserDataWithEnter} />
       </div>
@@ -460,7 +480,6 @@ class WebScopeSpeaker extends React.Component {
 
   // method to return a render-able chat message or help messages, depending upon state
   messagePage() {
-    append_to_chat_log("in messagePage, page_showing state is: " + this.state.page_showing);
     if (this.state.page_showing == "message") {
       return(
         <div>
@@ -603,8 +622,6 @@ class WebScopeSpeaker extends React.Component {
   // method invoked when the selected voice is changed
   handleVoiceChange(selectedOption) {
     this.setState({selectedVoice: selectedOption });
-    append_to_chat_log("selectedOption.value: " + selectedOption.value);
-    append_to_chat_log("selectedOption.label: " + selectedOption.label);
     current_voice = selectedOption.label;
     localStorage.setItem('current_voice', current_voice);
     append_to_chat_log("The newly selected voice is: " + current_voice);
@@ -642,7 +659,8 @@ var onOpen = function(evt) {
 // method invoked when chat websocket is closed
 //
 var onClose = function(evt) {
-    append_to_chat_log("Web-socket disconnected");
+  setButtonPrompt(SAY_MESSAGES);
+  append_to_chat_log("Web-socket disconnected");
 };
 
 // method invoked when chat websocket receives a message, parse message and say it
@@ -670,7 +688,8 @@ var onMessage = function(evt) {
 // method invoked when chat websocket has an error
 //
 var onError = function(evt) {
-    append_to_chat_log("Error:" + evt.data);
+  setButtonPrompt(SAY_MESSAGES);
+  append_to_chat_log("Error:" + evt.data);
 };
 
 // method to send a message on the websocket to the Periscope chat server
@@ -834,12 +853,10 @@ var say_next = function() {
     var what_was_said = "";
 
     if (speaking) {
-        append_to_chat_log("exit say_next because speech in progress");
         return;
     }
 
     if (messages.length == 0) {
-        append_to_chat_log("exit say_next because no messages");
         return;
     }
 
@@ -851,7 +868,7 @@ var say_next = function() {
         // we're crossing back to the low water mark, allow saying new messages, announce we're doing so, and put msg back in queue
         dropping_messages = false;
         messages.unshift(speak_string);
-        speak_string = "Scope Speaker has recovered the un-said message queue down to " + lowWaterMark + ", new messages will resume being said";
+        speak_string = "Scope Speaker has recovered the un-said message queue down to " + low_water_mark + ", new messages will resume being said";
         append_to_chat_log(speak_string);
     }
     var message_processed = false;
@@ -941,8 +958,8 @@ var send_translation_request = function(who_said_it, text_to_be_translated, lang
         }
      ).catch(
         function(err) {
-            append_to_chat_log("An error occured: " + err);
-            queue_message_to_say("An error occured: " + err);
+            append_to_chat_log("An error occurred: " + err);
+            queue_message_to_say("An error occurred: " + err);
         }
      );
 };
