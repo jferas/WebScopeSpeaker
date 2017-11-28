@@ -741,7 +741,7 @@ var extractChatMessage = function(chat_msg) {
             var sender = payload.sender;
             var message_for_chatlog = "";
             if (payload_kind == 1) {
-                message_for_chatlog = sender.username + "joined";
+                message_for_chatlog = sender.username + " joined";
                 if (saying_join_messages) {
                     queue_message_to_say(message_for_chatlog);
                 }
@@ -751,7 +751,7 @@ var extractChatMessage = function(chat_msg) {
                 return null;
             }
             else if (payload_kind == 2) {
-                message_for_chatlog = sender.username + "left";
+                message_for_chatlog = sender.username + " left";
                 if (saying_left_messages) {
                     queue_message_to_say(message_for_chatlog);
                 }
