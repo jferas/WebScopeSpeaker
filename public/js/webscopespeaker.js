@@ -117,6 +117,10 @@ var append_to_chat_log = function (msg) {
 //
 class WebScopeSpeaker extends React.Component {
 
+  // *******************************************************************************
+  // ***   these methods of the class are invoked when the class is instantiated ***
+  // *******************************************************************************
+
   // initial react component constructor
 
   constructor(props) {
@@ -241,57 +245,9 @@ class WebScopeSpeaker extends React.Component {
     this.setState({ selectedVoice: { value: current_voice, label: current_voice } });
   }
 
-  // method to collect the username from the input text object
-  collectUserName() {
-    var text_object = document.getElementById("user_name_text");
-    user_name = text_object.value;
-    this.setState({ user_name: user_name });
-    console.log("in collectUsername, got a username of: " + user_name);
-  }
-
-  // method to send AJAX request to server get user info, and open user associate chat web socket, invoked from 'Say' button
-  //  (if messages are in progress, the button is labelled with STOP_MESSAGES and pressing it shuts down the chat messages)
-  //
-  getUserData() {
-    if (this.state.button_prompt == STOP_MESSAGES) {
-      this.setState({ button_prompt: SAY_MESSAGES });
-      websocket.close();
-      messages = [];
-      append_to_chat_log("Chat messages stopped");
-      queue_message_to_say("Chat messages stopped");
-      return;
-    }
-    append_to_chat_log("about to ask for user info");
-    localStorage.setItem('user', user_name);
-    this.setState({ user_name: user_name });
-    queue_message_to_say("Looking for a Periscope live stream by " + user_name);
-    this.setState({ button_prompt: STOP_MESSAGES });
-    axios.get(window.location.href + "chatinfo/" + user_name).then(function (response) {
-      append_to_chat_log("response data is: " + response.data);
-      if (response.data[0] == "error") {
-        setButtonPrompt(SAY_MESSAGES);
-        queue_message_to_say("An error occurred, the problem is: " + response.data[1]);
-        queue_message_to_say("Chat messages will not begin");
-      } else {
-        broadcast_id = response.data[1];
-        append_to_chat_log("Got a broadcast ID of: " + broadcast_id);
-        queue_message_to_say("Got a good response from the periscope server about " + localStorage.getItem('user'));
-        queue_message_to_say("Chat messages will now begin");
-        openChatWebsocket();
-      }
-    }).catch(function (err) {
-      setButtonPrompt(SAY_MESSAGES);
-      append_to_chat_log("An error occured: " + err);
-      queue_message_to_say("An error occured: " + err);
-    });
-  }
-
-  // method to invoke the getUserData method when the 'enter' key is pressed
-  getUserDataWithEnter(e) {
-    if (e.keyCode == 13 && this.state.button_prompt == SAY_MESSAGES) {
-      this.getUserData();
-    }
-  }
+  // ************************************************************************************
+  // ***   these methods of the class are the creators of the rendered user interface ***
+  // ************************************************************************************
 
   // method to return a render-able menu component
   menu() {
@@ -434,50 +390,18 @@ class WebScopeSpeaker extends React.Component {
     );
   }
 
-  // method invoked by toggle for left messages
-  sayingLeftMessagesChange(value) {
-    saying_left_messages = !value;
-    this.setState({ saying_left_messages: saying_left_messages });
-    localStorage.setItem('saying_left_messages', saying_left_messages);
-  }
-
-  // method invoked by toggle for join messages
-  sayingJoinMessagesChange(value) {
-    saying_join_messages = !value;
-    this.setState({ saying_join_messages: saying_join_messages });
-    localStorage.setItem('saying_join_messages', saying_join_messages);
-  }
-
-  // method invoked by toggle for displaying text messages
-  sayingDisplayingMessagesChange(value) {
-    displaying_messages = !value;
-    this.setState({ displaying_messages: displaying_messages });
-    localStorage.setItem('displaying_messages', displaying_messages);
-  }
-
-  // method invoked by toggle for saying emojis
-  sayingEmojisChange(value) {
-    saying_emojis = !value;
-    this.setState({ saying_emojis: saying_emojis });
-    localStorage.setItem('saying_emojis', saying_emojis);
-  }
-
-  // method invoked by toggle for saying translations
-  sayingTranslationsChange(value) {
-    saying_translations = !value;
-    this.setState({ saying_translations: saying_translations });
-    localStorage.setItem('saying_translations', saying_translations);
-  }
-
-  // method invoked by toggle for saying display names
-  sayingDisplayNamesChange(value) {
-    saying_display_name = !value;
-    this.setState({ saying_display_name: saying_display_name });
-    localStorage.setItem('saying_display_name', saying_display_name);
-  }
-
   // method to return a render-able group for prompting, containing the "Say" button and the text object to contain the periscope user name
   promptGroup() {
+    var skip_message_button = null;
+
+    //if (this.state.button_prompt == STOP_MESSAGES) {
+    if (this.state.user_name == "wildearth") {
+      skip_message_button = React.createElement(
+        'button',
+        { className: 'col-2 abutton', onClick: this.skipMessage },
+        'Skip Msg'
+      );
+    }
     return React.createElement(
       'div',
       { className: 'row' },
@@ -486,8 +410,9 @@ class WebScopeSpeaker extends React.Component {
         { className: 'col-2 abutton', onClick: this.getUserData },
         this.state.button_prompt
       ),
-      React.createElement('input', { id: 'user_name_text', type: 'text', className: 'col-8 user_input', autoFocus: 'true', value: user_name,
-        placeholder: 'Periscope user name...', onChange: this.collectUserName, onKeyUp: this.getUserDataWithEnter })
+      React.createElement('input', { id: 'user_name_text', type: 'text', className: 'col-7 user_input', autoFocus: 'true', value: user_name,
+        placeholder: 'Periscope user name...', onChange: this.collectUserName, onKeyUp: this.getUserDataWithEnter }),
+      skip_message_button
     );
   }
 
@@ -589,7 +514,6 @@ class WebScopeSpeaker extends React.Component {
             ),
             React.createElement(ToggleButton, { id: 'translations_toggle', value: this.state.saying_translations, onToggle: function (value) {
                 saying_translations = !value;
-                append_to_chat_log("toggle translations");
                 _this3.setState({ saying_translations: saying_translations });
                 localStorage.setItem('saying_translations', saying_translations);
               } })
@@ -603,7 +527,6 @@ class WebScopeSpeaker extends React.Component {
               'Display Names'
             ),
             React.createElement(ToggleButton, { id: 'names_toggle', value: this.state.saying_display_names, onToggle: function (value) {
-                append_to_chat_log("toggle display names");
                 saying_display_names = !value;
                 _this3.setState({ saying_display_names: saying_display_names });
                 localStorage.setItem('saying_display_names', saying_display_names);
@@ -632,6 +555,61 @@ class WebScopeSpeaker extends React.Component {
     );
   }
 
+  // ********************************************************************************************************************
+  // ***   methods below here in the class are invoked by interactions with displayed element of the user interface   ***
+  // ********************************************************************************************************************
+
+  // method to collect the username from the input text object
+  collectUserName() {
+    var text_object = document.getElementById("user_name_text");
+    user_name = text_object.value;
+    this.setState({ user_name: user_name });
+  }
+
+  // method to send AJAX request to server get user info, and open user associate chat web socket, invoked from 'Say' button
+  //  (if messages are in progress, the button is labelled with STOP_MESSAGES and pressing it shuts down the chat messages)
+  //
+  getUserData() {
+    if (this.state.button_prompt == STOP_MESSAGES) {
+      this.setState({ button_prompt: SAY_MESSAGES });
+      websocket.close();
+      messages = [];
+      append_to_chat_log("Chat messages stopped");
+      queue_message_to_say("Chat messages stopped");
+      return;
+    }
+    append_to_chat_log("about to ask for user info");
+    localStorage.setItem('user', user_name);
+    this.setState({ user_name: user_name });
+    queue_message_to_say("Looking for a Periscope live stream by " + user_name);
+    this.setState({ button_prompt: STOP_MESSAGES });
+    axios.get(window.location.href + "chatinfo/" + user_name).then(function (response) {
+      append_to_chat_log("response data is: " + response.data);
+      if (response.data[0] == "error") {
+        setButtonPrompt(SAY_MESSAGES);
+        queue_message_to_say("An error occurred, the problem is: " + response.data[1]);
+        queue_message_to_say("Chat messages will not begin");
+      } else {
+        broadcast_id = response.data[1];
+        append_to_chat_log("Got a broadcast ID of: " + broadcast_id);
+        queue_message_to_say("Got a good response from the periscope server about " + localStorage.getItem('user'));
+        queue_message_to_say("Chat messages will now begin");
+        openChatWebsocket();
+      }
+    }).catch(function (err) {
+      setButtonPrompt(SAY_MESSAGES);
+      append_to_chat_log("An error occured: " + err);
+      queue_message_to_say("An error occured: " + err);
+    });
+  }
+
+  // method to invoke the getUserData method when the 'enter' key is pressed
+  getUserDataWithEnter(e) {
+    if (e.keyCode == 13 && this.state.button_prompt == SAY_MESSAGES) {
+      this.getUserData();
+    }
+  }
+
   // method invoked by menu to change the state to display the settings page
   doSettings() {
     this.setState({ menu_open_state: false });
@@ -652,6 +630,48 @@ class WebScopeSpeaker extends React.Component {
     this.setState({ help_msg2: help_msg2 });
     this.setState({ help_msg3: help_msg3 });
     this.setState({ menu_open_state: false });
+  }
+
+  // method invoked by toggle for left messages
+  sayingLeftMessagesChange(value) {
+    saying_left_messages = !value;
+    this.setState({ saying_left_messages: saying_left_messages });
+    localStorage.setItem('saying_left_messages', saying_left_messages);
+  }
+
+  // method invoked by toggle for join messages
+  sayingJoinMessagesChange(value) {
+    saying_join_messages = !value;
+    this.setState({ saying_join_messages: saying_join_messages });
+    localStorage.setItem('saying_join_messages', saying_join_messages);
+  }
+
+  // method invoked by toggle for displaying text messages
+  sayingDisplayingMessagesChange(value) {
+    displaying_messages = !value;
+    this.setState({ displaying_messages: displaying_messages });
+    localStorage.setItem('displaying_messages', displaying_messages);
+  }
+
+  // method invoked by toggle for saying emojis
+  sayingEmojisChange(value) {
+    saying_emojis = !value;
+    this.setState({ saying_emojis: saying_emojis });
+    localStorage.setItem('saying_emojis', saying_emojis);
+  }
+
+  // method invoked by toggle for saying translations
+  sayingTranslationsChange(value) {
+    saying_translations = !value;
+    this.setState({ saying_translations: saying_translations });
+    localStorage.setItem('saying_translations', saying_translations);
+  }
+
+  // method invoked by toggle for saying display names
+  sayingDisplayNamesChange(value) {
+    saying_display_name = !value;
+    this.setState({ saying_display_name: saying_display_name });
+    localStorage.setItem('saying_display_name', saying_display_name);
   }
 
   // method invoked by slider to change the name length value
