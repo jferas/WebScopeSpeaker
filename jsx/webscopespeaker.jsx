@@ -91,12 +91,12 @@ let menu_styles = {
     background: '#bdc3c7'
   },
   bmMenu: {
-    background: '#373a47',
+    background: '#d7d8dd',
     padding: '2.5em 1.5em 0',
     fontSize: '1.15em'
   },
   bmMorphShape: {
-    fill: '#373a47'
+    fill: '#d7d8dd'
   },
   bmItemList: {
     color: '#b8b7ad',
@@ -141,6 +141,7 @@ class WebScopeSpeaker extends React.Component {
     this.handleVoiceChange= this.handleVoiceChange.bind(this);
     this.getAvailableVoices = this.getAvailableVoices.bind(this);
     this.backToMessagePage = this.backToMessagePage.bind(this);
+    this.skipMessage = this.skipMessage.bind(this);
 
     // setup the initial states for rendering
     this.state = { 
@@ -266,7 +267,7 @@ class WebScopeSpeaker extends React.Component {
     return(
       <div>
         <div className="header">
-          <h2>ScopeSpeaker</h2>
+          <h3>ScopeSpeaker</h3>
           <div>(hear Periscope chat messages)</div>
         </div>
       </div>
@@ -346,14 +347,13 @@ class WebScopeSpeaker extends React.Component {
   promptGroup() {
     var skip_message_button = null;
 
-    //if (this.state.button_prompt == STOP_MESSAGES) {
-    if (this.state.user_name == "wildearth") {
+    if (this.state.button_prompt == STOP_MESSAGES) {
       skip_message_button = <button className="col-2 abutton" onClick={this.skipMessage}>Skip Msg</button>;
     }
     return(
       <div className="row">
         <button className="col-2 abutton" onClick={this.getUserData}>{this.state.button_prompt}</button>
-        <input id="user_name_text" type="text" className="col-7 user_input" autoFocus="true" value={user_name}
+        <input id="user_name_text" type="text" className="col-6 user_input" autoFocus="true" value={user_name}
              placeholder='Periscope user name...' onChange={this.collectUserName} onKeyUp={this.getUserDataWithEnter} />
         {skip_message_button}
       </div>
@@ -646,6 +646,12 @@ class WebScopeSpeaker extends React.Component {
     append_to_chat_log("The newly selected voice is: " + current_voice);
   }
     
+  // method invoked when the 'skip message' button is pressed.. invoke stop_callback to act as though speech ended normally.
+  skipMessage() {
+    responsiveVoice.cancel();
+    setMessage("Message skipped", "");
+    stop_callback();
+  }
 }
 
 // log app startup, and do inital invocation of render method to initially display the user interface
@@ -878,8 +884,6 @@ var say_next = function() {
     if (messages.length == 0) {
         return;
     }
-
-    // TODO: add some logic here about current voice when we get access to alternate voices
 
     speaking = true;
     var speak_string = messages.shift();
