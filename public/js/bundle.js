@@ -1911,7 +1911,7 @@ class WebScopeSpeaker extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Comp
   sliderComponent(sliderID, description, changeFunc, curVal, minVal, maxVal) {
     return __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
       'div',
-      { className: 'row col-12' },
+      { className: 'row col-10' },
       description + ": ",
       __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
         'label',
@@ -1926,6 +1926,7 @@ class WebScopeSpeaker extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Comp
   // method to return a render-able select component for changing the speaking voice
   voiceSelect() {
     return __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_4_react_select__["a" /* default */], {
+      className: 'col-10',
       name: 'voice-name',
       value: this.state.selectedVoice,
       onChange: this.handleVoiceChange,
@@ -1941,48 +1942,53 @@ class WebScopeSpeaker extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Comp
       return __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
         'div',
         null,
-        this.voiceSelect(),
-        this.sliderComponent("name_len", "Length of name to be said", this.nameLengthChange, name_length, 0, 50),
-        this.sliderComponent("delay_time", "Delay between spoken messages (secs)", this.delayTimeChange, delay_time, 0, 30),
-        this.sliderComponent("language_detect", "Characters in message to trigger language detect", this.detectLengthChange, detect_length, 0, 50),
-        this.sliderComponent("high_water", "Msg queue high water mark", this.highWaterMarkChange, high_water_mark, 0, 100),
-        this.sliderComponent("low_water", "Msg queue low water mark", this.lowWaterMarkChange, low_water_mark, 0, 100),
         __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
           'div',
           null,
           __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-            'span',
-            { className: 'toggle_left' },
+            'div',
+            null,
             __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-              'div',
-              { className: 'toggle-label', htmlFor: 'translations_toggle' },
-              'Translate Msgs'
+              'button',
+              { className: 'col-1 abutton', onClick: this.backToMessagePage },
+              'Back'
             ),
-            __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_3_react_toggle_button___default.a, { id: 'translations_toggle', value: this.state.saying_translations, onToggle: function (value) {
-                saying_translations = !value;
-                _this3.setState({ saying_translations: saying_translations });
-                localStorage.setItem('saying_translations', saying_translations);
-              } })
+            __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+              'span',
+              { className: 'toggle_right' },
+              __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+                'div',
+                { className: 'toggle-label', htmlFor: 'translations_toggle' },
+                'Translate Msgs'
+              ),
+              __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_3_react_toggle_button___default.a, { id: 'translations_toggle', value: this.state.saying_translations, onToggle: function (value) {
+                  saying_translations = !value;
+                  _this3.setState({ saying_translations: saying_translations });
+                  localStorage.setItem('saying_translations', saying_translations);
+                } })
+            ),
+            __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+              'span',
+              { className: 'toggle_right' },
+              __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+                'div',
+                { className: 'toggle-label', htmlFor: 'names_toggle' },
+                'Display Names'
+              ),
+              __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_3_react_toggle_button___default.a, { id: 'names_toggle', value: this.state.saying_display_names, onToggle: function (value) {
+                  saying_display_names = !value;
+                  _this3.setState({ saying_display_names: saying_display_names });
+                  localStorage.setItem('saying_display_names', saying_display_names);
+                } })
+            )
           ),
-          __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-            'span',
-            { className: 'toggle_right' },
-            __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-              'div',
-              { className: 'toggle-label', htmlFor: 'names_toggle' },
-              'Display Names'
-            ),
-            __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_3_react_toggle_button___default.a, { id: 'names_toggle', value: this.state.saying_display_names, onToggle: function (value) {
-                saying_display_names = !value;
-                _this3.setState({ saying_display_names: saying_display_names });
-                localStorage.setItem('saying_display_names', saying_display_names);
-              } })
-          )
-        ),
-        __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-          'button',
-          { className: 'col-2 abutton', onClick: this.backToMessagePage },
-          'Back'
+          __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement('hr', null),
+          this.voiceSelect(),
+          this.sliderComponent("name_len", "Length of name to be said", this.nameLengthChange, name_length, 0, 50),
+          this.sliderComponent("delay_time", "Delay between spoken messages (secs)", this.delayTimeChange, delay_time, 0, 30),
+          this.sliderComponent("language_detect", "Characters in message to trigger language detect", this.detectLengthChange, detect_length, 0, 50),
+          this.sliderComponent("high_water", "Msg queue high water mark", this.highWaterMarkChange, high_water_mark, 0, 100),
+          this.sliderComponent("low_water", "Msg queue low water mark", this.lowWaterMarkChange, low_water_mark, 0, 100)
         )
       );
     } else {

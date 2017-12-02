@@ -404,7 +404,7 @@ class WebScopeSpeaker extends React.Component {
   // method to return a render-able slider component for the settings page
   sliderComponent(sliderID, description, changeFunc, curVal, minVal, maxVal) {
     return(
-      <div className="row col-12" >
+      <div className="row col-10" >
         {description + ": "}<label>{curVal}</label>
         <br></br>
         <input id={sliderID} className="col-10" type="range" onChange={changeFunc} value={curVal} min={minVal} max={maxVal} />
@@ -417,6 +417,7 @@ class WebScopeSpeaker extends React.Component {
   voiceSelect() {
     return (
       <Select
+        className="col-10"
         name="voice-name"
         value={this.state.selectedVoice}
         onChange={this.handleVoiceChange}
@@ -430,31 +431,34 @@ class WebScopeSpeaker extends React.Component {
     if (this.state.page_showing == "settings") {
       return(
         <div>
-          { this.voiceSelect() }
-          { this.sliderComponent("name_len", "Length of name to be said", this.nameLengthChange, name_length, 0, 50) }
-          { this.sliderComponent("delay_time", "Delay between spoken messages (secs)", this.delayTimeChange, delay_time, 0, 30) }
-          { this.sliderComponent("language_detect", "Characters in message to trigger language detect", this.detectLengthChange, detect_length, 0, 50) }
-          { this.sliderComponent("high_water", "Msg queue high water mark", this.highWaterMarkChange, high_water_mark, 0, 100) }
-          { this.sliderComponent("low_water", "Msg queue low water mark", this.lowWaterMarkChange, low_water_mark, 0, 100) }
           <div>
-          <span className="toggle_left">
-            <div className="toggle-label" htmlFor="translations_toggle">Translate Msgs</div>
-            <ToggleButton id="translations_toggle" value={this.state.saying_translations} onToggle={ (value) => {
-              saying_translations = !value;
-              this.setState({ saying_translations: saying_translations });
-              localStorage.setItem('saying_translations', saying_translations);
-              } } />
-          </span>
-          <span className="toggle_right">
-            <div className="toggle-label" htmlFor="names_toggle">Display Names</div>
-            <ToggleButton id="names_toggle" value={this.state.saying_display_names} onToggle={ (value) => {
-              saying_display_names = !value;
-              this.setState({ saying_display_names: saying_display_names });
-              localStorage.setItem('saying_display_names', saying_display_names);
-              } } />
-          </span>
+            <div>
+              <button className="col-1 abutton" onClick={this.backToMessagePage}>Back</button>
+              <span className="toggle_right">
+                <div className="toggle-label" htmlFor="translations_toggle">Translate Msgs</div>
+                <ToggleButton id="translations_toggle" value={this.state.saying_translations} onToggle={ (value) => {
+                  saying_translations = !value;
+                  this.setState({ saying_translations: saying_translations });
+                  localStorage.setItem('saying_translations', saying_translations);
+                  } } />
+              </span>
+              <span className="toggle_right">
+                <div className="toggle-label" htmlFor="names_toggle">Display Names</div>
+                <ToggleButton id="names_toggle" value={this.state.saying_display_names} onToggle={ (value) => {
+                  saying_display_names = !value;
+                  this.setState({ saying_display_names: saying_display_names });
+                  localStorage.setItem('saying_display_names', saying_display_names);
+                  } } />
+              </span>
+            </div>
+            <hr></hr>
+            { this.voiceSelect() }
+            { this.sliderComponent("name_len", "Length of name to be said", this.nameLengthChange, name_length, 0, 50) }
+            { this.sliderComponent("delay_time", "Delay between spoken messages (secs)", this.delayTimeChange, delay_time, 0, 30) }
+            { this.sliderComponent("language_detect", "Characters in message to trigger language detect", this.detectLengthChange, detect_length, 0, 50) }
+            { this.sliderComponent("high_water", "Msg queue high water mark", this.highWaterMarkChange, high_water_mark, 0, 100) }
+            { this.sliderComponent("low_water", "Msg queue low water mark", this.lowWaterMarkChange, low_water_mark, 0, 100) }
           </div>
-          <button className="col-2 abutton" onClick={this.backToMessagePage}>Back</button>
         </div>
       );
     }

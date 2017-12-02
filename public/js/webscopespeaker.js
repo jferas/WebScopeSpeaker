@@ -465,7 +465,7 @@ class WebScopeSpeaker extends React.Component {
   sliderComponent(sliderID, description, changeFunc, curVal, minVal, maxVal) {
     return React.createElement(
       'div',
-      { className: 'row col-12' },
+      { className: 'row col-10' },
       description + ": ",
       React.createElement(
         'label',
@@ -480,6 +480,7 @@ class WebScopeSpeaker extends React.Component {
   // method to return a render-able select component for changing the speaking voice
   voiceSelect() {
     return React.createElement(Select, {
+      className: 'col-10',
       name: 'voice-name',
       value: this.state.selectedVoice,
       onChange: this.handleVoiceChange,
@@ -495,48 +496,53 @@ class WebScopeSpeaker extends React.Component {
       return React.createElement(
         'div',
         null,
-        this.voiceSelect(),
-        this.sliderComponent("name_len", "Length of name to be said", this.nameLengthChange, name_length, 0, 50),
-        this.sliderComponent("delay_time", "Delay between spoken messages (secs)", this.delayTimeChange, delay_time, 0, 30),
-        this.sliderComponent("language_detect", "Characters in message to trigger language detect", this.detectLengthChange, detect_length, 0, 50),
-        this.sliderComponent("high_water", "Msg queue high water mark", this.highWaterMarkChange, high_water_mark, 0, 100),
-        this.sliderComponent("low_water", "Msg queue low water mark", this.lowWaterMarkChange, low_water_mark, 0, 100),
         React.createElement(
           'div',
           null,
           React.createElement(
-            'span',
-            { className: 'toggle_left' },
+            'div',
+            null,
             React.createElement(
-              'div',
-              { className: 'toggle-label', htmlFor: 'translations_toggle' },
-              'Translate Msgs'
+              'button',
+              { className: 'col-1 abutton', onClick: this.backToMessagePage },
+              'Back'
             ),
-            React.createElement(ToggleButton, { id: 'translations_toggle', value: this.state.saying_translations, onToggle: function (value) {
-                saying_translations = !value;
-                _this3.setState({ saying_translations: saying_translations });
-                localStorage.setItem('saying_translations', saying_translations);
-              } })
+            React.createElement(
+              'span',
+              { className: 'toggle_right' },
+              React.createElement(
+                'div',
+                { className: 'toggle-label', htmlFor: 'translations_toggle' },
+                'Translate Msgs'
+              ),
+              React.createElement(ToggleButton, { id: 'translations_toggle', value: this.state.saying_translations, onToggle: function (value) {
+                  saying_translations = !value;
+                  _this3.setState({ saying_translations: saying_translations });
+                  localStorage.setItem('saying_translations', saying_translations);
+                } })
+            ),
+            React.createElement(
+              'span',
+              { className: 'toggle_right' },
+              React.createElement(
+                'div',
+                { className: 'toggle-label', htmlFor: 'names_toggle' },
+                'Display Names'
+              ),
+              React.createElement(ToggleButton, { id: 'names_toggle', value: this.state.saying_display_names, onToggle: function (value) {
+                  saying_display_names = !value;
+                  _this3.setState({ saying_display_names: saying_display_names });
+                  localStorage.setItem('saying_display_names', saying_display_names);
+                } })
+            )
           ),
-          React.createElement(
-            'span',
-            { className: 'toggle_right' },
-            React.createElement(
-              'div',
-              { className: 'toggle-label', htmlFor: 'names_toggle' },
-              'Display Names'
-            ),
-            React.createElement(ToggleButton, { id: 'names_toggle', value: this.state.saying_display_names, onToggle: function (value) {
-                saying_display_names = !value;
-                _this3.setState({ saying_display_names: saying_display_names });
-                localStorage.setItem('saying_display_names', saying_display_names);
-              } })
-          )
-        ),
-        React.createElement(
-          'button',
-          { className: 'col-2 abutton', onClick: this.backToMessagePage },
-          'Back'
+          React.createElement('hr', null),
+          this.voiceSelect(),
+          this.sliderComponent("name_len", "Length of name to be said", this.nameLengthChange, name_length, 0, 50),
+          this.sliderComponent("delay_time", "Delay between spoken messages (secs)", this.delayTimeChange, delay_time, 0, 30),
+          this.sliderComponent("language_detect", "Characters in message to trigger language detect", this.detectLengthChange, detect_length, 0, 50),
+          this.sliderComponent("high_water", "Msg queue high water mark", this.highWaterMarkChange, high_water_mark, 0, 100),
+          this.sliderComponent("low_water", "Msg queue low water mark", this.lowWaterMarkChange, low_water_mark, 0, 100)
         )
       );
     } else {
