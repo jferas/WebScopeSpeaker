@@ -2492,11 +2492,12 @@ var send_translation_request = function (who_said_it, text_to_be_translated, lan
   var yandexUrl = "https://translate.yandex.net/api/v1.5/tr.json/translate?key=" + yandexKey + "&text=" + encodeURI(text_to_be_translated) + "&lang=" + translation_command;
   append_to_chat_log("Yandex URL: " + yandexUrl);
   axios.get(yandexUrl).then(function (response) {
-    var result_string = response.data.text;
+    var result_string = response.data.text[0];
 
     append_to_chat_log("got translation text: " + result_string);
     say_translated_text(who_said_it, result_string, language_pair);
   }).catch(function (err) {
+    speaking = false;
     append_to_chat_log("An error occurred: " + err);
     queue_message_to_say("An error occurred: " + err);
   });
