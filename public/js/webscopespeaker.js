@@ -1023,9 +1023,11 @@ var sayIt = function (who, announce_word, message_to_say, translation_info) {
   }
   if (name_length == 0 || sayer.length == 0) {
     setMessage(speak_string, null);
+    //speak_string = speak_string + "......";
     responsiveVoice.speak(speak_string, current_voice, { onstart: start_callback, onend: stop_callback });
   } else {
     setMessage(who + " " + announce_word + ": " + speak_string, translation_info);
+    speak_string = speak_string + "......";
     var shortend_who = who.substring(0, Math.min(who.length, name_length));
     responsiveVoice.speak(shortend_who + " " + announce_word + ": " + speak_string, current_voice, { onstart: start_callback, onend: stop_callback });
   }
