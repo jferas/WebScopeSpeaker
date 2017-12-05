@@ -1681,12 +1681,9 @@ class WebScopeSpeaker extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Comp
     // setup the initial states for rendering
     this.state = {
       message: "",
-      help_msg1: help_msg1,
-      help_msg2: help_msg2,
-      help_msg3: help_msg3,
       translation_info: "",
       menu_open_state: false,
-      page_showing: "message",
+      page_showing: "help",
       user_name: user_name,
       name_length: name_length,
       delay_time: delay_time,
@@ -1747,9 +1744,6 @@ class WebScopeSpeaker extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Comp
     // create function callable from outside React to set message
     setMessage = function (the_message, translation_info) {
       console.log("in setMessage:" + the_message);
-      _this.setState({ help_msg1: "" });
-      _this.setState({ help_msg2: "" });
-      _this.setState({ help_msg3: "" });
       if (displaying_messages) {
         _this.setState({ message: the_message });
         _this.setState({ translation_info: translation_info });
@@ -1885,64 +1879,85 @@ class WebScopeSpeaker extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Comp
     );
   }
 
-  // method to return a render-able group of help messages if state indicates they are required
-  helpMessages() {
-    if (this.state.help_msg1.length > 0) {
-      return __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+  // method to return a render-able help page or nothing, depending upon state
+  helpPage() {
+    if (this.state.page_showing != "help") {
+      return null;
+    }
+
+    return __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+      'div',
+      null,
+      __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+        __WEBPACK_IMPORTED_MODULE_2_react_burger_menu__["slide"],
+        { isOpen: this.state.menu_open_state, styles: menu_styles, right: true },
+        __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+          'button',
+          { onClick: this.doSettings, className: 'col-6 abutton', href: '/contact' },
+          'Settings and Voice'
+        ),
+        __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+          'button',
+          { onClick: this.showHelp, className: 'col-6 abutton', href: '' },
+          'Help'
+        )
+      ),
+      __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(Header, { title: 'ScopeSpeaker', subtitle: '(Hear Periscope Chat Messaes)' }),
+      this.promptGroup(),
+      this.toggleGroup(),
+      __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement('hr', null),
+      __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
         'div',
         { className: 'row col-12' },
-        this.state.help_msg1,
+        help_msg1,
         __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement('br', null),
         __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement('br', null),
-        this.state.help_msg2,
+        help_msg2,
         __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement('br', null),
         __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement('br', null),
-        this.state.help_msg3
-      );
-    } else {
-      return null;
-    }
+        help_msg3
+      )
+    );
   }
 
-  // method to return a render-able chat message or help messages, depending upon state
+  // method to return a render-able chat message or nothing, depending upon state
   messagePage() {
-    if (this.state.page_showing == "message") {
-      return __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-        'div',
-        null,
-        __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-          __WEBPACK_IMPORTED_MODULE_2_react_burger_menu__["slide"],
-          { isOpen: this.state.menu_open_state, styles: menu_styles, right: true },
-          __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-            'button',
-            { onClick: this.doSettings, className: 'col-6 abutton', href: '/contact' },
-            'Settings and Voice'
-          ),
-          __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-            'button',
-            { onClick: this.showHelp, className: 'col-6 abutton', href: '' },
-            'Help'
-          )
-        ),
-        __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(Header, { title: 'ScopeSpeaker', subtitle: '(Hear Periscope Chat Messaes)' }),
-        this.promptGroup(),
-        this.toggleGroup(),
-        __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement('hr', null),
-        this.helpMessages(),
-        __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-          'div',
-          { className: 'row' },
-          __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-            'div',
-            { className: 'col-12' },
-            this.state.message
-          )
-        ),
-        this.link_html()
-      );
-    } else {
+    if (this.state.page_showing != "message") {
       return null;
     }
+
+    return __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+      'div',
+      null,
+      __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+        __WEBPACK_IMPORTED_MODULE_2_react_burger_menu__["slide"],
+        { isOpen: this.state.menu_open_state, styles: menu_styles, right: true },
+        __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+          'button',
+          { onClick: this.doSettings, className: 'col-6 abutton', href: '/contact' },
+          'Settings and Voice'
+        ),
+        __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+          'button',
+          { onClick: this.showHelp, className: 'col-6 abutton', href: '' },
+          'Help'
+        )
+      ),
+      __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(Header, { title: 'ScopeSpeaker', subtitle: '(Hear Periscope Chat Messaes)' }),
+      this.promptGroup(),
+      this.toggleGroup(),
+      __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement('hr', null),
+      __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+        'div',
+        { className: 'row' },
+        __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+          'div',
+          { className: 'col-12' },
+          this.state.message
+        )
+      ),
+      this.link_html()
+    );
   }
 
   // method to return a render-able slider component for the settings page
@@ -1965,77 +1980,77 @@ class WebScopeSpeaker extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Comp
   settingsPage() {
     var _this3 = this;
 
-    if (this.state.page_showing == "settings") {
-      return __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+    if (this.state.page_showing != "settings") {
+      return null;
+    }
+
+    return __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+      'div',
+      null,
+      __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+        __WEBPACK_IMPORTED_MODULE_2_react_burger_menu__["slide"],
+        { isOpen: this.state.menu_open_state, styles: menu_styles, right: true },
+        __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+          'button',
+          { onClick: this.doSettings, className: 'col-6 abutton', href: '/contact' },
+          'Settings and Voice'
+        ),
+        __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+          'button',
+          { onClick: this.showHelp, className: 'col-6 abutton', href: '' },
+          'Help'
+        )
+      ),
+      __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(Header, { title: 'ScopeSpeaker', subtitle: '(Voices and Settings)' }),
+      __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
         'div',
         null,
-        __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-          __WEBPACK_IMPORTED_MODULE_2_react_burger_menu__["slide"],
-          { isOpen: this.state.menu_open_state, styles: menu_styles, right: true },
-          __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-            'button',
-            { onClick: this.doSettings, className: 'col-6 abutton', href: '/contact' },
-            'Settings and Voice'
-          ),
-          __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-            'button',
-            { onClick: this.showHelp, className: 'col-6 abutton', href: '' },
-            'Help'
-          )
-        ),
-        __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(Header, { title: 'ScopeSpeaker', subtitle: '(Voices and Settings)' }),
         __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
           'div',
           null,
           __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-            'div',
-            null,
-            __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-              'button',
-              { className: 'col-1 abutton', onClick: this.backToMessagePage },
-              'Back'
-            ),
-            __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-              'span',
-              { className: 'toggle_right' },
-              __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-                'div',
-                { className: 'toggle-label', htmlFor: 'translations_toggle' },
-                'Translate Msgs'
-              ),
-              __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_3_react_toggle_button___default.a, { id: 'translations_toggle', value: this.state.saying_translations, onToggle: function (value) {
-                  saying_translations = !value;
-                  _this3.setState({ saying_translations: saying_translations });
-                  localStorage.setItem('saying_translations', saying_translations);
-                } })
-            ),
-            __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-              'span',
-              { className: 'toggle_right' },
-              __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-                'div',
-                { className: 'toggle-label', htmlFor: 'names_toggle' },
-                'Display Names'
-              ),
-              __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_3_react_toggle_button___default.a, { id: 'names_toggle', value: this.state.saying_display_names, onToggle: function (value) {
-                  saying_display_names = !value;
-                  _this3.setState({ saying_display_names: saying_display_names });
-                  localStorage.setItem('saying_display_names', saying_display_names);
-                } })
-            )
+            'button',
+            { className: 'col-1 abutton', onClick: this.backToMessagePage },
+            'Back'
           ),
-          __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement('hr', null),
-          __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(VoiceSelectComponent, { current_voice: current_voice }),
-          this.sliderComponent("name_len", "Length of name to be said", this.nameLengthChange, name_length, 0, 50),
-          this.sliderComponent("delay_time", "Delay between spoken messages (secs)", this.delayTimeChange, delay_time, 0, 30),
-          this.sliderComponent("language_detect", "Characters in message to trigger language detect", this.detectLengthChange, detect_length, 0, 50),
-          this.sliderComponent("high_water", "Msg queue high water mark", this.highWaterMarkChange, high_water_mark, 0, 100),
-          this.sliderComponent("low_water", "Msg queue low water mark", this.lowWaterMarkChange, low_water_mark, 0, 100)
-        )
-      );
-    } else {
-      return null;
-    }
+          __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+            'span',
+            { className: 'toggle_right' },
+            __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+              'div',
+              { className: 'toggle-label', htmlFor: 'translations_toggle' },
+              'Translate Msgs'
+            ),
+            __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_3_react_toggle_button___default.a, { id: 'translations_toggle', value: this.state.saying_translations, onToggle: function (value) {
+                saying_translations = !value;
+                _this3.setState({ saying_translations: saying_translations });
+                localStorage.setItem('saying_translations', saying_translations);
+              } })
+          ),
+          __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+            'span',
+            { className: 'toggle_right' },
+            __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+              'div',
+              { className: 'toggle-label', htmlFor: 'names_toggle' },
+              'Display Names'
+            ),
+            __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_3_react_toggle_button___default.a, { id: 'names_toggle', value: this.state.saying_display_names, onToggle: function (value) {
+                saying_display_names = !value;
+                _this3.setState({ saying_display_names: saying_display_names });
+                localStorage.setItem('saying_display_names', saying_display_names);
+              } })
+          )
+        ),
+        __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement('hr', null),
+        __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(VoiceSelectComponent, { current_voice: current_voice }),
+        this.sliderComponent("name_len", "Length of name to be said", this.nameLengthChange, name_length, 0, 50),
+        this.sliderComponent("delay_time", "Delay between spoken messages (secs)", this.delayTimeChange, delay_time, 0, 30),
+        this.sliderComponent("language_detect", "Characters in message to trigger language detect", this.detectLengthChange, detect_length, 0, 50),
+        this.sliderComponent("high_water", "Msg queue high water mark", this.highWaterMarkChange, high_water_mark, 0, 100),
+        this.sliderComponent("low_water", "Msg queue low water mark", this.lowWaterMarkChange, low_water_mark, 0, 100)
+      )
+    );
   }
 
   // the render method for the app which renders the page top, a message page, or a settings page
@@ -2044,6 +2059,7 @@ class WebScopeSpeaker extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Comp
       'div',
       null,
       this.messagePage(),
+      this.helpPage(),
       this.settingsPage()
     );
   }
@@ -2117,11 +2133,7 @@ class WebScopeSpeaker extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Comp
 
   // method invoked by menu to change the state to show the message page with help messages showing
   showHelp() {
-    this.setState({ page_showing: "message" });
-    this.setState({ message: "" });
-    this.setState({ help_msg1: help_msg1 });
-    this.setState({ help_msg2: help_msg2 });
-    this.setState({ help_msg3: help_msg3 });
+    this.setState({ page_showing: "help" });
     this.setState({ menu_open_state: false });
   }
 
