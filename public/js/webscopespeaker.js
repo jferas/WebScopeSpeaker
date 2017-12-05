@@ -234,10 +234,10 @@ class WebScopeSpeaker extends React.Component {
 
     // setup the initial states for rendering
     this.state = {
-      message: "",
+      message: help_msg1,
       translation_info: "",
       menu_open_state: false,
-      page_showing: "help",
+      page_showing: "message",
       user_name: user_name,
       name_length: name_length,
       delay_time: delay_time,
@@ -456,9 +456,12 @@ class WebScopeSpeaker extends React.Component {
           'Help'
         )
       ),
-      React.createElement(Header, { title: 'ScopeSpeaker', subtitle: '(Hear Periscope Chat Messaes)' }),
-      this.promptGroup(),
-      this.toggleGroup(),
+      React.createElement(Header, { title: 'ScopeSpeaker', subtitle: '(Hear Periscope Chat Messages)' }),
+      React.createElement(
+        'button',
+        { className: 'col-1 abutton', onClick: this.backToMessagePage },
+        'Back'
+      ),
       React.createElement('hr', null),
       React.createElement(
         'div',
@@ -497,7 +500,7 @@ class WebScopeSpeaker extends React.Component {
           'Help'
         )
       ),
-      React.createElement(Header, { title: 'ScopeSpeaker', subtitle: '(Hear Periscope Chat Messaes)' }),
+      React.createElement(Header, { title: 'ScopeSpeaker', subtitle: '(Hear Periscope Chat Messages)' }),
       this.promptGroup(),
       this.toggleGroup(),
       React.createElement('hr', null),

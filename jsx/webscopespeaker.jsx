@@ -227,10 +227,10 @@ class WebScopeSpeaker extends React.Component {
 
     // setup the initial states for rendering
     this.state = { 
-      message: "",
+      message: help_msg1,
       translation_info: "",
       menu_open_state: false,
-      page_showing: "help",
+      page_showing: "message",
       user_name: user_name,
       name_length: name_length,
       delay_time: delay_time,
@@ -399,9 +399,8 @@ class WebScopeSpeaker extends React.Component {
           <button onClick={ this.doSettings } className="col-6 abutton" href="/contact">Settings and Voice</button>
           <button onClick={ this.showHelp } className="col-6 abutton" href="">Help</button>
         </Menu>
-        <Header title="ScopeSpeaker" subtitle="(Hear Periscope Chat Messaes)" />
-        { this.promptGroup() }
-        { this.toggleGroup() }
+        <Header title="ScopeSpeaker" subtitle="(Hear Periscope Chat Messages)" />
+        <button className="col-1 abutton" onClick={this.backToMessagePage}>Back</button>
         <hr></hr>
         <div className="row col-12">
           {help_msg1}
@@ -426,7 +425,7 @@ class WebScopeSpeaker extends React.Component {
           <button onClick={ this.doSettings } className="col-6 abutton" href="/contact">Settings and Voice</button>
           <button onClick={ this.showHelp } className="col-6 abutton" href="">Help</button>
         </Menu>
-        <Header title="ScopeSpeaker" subtitle="(Hear Periscope Chat Messaes)" />
+        <Header title="ScopeSpeaker" subtitle="(Hear Periscope Chat Messages)" />
         { this.promptGroup() }
         { this.toggleGroup() }
         <hr></hr>

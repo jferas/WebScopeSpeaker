@@ -1680,10 +1680,10 @@ class WebScopeSpeaker extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Comp
 
     // setup the initial states for rendering
     this.state = {
-      message: "",
+      message: help_msg1,
       translation_info: "",
       menu_open_state: false,
-      page_showing: "help",
+      page_showing: "message",
       user_name: user_name,
       name_length: name_length,
       delay_time: delay_time,
@@ -1902,9 +1902,12 @@ class WebScopeSpeaker extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Comp
           'Help'
         )
       ),
-      __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(Header, { title: 'ScopeSpeaker', subtitle: '(Hear Periscope Chat Messaes)' }),
-      this.promptGroup(),
-      this.toggleGroup(),
+      __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(Header, { title: 'ScopeSpeaker', subtitle: '(Hear Periscope Chat Messages)' }),
+      __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+        'button',
+        { className: 'col-1 abutton', onClick: this.backToMessagePage },
+        'Back'
+      ),
       __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement('hr', null),
       __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
         'div',
@@ -1943,7 +1946,7 @@ class WebScopeSpeaker extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Comp
           'Help'
         )
       ),
-      __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(Header, { title: 'ScopeSpeaker', subtitle: '(Hear Periscope Chat Messaes)' }),
+      __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(Header, { title: 'ScopeSpeaker', subtitle: '(Hear Periscope Chat Messages)' }),
       this.promptGroup(),
       this.toggleGroup(),
       __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement('hr', null),
