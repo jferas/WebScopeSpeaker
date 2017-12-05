@@ -114,6 +114,21 @@ var append_to_chat_log = function(msg) {
   chat_log = msg + "\n" + chat_log;
 };
 
+// React Class to render a page header
+//
+class Header extends React.Component {
+  render() {
+    return (
+      <div>
+        <div className="header">
+          <h3>{this.props.title}</h3>
+          <div>{this.props.subtitle}</div>
+        </div>
+      </div>
+    );
+  }
+}
+
 // React Class to manage the user interface
 //
 class WebScopeSpeaker extends React.Component {
@@ -262,28 +277,6 @@ class WebScopeSpeaker extends React.Component {
     );
   }
 
-  // method to return a render-able header
-  header() {
-    return(
-      <div>
-        <div className="header">
-          <h3>ScopeSpeaker</h3>
-          <div>(hear Periscope chat messages)</div>
-        </div>
-      </div>
-    );
-  }
-
-  // method to return a render-able page top containing a header and a side menu
-  topOfPage() {
-    return(
-      <div>
-        { this.menu() }
-        { this.header() }
-      </div>
-    );
-  }
-
   // method to return a link to the yandex translation service if the state indicates that the current message was translated
   link_html() {
     var translated = this.state.translation_info;
@@ -383,6 +376,8 @@ class WebScopeSpeaker extends React.Component {
     if (this.state.page_showing == "message") {
       return(
         <div>
+          { this.menu() }
+          <Header title="ScopeSpeaker" subtitle="(Hear Periscope Chat Messaes)" />
           { this.promptGroup() }
           { this.toggleGroup() }
           <hr></hr>
@@ -431,6 +426,8 @@ class WebScopeSpeaker extends React.Component {
     if (this.state.page_showing == "settings") {
       return(
         <div>
+          { this.menu() }
+          <Header title="ScopeSpeaker" subtitle="(Voices and Settings)" />
           <div>
             <div>
               <button className="col-1 abutton" onClick={this.backToMessagePage}>Back</button>
@@ -471,7 +468,6 @@ class WebScopeSpeaker extends React.Component {
   render() {
     return (
       <div>
-        { this.topOfPage() }
         { this.messagePage() }
         { this.settingsPage() }
       </div>

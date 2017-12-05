@@ -1559,6 +1559,31 @@ var append_to_chat_log = function (msg) {
   chat_log = msg + "\n" + chat_log;
 };
 
+// React Class to render a page header
+//
+class Header extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Component {
+  render() {
+    return __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+      'div',
+      null,
+      __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+        'div',
+        { className: 'header' },
+        __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+          'h3',
+          null,
+          this.props.title
+        ),
+        __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+          'div',
+          null,
+          this.props.subtitle
+        )
+      )
+    );
+  }
+}
+
 // React Class to manage the user interface
 //
 class WebScopeSpeaker extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Component {
@@ -1714,38 +1739,6 @@ class WebScopeSpeaker extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Comp
     );
   }
 
-  // method to return a render-able header
-  header() {
-    return __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-      'div',
-      null,
-      __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-        'div',
-        { className: 'header' },
-        __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-          'h3',
-          null,
-          'ScopeSpeaker'
-        ),
-        __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-          'div',
-          null,
-          '(hear Periscope chat messages)'
-        )
-      )
-    );
-  }
-
-  // method to return a render-able page top containing a header and a side menu
-  topOfPage() {
-    return __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-      'div',
-      null,
-      this.menu(),
-      this.header()
-    );
-  }
-
   // method to return a link to the yandex translation service if the state indicates that the current message was translated
   link_html() {
     var translated = this.state.translation_info;
@@ -1887,6 +1880,8 @@ class WebScopeSpeaker extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Comp
       return __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
         'div',
         null,
+        this.menu(),
+        __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(Header, { title: 'ScopeSpeaker', subtitle: '(Hear Periscope Chat Messaes)' }),
         this.promptGroup(),
         this.toggleGroup(),
         __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement('hr', null),
@@ -1942,6 +1937,8 @@ class WebScopeSpeaker extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Comp
       return __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
         'div',
         null,
+        this.menu(),
+        __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(Header, { title: 'ScopeSpeaker', subtitle: '(Voices and Settings)' }),
         __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
           'div',
           null,
@@ -2001,7 +1998,6 @@ class WebScopeSpeaker extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Comp
     return __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
       'div',
       null,
-      this.topOfPage(),
       this.messagePage(),
       this.settingsPage()
     );

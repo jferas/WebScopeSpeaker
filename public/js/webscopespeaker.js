@@ -113,6 +113,31 @@ var append_to_chat_log = function (msg) {
   chat_log = msg + "\n" + chat_log;
 };
 
+// React Class to render a page header
+//
+class Header extends React.Component {
+  render() {
+    return React.createElement(
+      'div',
+      null,
+      React.createElement(
+        'div',
+        { className: 'header' },
+        React.createElement(
+          'h3',
+          null,
+          this.props.title
+        ),
+        React.createElement(
+          'div',
+          null,
+          this.props.subtitle
+        )
+      )
+    );
+  }
+}
+
 // React Class to manage the user interface
 //
 class WebScopeSpeaker extends React.Component {
@@ -268,38 +293,6 @@ class WebScopeSpeaker extends React.Component {
     );
   }
 
-  // method to return a render-able header
-  header() {
-    return React.createElement(
-      'div',
-      null,
-      React.createElement(
-        'div',
-        { className: 'header' },
-        React.createElement(
-          'h3',
-          null,
-          'ScopeSpeaker'
-        ),
-        React.createElement(
-          'div',
-          null,
-          '(hear Periscope chat messages)'
-        )
-      )
-    );
-  }
-
-  // method to return a render-able page top containing a header and a side menu
-  topOfPage() {
-    return React.createElement(
-      'div',
-      null,
-      this.menu(),
-      this.header()
-    );
-  }
-
   // method to return a link to the yandex translation service if the state indicates that the current message was translated
   link_html() {
     var translated = this.state.translation_info;
@@ -441,6 +434,8 @@ class WebScopeSpeaker extends React.Component {
       return React.createElement(
         'div',
         null,
+        this.menu(),
+        React.createElement(Header, { title: 'ScopeSpeaker', subtitle: '(Hear Periscope Chat Messaes)' }),
         this.promptGroup(),
         this.toggleGroup(),
         React.createElement('hr', null),
@@ -496,6 +491,8 @@ class WebScopeSpeaker extends React.Component {
       return React.createElement(
         'div',
         null,
+        this.menu(),
+        React.createElement(Header, { title: 'ScopeSpeaker', subtitle: '(Voices and Settings)' }),
         React.createElement(
           'div',
           null,
@@ -555,7 +552,6 @@ class WebScopeSpeaker extends React.Component {
     return React.createElement(
       'div',
       null,
-      this.topOfPage(),
       this.messagePage(),
       this.settingsPage()
     );
