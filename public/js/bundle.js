@@ -1475,7 +1475,6 @@ var bot_words = [];
 var said_word = "said";
 var translated_word = "translated";
 var default_language = "en";
-var voicelist = [];
 
 // variables retained in localStorage
 
@@ -1584,21 +1583,29 @@ class Header extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Component {
   }
 }
 
-// React class to render a voice selection object
+// React class to render a voice selection component
 //
 class VoiceSelectComponent extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Component {
 
+  // instantiation of the component
   constructor(props) {
     super(props);
 
     // bind this to UI methods
     this.handleVoiceChange = this.handleVoiceChange.bind(this);
+    this.getAvailableVoices = this.getAvailableVoices.bind(this);
 
     // make a local copy in the select component of the list of voices and the selected voice
     this.state = {
-      voicelist: this.props.voicelist,
+      voicelist: [],
       selectedVoice: { value: this.props.current_voice, label: this.props.current_voice }
     };
+  }
+
+  // method to do initialization before the component gets rendered
+  componentWillMount() {
+    // get the list of available voices
+    this.setState({ voicelist: this.getAvailableVoices() });
   }
 
   // method to actually render the voice selection object
@@ -1620,9 +1627,20 @@ class VoiceSelectComponent extends __WEBPACK_IMPORTED_MODULE_0_react___default.a
     append_to_chat_log("The newly selected voice is: " + current_voice);
   }
 
+  // method to fetch the available voices from responsive voice API and properly populate options list for select object
+  getAvailableVoices() {
+    var vl = responsiveVoice.getVoices();
+    var voicelist = [];
+    for (var i = 0; i < vl.length; i++) {
+      var entry = { value: vl[i].name, label: vl[i].name };
+      voicelist.push(entry);
+    }
+    return voicelist;
+  }
+
 }
 
-// React Class to manage the user interface
+// React Class to manage the overall ScopeSpeaker user interface
 //
 class WebScopeSpeaker extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Component {
 
@@ -1646,7 +1664,6 @@ class WebScopeSpeaker extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Comp
     this.detectLengthChange = this.detectLengthChange.bind(this);
     this.highWaterMarkChange = this.highWaterMarkChange.bind(this);
     this.lowWaterMarkChange = this.lowWaterMarkChange.bind(this);
-    this.getAvailableVoices = this.getAvailableVoices.bind(this);
     this.backToMessagePage = this.backToMessagePage.bind(this);
     this.skipMessage = this.skipMessage.bind(this);
 
@@ -1716,9 +1733,6 @@ class WebScopeSpeaker extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Comp
     this.setState({ saying_display_names: saying_display_names });
     this.setState({ saying_translations: saying_translations });
 
-    // get the list of available voices
-    this.getAvailableVoices();
-
     // create function callable from outside React to set message
     setMessage = function (the_message, translation_info) {
       console.log("in setMessage:" + the_message);
@@ -1738,15 +1752,6 @@ class WebScopeSpeaker extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Comp
     setButtonPrompt = function (the_prompt) {
       _this.setState({ button_prompt: the_prompt });
     };
-  }
-
-  // method to fetch the available voices from responsive voice API and properly populate options list for select object
-  getAvailableVoices() {
-    var vl = responsiveVoice.getVoices();
-    for (var i = 0; i < vl.length; i++) {
-      var entry = { value: vl[i].name, label: vl[i].name };
-      voicelist.push(entry);
-    }
   }
 
   // ************************************************************************************
@@ -2001,7 +2006,7 @@ class WebScopeSpeaker extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Comp
             )
           ),
           __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement('hr', null),
-          __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(VoiceSelectComponent, { voicelist: voicelist, current_voice: current_voice }),
+          __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(VoiceSelectComponent, { current_voice: current_voice }),
           this.sliderComponent("name_len", "Length of name to be said", this.nameLengthChange, name_length, 0, 50),
           this.sliderComponent("delay_time", "Delay between spoken messages (secs)", this.delayTimeChange, delay_time, 0, 30),
           this.sliderComponent("language_detect", "Characters in message to trigger language detect", this.detectLengthChange, detect_length, 0, 50),
