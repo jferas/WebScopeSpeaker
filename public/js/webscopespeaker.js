@@ -138,6 +138,44 @@ class Header extends React.Component {
   }
 }
 
+// React class to render a voice selection object
+//
+class VoiceSelectComponent extends React.Component {
+
+  constructor(props) {
+    super(props);
+
+    // bind this to UI methods
+    this.handleVoiceChange = this.handleVoiceChange.bind(this);
+
+    // make a local copy in the select component of the list of voices and the selected voice
+    this.state = {
+      voicelist: this.props.voicelist,
+      selectedVoice: { value: this.props.current_voice, label: this.props.current_voice }
+    };
+  }
+
+  // method to actually render the voice selection object
+  render() {
+    return React.createElement(Select, {
+      className: 'col-10',
+      name: 'voice-name',
+      value: this.state.selectedVoice,
+      options: this.state.voicelist,
+      onChange: this.handleVoiceChange
+    });
+  }
+
+  // method invoked when the selected voice is changed
+  handleVoiceChange(selectedOption) {
+    this.setState({ selectedVoice: selectedOption });
+    current_voice = selectedOption.label;
+    localStorage.setItem('current_voice', current_voice);
+    append_to_chat_log("The newly selected voice is: " + current_voice);
+  }
+
+}
+
 // React Class to manage the user interface
 //
 class WebScopeSpeaker extends React.Component {
@@ -162,7 +200,6 @@ class WebScopeSpeaker extends React.Component {
     this.detectLengthChange = this.detectLengthChange.bind(this);
     this.highWaterMarkChange = this.highWaterMarkChange.bind(this);
     this.lowWaterMarkChange = this.lowWaterMarkChange.bind(this);
-    this.handleVoiceChange = this.handleVoiceChange.bind(this);
     this.getAvailableVoices = this.getAvailableVoices.bind(this);
     this.backToMessagePage = this.backToMessagePage.bind(this);
     this.skipMessage = this.skipMessage.bind(this);
@@ -188,8 +225,6 @@ class WebScopeSpeaker extends React.Component {
       saying_join_messages: saying_join_messages,
       saying_display_names: saying_display_names,
       saying_translations: saying_translations,
-      voicelist: voicelist,
-      selectedVoice: { selectedOption: current_voice },
       button_prompt: SAY_MESSAGES
     };
   }
@@ -221,7 +256,6 @@ class WebScopeSpeaker extends React.Component {
     saying_display_names = localStorage.getItem('saying_display_names') == "true" ? true : false;
 
     this.setState({ user_name: user_name });
-    this.setState({ selectedVoice: { selectedOption: current_voice } });
 
     this.setState({ name_length: name_length });
     this.setState({ delay_time: delay_time });
@@ -267,8 +301,6 @@ class WebScopeSpeaker extends React.Component {
       var entry = { value: vl[i].name, label: vl[i].name };
       voicelist.push(entry);
     }
-    this.setState({ voicelist: voicelist });
-    this.setState({ selectedVoice: { value: current_voice, label: current_voice } });
   }
 
   // ************************************************************************************
@@ -472,17 +504,6 @@ class WebScopeSpeaker extends React.Component {
     );
   }
 
-  // method to return a render-able select component for changing the speaking voice
-  voiceSelect() {
-    return React.createElement(Select, {
-      className: 'col-10',
-      name: 'voice-name',
-      value: this.state.selectedVoice,
-      onChange: this.handleVoiceChange,
-      options: this.state.voicelist
-    });
-  }
-
   // method to return a render-able settings page if the state indicates it should be displayed
   settingsPage() {
     var _this3 = this;
@@ -534,7 +555,7 @@ class WebScopeSpeaker extends React.Component {
             )
           ),
           React.createElement('hr', null),
-          this.voiceSelect(),
+          React.createElement(VoiceSelectComponent, { voicelist: voicelist, current_voice: current_voice }),
           this.sliderComponent("name_len", "Length of name to be said", this.nameLengthChange, name_length, 0, 50),
           this.sliderComponent("delay_time", "Delay between spoken messages (secs)", this.delayTimeChange, delay_time, 0, 30),
           this.sliderComponent("language_detect", "Characters in message to trigger language detect", this.detectLengthChange, detect_length, 0, 50),
@@ -714,14 +735,6 @@ class WebScopeSpeaker extends React.Component {
     low_water_mark = slider_object.value;
     this.setState({ low_water_mark: low_water_mark });
     localStorage.setItem('low_water_mark', low_water_mark);
-  }
-
-  // method invoked when the selected voice is changed
-  handleVoiceChange(selectedOption) {
-    this.setState({ selectedVoice: selectedOption });
-    current_voice = selectedOption.label;
-    localStorage.setItem('current_voice', current_voice);
-    append_to_chat_log("The newly selected voice is: " + current_voice);
   }
 
   // method invoked when the 'skip message' button is pressed.. invoke stop_callback to act as though speech ended normally.
