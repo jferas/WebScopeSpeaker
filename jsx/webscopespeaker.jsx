@@ -116,6 +116,17 @@ var append_to_chat_log = function(msg) {
 // React Class to render a page header
 //
 class Header extends React.Component {
+
+  // instantiation of the component
+  constructor(props) {
+    super(props);
+
+    // initial component state
+    this.state = {
+      menu_open_state: this.props.menu_open_state
+    }
+  }
+
   render() {
     return (
       <div>
@@ -306,16 +317,6 @@ class WebScopeSpeaker extends React.Component {
   // ***   these methods of the class are the creators of the rendered user interface ***
   // ************************************************************************************
 
-  // method to return a render-able menu component
-  menu() {
-    return(
-      <Menu isOpen={ this.state.menu_open_state } styles={ menu_styles } right>
-        <button onClick={ this.doSettings } className="col-6 abutton" href="/contact">Settings and Voice</button>
-        <button onClick={ this.showHelp } className="col-6 abutton" href="">Help</button>
-      </Menu>
-    );
-  }
-
   // method to return a link to the yandex translation service if the state indicates that the current message was translated
   link_html() {
     var translated = this.state.translation_info;
@@ -415,7 +416,10 @@ class WebScopeSpeaker extends React.Component {
     if (this.state.page_showing == "message") {
       return(
         <div>
-          { this.menu() }
+          <Menu isOpen={ this.state.menu_open_state } styles={ menu_styles } right>
+            <button onClick={ this.doSettings } className="col-6 abutton" href="/contact">Settings and Voice</button>
+            <button onClick={ this.showHelp } className="col-6 abutton" href="">Help</button>
+          </Menu>
           <Header title="ScopeSpeaker" subtitle="(Hear Periscope Chat Messaes)" />
           { this.promptGroup() }
           { this.toggleGroup() }
@@ -442,7 +446,6 @@ class WebScopeSpeaker extends React.Component {
         {description + ": "}<label>{curVal}</label>
         <br></br>
         <input id={sliderID} className="col-10" type="range" onChange={changeFunc} value={curVal} min={minVal} max={maxVal} />
-        
        </div>
     );
   }
@@ -452,7 +455,10 @@ class WebScopeSpeaker extends React.Component {
     if (this.state.page_showing == "settings") {
       return(
         <div>
-          { this.menu() }
+          <Menu isOpen={ this.state.menu_open_state } styles={ menu_styles } right>
+            <button onClick={ this.doSettings } className="col-6 abutton" href="/contact">Settings and Voice</button>
+            <button onClick={ this.showHelp } className="col-6 abutton" href="">Help</button>
+          </Menu>
           <Header title="ScopeSpeaker" subtitle="(Voices and Settings)" />
           <div>
             <div>

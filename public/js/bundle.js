@@ -1561,6 +1561,17 @@ var append_to_chat_log = function (msg) {
 // React Class to render a page header
 //
 class Header extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Component {
+
+  // instantiation of the component
+  constructor(props) {
+    super(props);
+
+    // initial component state
+    this.state = {
+      menu_open_state: this.props.menu_open_state
+    };
+  }
+
   render() {
     return __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
       'div',
@@ -1758,24 +1769,6 @@ class WebScopeSpeaker extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Comp
   // ***   these methods of the class are the creators of the rendered user interface ***
   // ************************************************************************************
 
-  // method to return a render-able menu component
-  menu() {
-    return __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-      __WEBPACK_IMPORTED_MODULE_2_react_burger_menu__["slide"],
-      { isOpen: this.state.menu_open_state, styles: menu_styles, right: true },
-      __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-        'button',
-        { onClick: this.doSettings, className: 'col-6 abutton', href: '/contact' },
-        'Settings and Voice'
-      ),
-      __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
-        'button',
-        { onClick: this.showHelp, className: 'col-6 abutton', href: '' },
-        'Help'
-      )
-    );
-  }
-
   // method to return a link to the yandex translation service if the state indicates that the current message was translated
   link_html() {
     var translated = this.state.translation_info;
@@ -1917,7 +1910,20 @@ class WebScopeSpeaker extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Comp
       return __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
         'div',
         null,
-        this.menu(),
+        __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+          __WEBPACK_IMPORTED_MODULE_2_react_burger_menu__["slide"],
+          { isOpen: this.state.menu_open_state, styles: menu_styles, right: true },
+          __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+            'button',
+            { onClick: this.doSettings, className: 'col-6 abutton', href: '/contact' },
+            'Settings and Voice'
+          ),
+          __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+            'button',
+            { onClick: this.showHelp, className: 'col-6 abutton', href: '' },
+            'Help'
+          )
+        ),
         __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(Header, { title: 'ScopeSpeaker', subtitle: '(Hear Periscope Chat Messaes)' }),
         this.promptGroup(),
         this.toggleGroup(),
@@ -1963,7 +1969,20 @@ class WebScopeSpeaker extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Comp
       return __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
         'div',
         null,
-        this.menu(),
+        __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+          __WEBPACK_IMPORTED_MODULE_2_react_burger_menu__["slide"],
+          { isOpen: this.state.menu_open_state, styles: menu_styles, right: true },
+          __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+            'button',
+            { onClick: this.doSettings, className: 'col-6 abutton', href: '/contact' },
+            'Settings and Voice'
+          ),
+          __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+            'button',
+            { onClick: this.showHelp, className: 'col-6 abutton', href: '' },
+            'Help'
+          )
+        ),
         __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(Header, { title: 'ScopeSpeaker', subtitle: '(Voices and Settings)' }),
         __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
           'div',

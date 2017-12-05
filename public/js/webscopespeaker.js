@@ -115,6 +115,17 @@ var append_to_chat_log = function (msg) {
 // React Class to render a page header
 //
 class Header extends React.Component {
+
+  // instantiation of the component
+  constructor(props) {
+    super(props);
+
+    // initial component state
+    this.state = {
+      menu_open_state: this.props.menu_open_state
+    };
+  }
+
   render() {
     return React.createElement(
       'div',
@@ -312,24 +323,6 @@ class WebScopeSpeaker extends React.Component {
   // ***   these methods of the class are the creators of the rendered user interface ***
   // ************************************************************************************
 
-  // method to return a render-able menu component
-  menu() {
-    return React.createElement(
-      Menu,
-      { isOpen: this.state.menu_open_state, styles: menu_styles, right: true },
-      React.createElement(
-        'button',
-        { onClick: this.doSettings, className: 'col-6 abutton', href: '/contact' },
-        'Settings and Voice'
-      ),
-      React.createElement(
-        'button',
-        { onClick: this.showHelp, className: 'col-6 abutton', href: '' },
-        'Help'
-      )
-    );
-  }
-
   // method to return a link to the yandex translation service if the state indicates that the current message was translated
   link_html() {
     var translated = this.state.translation_info;
@@ -471,7 +464,20 @@ class WebScopeSpeaker extends React.Component {
       return React.createElement(
         'div',
         null,
-        this.menu(),
+        React.createElement(
+          Menu,
+          { isOpen: this.state.menu_open_state, styles: menu_styles, right: true },
+          React.createElement(
+            'button',
+            { onClick: this.doSettings, className: 'col-6 abutton', href: '/contact' },
+            'Settings and Voice'
+          ),
+          React.createElement(
+            'button',
+            { onClick: this.showHelp, className: 'col-6 abutton', href: '' },
+            'Help'
+          )
+        ),
         React.createElement(Header, { title: 'ScopeSpeaker', subtitle: '(Hear Periscope Chat Messaes)' }),
         this.promptGroup(),
         this.toggleGroup(),
@@ -517,7 +523,20 @@ class WebScopeSpeaker extends React.Component {
       return React.createElement(
         'div',
         null,
-        this.menu(),
+        React.createElement(
+          Menu,
+          { isOpen: this.state.menu_open_state, styles: menu_styles, right: true },
+          React.createElement(
+            'button',
+            { onClick: this.doSettings, className: 'col-6 abutton', href: '/contact' },
+            'Settings and Voice'
+          ),
+          React.createElement(
+            'button',
+            { onClick: this.showHelp, className: 'col-6 abutton', href: '' },
+            'Help'
+          )
+        ),
         React.createElement(Header, { title: 'ScopeSpeaker', subtitle: '(Voices and Settings)' }),
         React.createElement(
           'div',
