@@ -463,9 +463,9 @@ class WebScopeSpeaker extends React.Component {
           <button onClick={ this.doSettings } className="col-6 abutton" href="/contact">Settings and Voice</button>
           <button onClick={ this.showHelp } className="col-6 abutton" href="">Help</button>
         </Menu>
-        <Header title="ScopeSpeaker" subtitle="(Voices and Settings)" />
+        <Header title="ScopeSpeaker" subtitle="(Settings and Voice)" />
         <div>
-          <div>
+          <div className="row sctogglerow">
             <button className="col-1 abutton" onClick={this.backToMessagePage}>Back</button>
             <span className="toggle_right">
               <div className="toggle-label" htmlFor="translations_toggle">Translate Msgs</div>
