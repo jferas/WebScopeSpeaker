@@ -1624,6 +1624,7 @@ class VoiceSelectComponent extends __WEBPACK_IMPORTED_MODULE_0_react___default.a
     return __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_4_react_select__["a" /* default */], {
       className: 'col-10',
       name: 'voice-name',
+      searchable: false,
       value: this.state.selectedVoice,
       options: this.state.voicelist,
       onChange: this.handleVoiceChange

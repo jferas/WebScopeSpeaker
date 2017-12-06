@@ -170,6 +170,7 @@ class VoiceSelectComponent extends React.Component {
       <Select
         className="col-10"
         name="voice-name"
+        searchable={false}
         value={this.state.selectedVoice}
         options={this.state.voicelist}
         onChange={this.handleVoiceChange}
