@@ -559,13 +559,13 @@ class WebScopeSpeaker extends React.Component {
           'Help'
         )
       ),
-      React.createElement(Header, { title: 'ScopeSpeaker', subtitle: '(Voices and Settings)' }),
+      React.createElement(Header, { title: 'ScopeSpeaker', subtitle: '(Settings and Voice)' }),
       React.createElement(
         'div',
         null,
         React.createElement(
           'div',
-          null,
+          { className: 'row sctogglerow' },
           React.createElement(
             'button',
             { className: 'col-1 abutton', onClick: this.backToMessagePage },
@@ -573,7 +573,7 @@ class WebScopeSpeaker extends React.Component {
           ),
           React.createElement(
             'span',
-            { className: 'toggle_right' },
+            { className: 'toggle_left' },
             React.createElement(
               'div',
               { className: 'toggle-label', htmlFor: 'translations_toggle' },
@@ -601,6 +601,8 @@ class WebScopeSpeaker extends React.Component {
           )
         ),
         React.createElement('hr', null),
+        React.createElement('br', null),
+        'Current Voice:',
         React.createElement(VoiceSelectComponent, { current_voice: current_voice }),
         this.sliderComponent("name_len", "Length of name to be said", this.nameLengthChange, name_length, 0, 50),
         this.sliderComponent("delay_time", "Delay between spoken messages (secs)", this.delayTimeChange, delay_time, 0, 30),

@@ -467,7 +467,7 @@ class WebScopeSpeaker extends React.Component {
         <div>
           <div className="row sctogglerow">
             <button className="col-1 abutton" onClick={this.backToMessagePage}>Back</button>
-            <span className="toggle_right">
+            <span className="toggle_left">
               <div className="toggle-label" htmlFor="translations_toggle">Translate Msgs</div>
               <ToggleButton id="translations_toggle" value={this.state.saying_translations} onToggle={ (value) => {
                 saying_translations = !value;
@@ -485,6 +485,8 @@ class WebScopeSpeaker extends React.Component {
             </span>
           </div>
           <hr></hr>
+          <br></br>
+          Current Voice:
           <VoiceSelectComponent current_voice={current_voice} />
           { this.sliderComponent("name_len", "Length of name to be said", this.nameLengthChange, name_length, 0, 50) }
           { this.sliderComponent("delay_time", "Delay between spoken messages (secs)", this.delayTimeChange, delay_time, 0, 30) }

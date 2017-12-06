@@ -2005,13 +2005,13 @@ class WebScopeSpeaker extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Comp
           'Help'
         )
       ),
-      __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(Header, { title: 'ScopeSpeaker', subtitle: '(Voices and Settings)' }),
+      __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(Header, { title: 'ScopeSpeaker', subtitle: '(Settings and Voice)' }),
       __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
         'div',
         null,
         __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
           'div',
-          null,
+          { className: 'row sctogglerow' },
           __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
             'button',
             { className: 'col-1 abutton', onClick: this.backToMessagePage },
@@ -2019,7 +2019,7 @@ class WebScopeSpeaker extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Comp
           ),
           __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
             'span',
-            { className: 'toggle_right' },
+            { className: 'toggle_left' },
             __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
               'div',
               { className: 'toggle-label', htmlFor: 'translations_toggle' },
@@ -2047,6 +2047,8 @@ class WebScopeSpeaker extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Comp
           )
         ),
         __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement('hr', null),
+        __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement('br', null),
+        'Current Voice:',
         __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(VoiceSelectComponent, { current_voice: current_voice }),
         this.sliderComponent("name_len", "Length of name to be said", this.nameLengthChange, name_length, 0, 50),
         this.sliderComponent("delay_time", "Delay between spoken messages (secs)", this.delayTimeChange, delay_time, 0, 30),
