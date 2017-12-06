@@ -45,7 +45,7 @@ body {
 [class*="col-"] {
     padding: 10px;
     margin: 15px;
-	  font-size: 20px;
+	font-size: 20px;
     width: 90%;
 }
 
@@ -71,6 +71,14 @@ body {
 
 .abutton {
   border-radius: 5%;
+}
+
+.back_button {
+  position: fixed;
+  width: 36px;
+  height: 30px;
+  left: 20px;
+  top: 36px;
 }
 
 /* class below is to allow tag to only appear on mobile */

@@ -127,9 +127,24 @@ class Header extends React.Component {
   }
 
   render() {
+    var back_button = null;
+    var button_face = "<<";
+
+    if (this.props.backToMessagePage) {
+      back_button = React.createElement(
+        'button',
+        { className: 'back_button', onClick: this.props.backToMessagePage },
+        React.createElement(
+          'h3',
+          null,
+          button_face
+        )
+      );
+    }
     return React.createElement(
       'div',
       null,
+      back_button,
       React.createElement(
         'div',
         { className: 'header' },
@@ -457,12 +472,7 @@ class WebScopeSpeaker extends React.Component {
           'Help'
         )
       ),
-      React.createElement(Header, { title: 'ScopeSpeaker', subtitle: '(Hear Periscope Chat Messages)' }),
-      React.createElement(
-        'button',
-        { className: 'col-1 abutton', onClick: this.backToMessagePage },
-        'Back'
-      ),
+      React.createElement(Header, { title: 'ScopeSpeaker', subtitle: '(Hear Periscope Chat Messages)', backToMessagePage: this.backToMessagePage }),
       React.createElement('hr', null),
       React.createElement(
         'div',
@@ -559,18 +569,13 @@ class WebScopeSpeaker extends React.Component {
           'Help'
         )
       ),
-      React.createElement(Header, { title: 'ScopeSpeaker', subtitle: '(Settings and Voice)' }),
+      React.createElement(Header, { title: 'ScopeSpeaker', subtitle: '(Settings and Voice)', backToMessagePage: this.backToMessagePage }),
       React.createElement(
         'div',
         null,
         React.createElement(
           'div',
           { className: 'row sctogglerow' },
-          React.createElement(
-            'button',
-            { className: 'col-1 abutton', onClick: this.backToMessagePage },
-            'Back'
-          ),
           React.createElement(
             'span',
             { className: 'toggle_left' },

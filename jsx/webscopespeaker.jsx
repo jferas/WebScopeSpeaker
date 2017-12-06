@@ -128,8 +128,15 @@ class Header extends React.Component {
   }
 
   render() {
+    var back_button = null;
+    var button_face = "<<";
+
+    if (this.props.backToMessagePage) {
+        back_button = <button className="back_button" onClick={this.props.backToMessagePage}><h3>{button_face}</h3></button>;
+    }
     return (
       <div>
+        {back_button}
         <div className="header">
           <h3>{this.props.title}</h3>
           <div>{this.props.subtitle}</div>
@@ -400,8 +407,7 @@ class WebScopeSpeaker extends React.Component {
           <button onClick={ this.doSettings } className="col-6 abutton" href="/contact">Settings and Voice</button>
           <button onClick={ this.showHelp } className="col-6 abutton" href="">Help</button>
         </Menu>
-        <Header title="ScopeSpeaker" subtitle="(Hear Periscope Chat Messages)" />
-        <button className="col-1 abutton" onClick={this.backToMessagePage}>Back</button>
+        <Header title="ScopeSpeaker" subtitle="(Hear Periscope Chat Messages)" backToMessagePage={this.backToMessagePage} />
         <hr></hr>
         <div className="row col-12">
           {help_msg1}
@@ -463,10 +469,9 @@ class WebScopeSpeaker extends React.Component {
           <button onClick={ this.doSettings } className="col-6 abutton" href="/contact">Settings and Voice</button>
           <button onClick={ this.showHelp } className="col-6 abutton" href="">Help</button>
         </Menu>
-        <Header title="ScopeSpeaker" subtitle="(Settings and Voice)" />
+        <Header title="ScopeSpeaker" subtitle="(Settings and Voice)" backToMessagePage={this.backToMessagePage} />
         <div>
           <div className="row sctogglerow">
-            <button className="col-1 abutton" onClick={this.backToMessagePage}>Back</button>
             <span className="toggle_left">
               <div className="toggle-label" htmlFor="translations_toggle">Translate Msgs</div>
               <ToggleButton id="translations_toggle" value={this.state.saying_translations} onToggle={ (value) => {
