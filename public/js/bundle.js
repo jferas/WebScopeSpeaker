@@ -1502,9 +1502,7 @@ var low_water_mark = 5;
 
 // help message strings
 
-var help_msg1 = "Enter the username of a Periscope user currently live broadcasting and tap the 'Say..' button to start ScopeSpeaker listening for the broadcast chat messages.";
-var help_msg2 = "While ScopeSpeaker is running, it is continuously listening to the chat messages of the Periscope stream, saying them aloud and translating them if necessary.";
-var help_msg3 = "Disclaimer: ScopeSpeaker is a free app, and is provided 'as is'. No guarantee is made related to the consistency of the app performance with your goals and expectations.";
+var help_msgs = ["Enter the username of a Periscope user currently live broadcasting and tap the 'Say..' button to start ScopeSpeaker listening for the broadcast chat messages.", "While ScopeSpeaker is running, it is continuously listening to the chat messages of the Periscope stream, saying them aloud and translating them if necessary.", "Disclaimer: ScopeSpeaker is a free app, and is provided 'as is'. No guarantee is made related to the consistency of the app performance with your goals and expectations.", "Slide the switches to enable or disable the announcements of users joining or leaving the chats.", "The 'Text Display' switch will disable chat message text display (to avoid distractions).", "The 'Saying Emojis' switch will disable the pronouncement of emojis in messages.", "", "Settings:", "", "The 'Current Voice' selector allows ScopeSpeaker to use a variety of voices and accents.", "The 'Translations' switch will enable or disable the translation of chat messages.", "The 'DisplayNames' switch will enable the saying viewers' more human sounding DisplayName instead of their unique UserName.", "'Name Length' controls the length (in characters) of the chat message sender's name when spoken (0 means the sender name will not be said).", "'Delay' refers to the delay after any message so the broadcaster can say something uninterrupted.", "'Detect Length' is the number of characters that will trigger auto detection of language for translations.  Any message shorter than that will assume the sender's language as indicated by Periscope.", "'Queue Full' and 'Queue Open' values control when messages will stop being said (when the queue is deeper than 'Queue Full') and when they will resume being said (when the queue gets as small as 'Queue Open'"];
 
 // callback functions to allow chat message processing to statefully set the UI objects displayed via 'react'
 
@@ -1687,7 +1685,7 @@ class WebScopeSpeaker extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Comp
 
     // setup the initial states for rendering
     this.state = {
-      message: help_msg1,
+      message: help_msgs[0],
       translation_info: "",
       menu_open_state: false,
       page_showing: "message",
@@ -1914,13 +1912,15 @@ class WebScopeSpeaker extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Comp
       __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
         'div',
         { className: 'row col-12' },
-        help_msg1,
-        __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement('br', null),
-        __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement('br', null),
-        help_msg2,
-        __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement('br', null),
-        __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement('br', null),
-        help_msg3
+        help_msgs.map(function (msg) {
+          return __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+            'span',
+            null,
+            msg,
+            __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement('br', null),
+            __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement('br', null)
+          );
+        })
       )
     );
   }
