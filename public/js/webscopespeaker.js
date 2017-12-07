@@ -128,18 +128,9 @@ class Header extends React.Component {
 
   render() {
     var back_button = null;
-    var button_face = "<<";
 
     if (this.props.backToMessagePage) {
-      back_button = React.createElement(
-        'button',
-        { className: 'back_button', onClick: this.props.backToMessagePage },
-        React.createElement(
-          'h3',
-          null,
-          button_face
-        )
-      );
+      back_button = React.createElement('img', { className: 'back_button', src: '/images/left_arrow.png', onClick: this.props.backToMessagePage });
     }
     return React.createElement(
       'div',

@@ -129,10 +129,9 @@ class Header extends React.Component {
 
   render() {
     var back_button = null;
-    var button_face = "<<";
 
     if (this.props.backToMessagePage) {
-        back_button = <button className="back_button" onClick={this.props.backToMessagePage}><h3>{button_face}</h3></button>;
+        back_button = <img className="back_button" src="/images/left_arrow.png" onClick={this.props.backToMessagePage}/>;
     }
     return (
       <div>
