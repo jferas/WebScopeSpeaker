@@ -2073,7 +2073,7 @@ class WebScopeSpeaker extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Comp
   // method to collect the username from the input text object
   collectUserName() {
     var text_object = document.getElementById("user_name_text");
-    user_name = text_object.value;
+    user_name = text_object.value.trim().replace('@', '');
     this.setState({ user_name: user_name });
   }
 
